@@ -1,4 +1,4 @@
-<p align="center"><a href="#" target="_blank"><img src="https://github.com/Homeeat/Pocoapoco/blob/main/src/Image/Pocoapoco_white.jpg" alt="Pocoapoco" width="500"></a></p>
+<p align="center"><a href="#" target="_blank"><img src="https://github.com/Homeeat/Pocoapoco/blob/main/src/Image/Pocoapoco_black.jpg" alt="Pocoapoco" width="500"></a></p>
 <br>
 <p align="center">
 <a href="#"><img src="https://img.shields.io/badge/php-%3E%3D7.0-blue" alt="PHP Version"></a>
@@ -588,8 +588,7 @@ class framework_test extends OracleModel # 依據使用的類型繼承
    - timestamptz
    - xml
 
-<br>
-<  setting 設定檔定義別名  >
+< setting 設定檔定義別名 >
 ```ini
 [server_name]
 type      = server
