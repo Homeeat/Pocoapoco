@@ -98,7 +98,7 @@ pocoapoco
 
 < routes 起手式 >
 ```php
-use Ntch\Framework\WebRestful\Routing\Router;
+use Ntch\Pocoapoco\WebRestful\Routing\Router;
 
 $router = new Router();
 ```
@@ -170,9 +170,9 @@ $router->mvc('/uri/:parameter',
 
 < controllers 起手式 >
 ```php
-use Ntch\Framework\WebRestful\Controllers\Controller;
+use Ntch\Pocoapoco\WebRestful\Controllers\Controller;
 # 如要導向 view 請把 Router 導入
-use Ntch\Framework\WebRestful\Routing\Router;
+use Ntch\Pocoapoco\WebRestful\Routing\Router;
 
 class xxx extends Controller
 {
@@ -262,13 +262,13 @@ class xxx extends Controller
 資料夾：settings<br>
 檔案：xxx.ini<br>
 
-  - library 檔名：libraries
-  - mail 檔名：mail
-  - aws 檔名：aws
-  - error 檔名：error
-  - log 檔名：log
-  - project 檔名：project
-  - model 檔名：oracle、mysql、mssql、postgre
+  - library.ini：libraries 命名與載入層級設定，實際引入由 router 載入
+  - mail.ini：郵件參數設定
+  - aws.ini：aws iam 參數設定
+  - error.ini：開發與正式上線參數設定
+  - log.ini：log 參數設定
+  - project.ini：專案共用參數設定
+  - model 檔名：oracle.ini、mysql.ini、mssql.ini、postgre.ini
 
 < settings 起手式 >
 ```ini
@@ -456,6 +456,7 @@ $router->mvc('/uri',
 
 < controller 使用 >
 ```php
+use Ntch\Pocoapoco\WebRestful\Controllers\Controller;
 use la\lb\lc\class;
 
 class test extends Controller
@@ -482,19 +483,19 @@ class test extends Controller
 # 依據需求引入相對應的 model
 
 # Oracle
-use Ntch\Framework\WebRestful\Models\OracleModel;
+use Ntch\Pocoapoco\WebRestful\Models\OracleModel;
 
 # Mysql
-use Ntch\Framework\WebRestful\Models\MysqlModel;
+use Ntch\Pocoapoco\WebRestful\Models\MysqlModel;
 
 # Mssql
-use Ntch\Framework\WebRestful\Models\MssqlModel;
+use Ntch\Pocoapoco\WebRestful\Models\MssqlModel;
 
 # Postgre
-use Ntch\Framework\WebRestful\Models\PostgreModel;
+use Ntch\Pocoapoco\WebRestful\Models\PostgreModel;
 
 
-class framework_test extends OracleModel # 依據使用的類型繼承
+class model_demo extends OracleModel # 依據使用的類型繼承
 {
 
     # modelType = server or table
@@ -621,6 +622,8 @@ $router->mvc('/uri',
 
 < controller 使用 >
 ```php
+use Ntch\Pocoapoco\WebRestful\Controllers\Controller;
+
 class test extends Controller
 {
     public function index()
@@ -807,9 +810,9 @@ $aws->s3_upload('bucket', '/aws_path', 'aws_file.txt', '/local_path', 'local_fil
 
 $aws->s3_read('bucket', '/aws_path', 'aws_file.txt', ['key' => 'xxxxxxxxxxxx', 'md5' => 'oooooooooooo'])
 
-$aws_roy->s3_download('bucket', '/aws_path', 'aws_file.txt', '/local_path', 'local_file.txt', ['key' => 'xxxxxxxxxxxx', 'md5' => 'oooooooooooo'])
+$aws->s3_download('bucket', '/aws_path', 'aws_file.txt', '/local_path', 'local_file.txt', ['key' => 'xxxxxxxxxxxx', 'md5' => 'oooooooooooo'])
 
-$aws_roy->s3_copy('source_bucket', '/source_path', 'source_file.txt', 'target_bucket', '/target_path', 'target_file.txt')
+$aws->s3_copy('source_bucket', '/source_path', 'source_file.txt', 'target_bucket', '/target_path', 'target_file.txt')
 
 ```
  - 方法
