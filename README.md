@@ -33,7 +33,7 @@ server {
         root   /{path}/pocoapoco/web/{web_basic}/public/;
         index  index.html index.htm index.php;
         location /NTCH/ {
-            alias /{where you do composer}/pocoapoco/src/;
+            alias /{path}/pocoapoco/src/;
             location ~ \.php$ {
                 fastcgi_pass 127.0.0.1:30001;
                 fastcgi_index index.php;
@@ -816,23 +816,29 @@ $aws->s3_copy('source_bucket', '/source_path', 'source_file.txt', 'target_bucket
 
 ```
  - 方法
-   - s3_upload($bucket, $awsPath, $awsFile, $localPath, $localFile, $security)
+   - s3_exist($bucket, $awsPath, $awsFile, $sseKey)
+   - s3_list($bucket)
+   - s3_upload($bucket, $awsPath, $awsFile, $localPath, $localFile, $security, $download)
    - s3_read($bucket, $awsPath, $awsFile, $sseKey)
    - s3_download($bucket, $awsPath, $awsFile, $localPath, $localFile, sseKey)
    - s3_copy($sourceBucket, $sourcePath, $sourceFile, $targetBucket, $targetPath, $targetFile)
+   - s3_delete($bucket, $awsPath, $awsFile, $sseKey)
+   - s3_get($bucket, $awsPath, $awsFile, $effectTime, $sseKey)
  
-| 參數           | 型態    | 說明  |
-| :----         | :----   | :---- |
-| bucket        | string  | aws s3 桶子名稱 | 
-| awsPath       | string  | aws s3 桶子路徑 |
-| awsFile       | string  | aws s3 桶子文件名稱 |
-| localPath     | string  | 地端路徑 |
-| localFile     | string  | 地端檔案名稱 |
-| security      | int     | 1：public 2：private 3：sse encryption |
-| sseKey        | array   | \[ 'key' => '值', 'md5' => '值' \] |
-| sourceBucket  | string  | aws s3 來源桶子名稱 |
-| sourcePath    | string  | aws s3 來源桶子路徑 |
-| sourceFile    | string  | aws s3 來源桶子文件名稱 |
-| targetBucket  | string  | aws s3 目標桶子名稱 |
-| targetPath    | string  | aws s3 目標桶子路徑 |
-| targetFile    | string  | aws s3 目標桶子文件名稱 |
+| 參數           | 型態           | 預設      | 說明  |
+| :----         | :----         | :----     | :---- |
+| bucket        | string        |           | aws s3 桶子名稱 | 
+| awsPath       | string        |           | aws s3 桶子路徑 |
+| awsFile       | string        |           | aws s3 桶子文件名稱 |
+| localPath     | string        |           | 地端路徑 |
+| localFile     | string        |           | 地端檔案名稱 |
+| security      | int           |           | 1：public 2：private 3：sse encryption |
+| sseKey        | array         | []        | \[ 'key' => '值', 'md5' => '值' \] |
+| download      | int           | 0         | 0：show on web 1：download file |
+| sourceBucket  | string        |           | aws s3 來源桶子名稱 |
+| sourcePath    | string        |           | aws s3 來源桶子路徑 |
+| sourceFile    | string        |           | aws s3 來源桶子文件名稱 |
+| targetBucket  | string        |           | aws s3 目標桶子名稱 |
+| targetPath    | string        |           | aws s3 目標桶子路徑 |
+| targetFile    | string        |           | aws s3 目標桶子文件名稱 |
+| effectTime    | int           |           | 網址有效時間（分鐘）-1：永久公開 |
