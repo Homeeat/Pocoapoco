@@ -60,7 +60,7 @@ class Base extends ModelBase implements BaseInterface
     public function checkDriverConfig(string $serverName, array $driver)
     {
         $driverConfigList = ['ip', 'port', 'database', 'user', 'password'];
-        self::$databaseList['postgre']['server'][$serverName]['schema'] = (!isset($driverConfig['schema']) || is_null($driverConfig['schema'])) ? 'public' : $driverConfig['schema'];
+        self::$databaseList['postgre']['server'][$serverName]['schema'] = (!isset($driver['schema']) || is_null($driver['schema'])) ? 'public' : $driver['schema'];
 
         foreach ($driverConfigList as $key) {
             isset($driver[$key]) ? null : die("【ERROR】Model $serverName tag \"$key\" is not exist.");

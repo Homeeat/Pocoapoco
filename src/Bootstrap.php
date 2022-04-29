@@ -3,7 +3,7 @@
 use Ntch\Pocoapoco\Error\Base as ErrorBase;
 use Ntch\Pocoapoco\Log\Base as LogBase;
 use Ntch\Pocoapoco\WebRestful\Routing\Base as RoutingBase;
-print "<pre>";
+
 // Psr-4
 require __DIR__ . '/../vendor/autoload.php';
 
