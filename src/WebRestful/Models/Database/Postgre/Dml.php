@@ -45,9 +45,9 @@ class Dml extends PostgreBase implements DmlInterface
             $sql_key .= "$key, ";
             if (@$schema[$key]['DATA_TYPE'] === 'DATE') {
                 $data_size = $schema[$key]['DATA_SIZE'];
-                $sql_value .= "TO_DATE(:$key, '$data_size'), ";
+                $sql_value .= "TO_DATE(:$key:, '$data_size'), ";
             } else {
-                $sql_value .= ":$key, ";
+                $sql_value .= ":$key:, ";
             }
         }
         $sql_key = substr(trim($sql_key), 0, -1);
@@ -118,13 +118,13 @@ class Dml extends PostgreBase implements DmlInterface
         foreach ($data as $key => $value) {
             $sql_set .= "$key = ";
             if (is_null($value)) {
-                $sql_set .= ":$key, ";
+                $sql_set .= ":$key:, ";
             } else {
                 if ($schema[$key]['DATA_TYPE'] === 'DATE') {
                     $data_size = $schema[$key]['DATA_SIZE'];
-                    $sql_set .= "TO_DATE(:$key, '$data_size'), ";
+                    $sql_set .= "TO_DATE(:$key:, '$data_size'), ";
                 } else {
-                    $sql_set .= ":$key, ";
+                    $sql_set .= ":$key:, ";
                 }
             }
         }

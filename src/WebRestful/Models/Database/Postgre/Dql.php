@@ -74,9 +74,9 @@ class Dql extends PostgreBase implements DqlInterface
             } else {
                 if ($schema[$key]['DATA_TYPE'] === 'DATE') {
                     $data_size = $schema[$key]['DATA_SIZE'];
-                    $sql_where .= "TO_DATE(:$key, '$data_size'), ";
+                    $sql_where .= "TO_DATE(:$key:, '$data_size'), ";
                 } else {
-                    $sql_where .= ":$key AND ";
+                    $sql_where .= ":$key: AND ";
                 }
             }
         }

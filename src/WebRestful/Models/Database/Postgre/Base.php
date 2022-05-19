@@ -75,7 +75,8 @@ class Base extends ModelBase implements BaseInterface
         foreach (self::$databaseObject['postgre']->server as $serverName => $serverInfo) {
             if (self::$databaseList['postgre']['server'][$serverName]['connect']['status'] === 'success') {
 
-                $allTabColumns = $this->allTabColumns($serverName, self::$databaseList['postgre']['server'][$serverName]['schema']);
+                $schema = self::$databaseList['postgre']['server'][$serverName]['schema'];
+                $allTabColumns = $this->allTabColumns($serverName, $schema);
                 if ($allTabColumns['status'] === 'SUCCESS') {
                     for ($i = 0; $i < $allTabColumns['result']['total']; $i++) {
                         $tableName = $allTabColumns['result']['data'][$i]['table_name'];
@@ -147,6 +148,8 @@ class Base extends ModelBase implements BaseInterface
         empty($sqlData) ? $sqlData = null : null;
         $isLegal = true;
         if (!is_null($sqlData)) {
+            $schema = self::$databaseList['postgre']['server'][$serverName]['schema'];
+            $tableName = "$schema.$tableName";
             foreach ($sqlData as $key => $value) {
                 if ($isLegal) {
                     $covert = @pg_convert($conn, $tableName, [$key => $value]);
@@ -154,7 +157,7 @@ class Base extends ModelBase implements BaseInterface
                 if (!$covert) {
                     $isLegal = false;
                 }
-                $sqlCommand = str_replace(":$key", "'$value'", $sqlCommand);
+                $sqlCommand = str_replace(":$key:", "'$value'", $sqlCommand);
 
             }
         }
