@@ -3,10 +3,10 @@
 /**
  * Pocoapoco - PHP framework.
  *
- * @author    	Roy Lee <royhylee@mail.npac-ntch.org>
+ * @author        Roy Lee <royhylee@mail.npac-ntch.org>
  *
- * @see			https://github.com/Homeeat/Pocoapoco  - GitHub project
- * @license  	https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
+ * @see           https://github.com/Homeeat/Pocoapoco  - GitHub project
+ * @license       https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
  */
 
 namespace Ntch\Pocoapoco\WebRestful\Models;
@@ -50,6 +50,11 @@ class PostgreModel
     public array $data = [];
 
     /**
+     * @var array
+     */
+    public array $data_bind = [];
+
+    /**
      * @var string|null
      */
     public $keyName = null;
@@ -72,22 +77,22 @@ class PostgreModel
             case 'query':
                 switch ($count) {
                     case 0:
-                        $result = PostgreBase::query($this->modelType, $this->modelName, $this->tableName, $this->sql, $this->data, $this->keyName, $this->offset, $this->limit);
+                        $result = PostgreBase::query($this->modelType, $this->modelName, $this->tableName, $this->sql, $this->data, $this->data_bind, $this->keyName, $this->offset, $this->limit);
                         break;
                     case 1:
-                        $result = PostgreBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $sqlBind = null, $this->keyName, $this->offset, $limit = -1);
+                        $result = PostgreBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $sqlBind = null, $this->data_bind, $this->keyName, $this->offset, $limit = -1);
                         break;
                     case 2:
-                        $result = PostgreBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $this->keyName, $this->offset, $limit = -1);
+                        $result = PostgreBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $this->data_bind, $this->keyName, $this->offset, $limit = -1);
                         break;
                     case 3:
-                        $result = PostgreBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $args[2], $this->offset, $limit = -1);
+                        $result = PostgreBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $this->data_bind, $args[2], $this->offset, $limit = -1);
                         break;
                     case 4:
-                        $result = PostgreBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $args[2], $args[3], $limit = -1);
+                        $result = PostgreBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $this->data_bind, $args[2], $args[3], $limit = -1);
                         break;
                     case 5:
-                        $result = PostgreBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $args[2], $args[3], $args[4]);
+                        $result = PostgreBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $this->data_bind, $args[2], $args[3], $args[4]);
                         break;
                     default:
                         die("【ERROR】Wrong parameters for \"$fun\".");
@@ -109,6 +114,7 @@ class PostgreModel
         $this->action = '';
         $this->sql = '';
         $this->data = [];
+        $this->data_bind = [];
         $this->keyName = null;
         $this->offset = 0;
         $this->limit = -1;
@@ -154,6 +160,7 @@ class PostgreModel
     }
 
     // DDL
+
     /**
      * Create Table.
      *
@@ -175,6 +182,7 @@ class PostgreModel
     }
 
     // Dml
+
     /**
      * Insert data or Merge insert.
      *
@@ -197,9 +205,10 @@ class PostgreModel
      */
     public function value(array $data = []): object
     {
-        $res = Dml::value($this->modelType, $this->modelName, $this->tableName, $data);
+        $res = Dml::value($this->modelType, $this->modelName, $this->tableName, $data, $this->data_bind);
         $this->sql .= $res['command'];
         $this->data = array_merge($this->data, $res['data']);
+        $this->data_bind = $res['data_bind'];
 
         return $this;
     }
@@ -239,14 +248,16 @@ class PostgreModel
      */
     public function set(array $data = []): object
     {
-        $res = Dml::set($this->modelType, $this->modelName, $this->tableName, $data);
+        $res = Dml::set($this->modelType, $this->modelName, $this->tableName, $data, $this->data_bind);
         $this->sql .= $res['command'];
         $this->data = array_merge($this->data, $res['data']);
+        $this->data_bind = $res['data_bind'];
 
         return $this;
     }
 
     // Dql
+
     /**
      * Select data.
      *
@@ -271,9 +282,11 @@ class PostgreModel
      */
     public function where(array $data): object
     {
-        $res = Dql::where($this->modelType, $this->modelName, $this->tableName, $data);
+        $res = Dql::where($this->modelType, $this->modelName, $this->tableName, $data, $this->data_bind);
         $this->sql .= $res['command'];
         $this->data = array_merge($this->data, $res['data']);
+        $this->data_bind = $res['data_bind'];
+
         return $this;
     }
 
@@ -287,6 +300,7 @@ class PostgreModel
     public function orderby(array $data): object
     {
         $this->sql .= Dql::orderby($data);
+
         return $this;
     }
 
@@ -300,10 +314,12 @@ class PostgreModel
     public function groupby(array $data): object
     {
         $this->sql .= Dql::groupby($data);
+
         return $this;
     }
 
     // Dcl
+
     /**
      * Commit.
      *

@@ -3,10 +3,10 @@
 /**
  * Pocoapoco - PHP framework.
  *
- * @author    	Roy Lee <royhylee@mail.npac-ntch.org>
+ * @author        Roy Lee <royhylee@mail.npac-ntch.org>
  *
- * @see			https://github.com/Homeeat/Pocoapoco  - GitHub project
- * @license  	https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
+ * @see           https://github.com/Homeeat/Pocoapoco  - GitHub project
+ * @license       https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
  */
 
 namespace Ntch\Pocoapoco\WebRestful\Models;
@@ -51,6 +51,11 @@ class OracleModel
     public array $data = [];
 
     /**
+     * @var array
+     */
+    public array $data_bind = [];
+
+    /**
      * @var string|null
      */
     public ?string $keyName = null;
@@ -73,22 +78,22 @@ class OracleModel
             case 'query':
                 switch ($count) {
                     case 0:
-                        $result = OracleBase::query($this->modelType, $this->modelName, $this->tableName, $this->sql, $this->data, $this->keyName, $this->offset, $this->limit);
+                        $result = OracleBase::query($this->modelType, $this->modelName, $this->tableName, $this->sql, $this->data, $this->data_bind, $this->keyName, $this->offset, $this->limit);
                         break;
                     case 1:
-                        $result = OracleBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $sqlBind = null, $this->keyName, $this->offset, $limit = -1);
+                        $result = OracleBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $sqlBind = null, $this->data_bind, $this->keyName, $this->offset, $limit = -1);
                         break;
                     case 2:
-                        $result = OracleBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $this->keyName, $this->offset, $limit = -1);
+                        $result = OracleBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $this->data_bind, $this->keyName, $this->offset, $limit = -1);
                         break;
                     case 3:
-                        $result = OracleBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $args[2], $this->offset, $limit = -1);
+                        $result = OracleBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $this->data_bind, $args[2], $this->offset, $limit = -1);
                         break;
                     case 4:
-                        $result = OracleBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $args[2], $args[3], $limit = -1);
+                        $result = OracleBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $this->data_bind, $args[2], $args[3], $limit = -1);
                         break;
                     case 5:
-                        $result = OracleBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $args[2], $args[3], $args[4]);
+                        $result = OracleBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $this->data_bind, $args[2], $args[3], $args[4]);
                         break;
                     default:
                         die("【ERROR】Wrong parameters for \"$fun\".");
