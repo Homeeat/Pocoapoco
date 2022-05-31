@@ -3,10 +3,10 @@
 /**
  * Pocoapoco - PHP framework.
  *
- * @author    	Roy Lee <royhylee@mail.npac-ntch.org>
+ * @author        Roy Lee <royhylee@mail.npac-ntch.org>
  *
- * @see			https://github.com/Homeeat/Pocoapoco  - GitHub project
- * @license  	https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
+ * @see           https://github.com/Homeeat/Pocoapoco  - GitHub project
+ * @license       https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
  */
 
 namespace Ntch\Pocoapoco\WebRestful\Models\Database\Mysql;

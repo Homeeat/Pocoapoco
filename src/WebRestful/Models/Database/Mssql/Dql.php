@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * Pocoapoco - PHP framework.
+ *
+ * @author        Roy Lee <royhylee@mail.npac-ntch.org>
+ *
+ * @see           https://github.com/Homeeat/Pocoapoco  - GitHub project
+ * @license       https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
+ */
 
 namespace Ntch\Pocoapoco\WebRestful\Models\Database\Mssql;
 
@@ -53,7 +61,7 @@ class Dql extends MssqlBase implements DqlInterface
     /**
      * @inheritDoc
      */
-    public static function where(string $modelType, string $modelName, string $tableName, array $data)
+    public static function where(string $modelType, string $modelName, string $tableName, array $data, array $data_bind = [])
     {
         // config
         if($modelType === 'server') {

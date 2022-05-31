@@ -1,11 +1,18 @@
 <?php
 
+/**
+ * Pocoapoco - PHP framework.
+ *
+ * @author        Roy Lee <royhylee@mail.npac-ntch.org>
+ *
+ * @see           https://github.com/Homeeat/Pocoapoco  - GitHub project
+ * @license       https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
+ */
 
 namespace Ntch\Pocoapoco\WebRestful\Models\Database\Postgre;
 
 use Ntch\Pocoapoco\WebRestful\Models\Database\Postgre\Base as PostgreBase;
 use Ntch\Pocoapoco\WebRestful\Models\Database\DqlInterface;
-use Saint\Loader\Psr4;
 
 class Dql extends PostgreBase implements DqlInterface
 {
@@ -16,7 +23,7 @@ class Dql extends PostgreBase implements DqlInterface
     public static function select(string $modelType, string $modelName, string $tableName, array $data)
     {
         // config
-        if($modelType === 'server') {
+        if ($modelType === 'server') {
             $serverName = $modelName;
             $table = $tableName;
             $schema = self::$databaseObject['postgre']->$modelType[$modelName]->$tableName->schema;
@@ -55,10 +62,10 @@ class Dql extends PostgreBase implements DqlInterface
     /**
      * @inheritDoc
      */
-    public static function where(string $modelType, string $modelName, string $tableName, array $data)
+    public static function where(string $modelType, string $modelName, string $tableName, array $data, array $data_bind)
     {
         // config
-        if($modelType === 'server') {
+        if ($modelType === 'server') {
             $serverName = $modelName;
             $schema = self::$databaseObject['postgre']->$modelType[$modelName]->$tableName->schema;
         } else {
@@ -68,22 +75,27 @@ class Dql extends PostgreBase implements DqlInterface
 
         $sql_where = '';
         foreach ($data as $key => $value) {
+            // data_bind
+            empty($data_bind) ? $data_bind[0] = null : null;
+            in_array($key, $data_bind) ? null : array_push($data_bind, $key);
+            $data_flag = array_search($key, $data_bind);
+
             $sql_where .= "$key = ";
             if (is_null($value)) {
                 $sql_where .= " null, ";
             } else {
                 if ($schema[$key]['DATA_TYPE'] === 'DATE') {
                     $data_size = $schema[$key]['DATA_SIZE'];
-                    $sql_where .= "TO_DATE(:$key:, '$data_size'), ";
+                    $sql_where .= "TO_DATE($$data_flag, '$data_size'), ";
                 } else {
-                    $sql_where .= ":$key: AND ";
+                    $sql_where .= "$$data_flag AND ";
                 }
             }
         }
         $sql_where = substr(trim($sql_where), 0, -4);
 
         $sqlCommand = "\nWHERE $sql_where";
-        return $sql = ['command' => $sqlCommand, 'data' => $data];
+        return $sql = ['command' => $sqlCommand, 'data' => $data, 'data_bind' => $data_bind];
     }
 
     /**

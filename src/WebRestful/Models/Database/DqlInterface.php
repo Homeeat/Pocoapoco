@@ -3,10 +3,10 @@
 /**
  * Pocoapoco - PHP framework.
  *
- * @author    	Roy Lee <royhylee@mail.npac-ntch.org>
+ * @author        Roy Lee <royhylee@mail.npac-ntch.org>
  *
- * @see			https://github.com/Homeeat/Pocoapoco  - GitHub project
- * @license  	https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
+ * @see           https://github.com/Homeeat/Pocoapoco  - GitHub project
+ * @license       https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
  */
 
 namespace Ntch\Pocoapoco\WebRestful\Models\Database;
@@ -33,10 +33,11 @@ interface DqlInterface
      * @param string $modelName
      * @param string $tableName
      * @param array $data
+     * @param array $data_bind
      *
      * @return string
      */
-    public static function where(string $modelType, string $modelName, string $tableName, array $data);
+    public static function where(string $modelType, string $modelName, string $tableName, array $data, array $data_bind);
 
     /**
      * Order by.

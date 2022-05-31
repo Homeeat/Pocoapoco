@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Pocoapoco - PHP framework.
+ *
+ * @author        Roy Lee <royhylee@mail.npac-ntch.org>
+ *
+ * @see           https://github.com/Homeeat/Pocoapoco  - GitHub project
+ * @license       https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
+ */
+
 namespace Ntch\Pocoapoco\WebRestful\Models\Database;
 
 interface BaseInterface
@@ -56,13 +65,14 @@ interface BaseInterface
      * @param string|null $tableName
      * @param string $sqlCommand
      * @param array|null $sqlData
+     * @param array $sqlData_bind
      * @param string|null $keyName
      * @param int $offset
      * @param int $limit
      *
      * @return array
      */
-    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, ?string $keyName, int $offset, int $limit);
+    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit);
 
     /**
      * System set data from model setting.

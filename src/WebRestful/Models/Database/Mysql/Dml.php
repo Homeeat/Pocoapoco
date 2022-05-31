@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * Pocoapoco - PHP framework.
+ *
+ * @author        Roy Lee <royhylee@mail.npac-ntch.org>
+ *
+ * @see           https://github.com/Homeeat/Pocoapoco  - GitHub project
+ * @license       https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
+ */
 
 namespace Ntch\Pocoapoco\WebRestful\Models\Database\Mysql;
 
@@ -31,7 +39,7 @@ class Dml extends MysqlBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function value(string $modelType, string $modelName, string $tableName, array $data)
+    public static function value(string $modelType, string $modelName, string $tableName, array $data, array $data_bind = [])
     {
         $serverName = self::$databaseList['mysql']['table'][$modelName]['server'];
         $schema = self::$databaseObject['mysql']->table[$modelName]->schema;
@@ -99,7 +107,7 @@ class Dml extends MysqlBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function set(string $modelType, string $modelName, string $tableName, array $data)
+    public static function set(string $modelType, string $modelName, string $tableName, array $data, array $data_bind = [])
     {
         // config
         if($modelType === 'server') {

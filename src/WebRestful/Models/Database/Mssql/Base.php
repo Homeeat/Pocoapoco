@@ -3,10 +3,10 @@
 /**
  * Pocoapoco - PHP framework.
  *
- * @author    	Roy Lee <royhylee@mail.npac-ntch.org>
+ * @author        Roy Lee <royhylee@mail.npac-ntch.org>
  *
- * @see			https://github.com/Homeeat/Pocoapoco  - GitHub project
- * @license  	https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
+ * @see           https://github.com/Homeeat/Pocoapoco  - GitHub project
+ * @license       https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
  */
 
 namespace Ntch\Pocoapoco\WebRestful\Models\Database\Mssql;
@@ -177,13 +177,13 @@ class Base extends ModelBase implements BaseInterface
                     INNER JOIN sys.columns AS clmns ON clmns.object_id = ic.object_id and clmns.column_id = ic.column_id
               	) as table2 ON table1.TABLE_NAME = table2.TABLE_NAME AND table1.COLUMN_NAME = table2.COLUMN_NAME
         sqlCommand;
-        return self::query('server', $serverName, null, $sql, null, null, 0, -1);
+        return self::query('server', $serverName, null, $sql, null, [], null, 0, -1);
     }
 
     /**
      * @inheritDoc
      */
-    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, ?string $keyName, int $offset, int $limit)
+    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit)
     {
         // config
         $modelType === 'server' ? $serverName = $modelName : $serverName = self::$databaseList['mssql']['table'][$modelName]['server'];

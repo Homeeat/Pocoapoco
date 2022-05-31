@@ -3,17 +3,16 @@
 /**
  * Pocoapoco - PHP framework.
  *
- * @author    	Roy Lee <royhylee@mail.npac-ntch.org>
+ * @author        Roy Lee <royhylee@mail.npac-ntch.org>
  *
- * @see			https://github.com/Homeeat/Pocoapoco  - GitHub project
- * @license  	https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
+ * @see           https://github.com/Homeeat/Pocoapoco  - GitHub project
+ * @license       https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
  */
 
 namespace Ntch\Pocoapoco\WebRestful\Models\Database\Postgre;
 
 use Ntch\Pocoapoco\WebRestful\Models\Database\BaseInterface;
 use Ntch\Pocoapoco\WebRestful\Models\Base as ModelBase;
-use SebastianBergmann\CodeCoverage\Report\PHP;
 
 class Base extends ModelBase implements BaseInterface
 {
@@ -117,13 +116,13 @@ class Base extends ModelBase implements BaseInterface
             WHERE
                 isc.table_schema = '$serachName'
         sqlCommand;
-        return self::query('server', $serverName, null, $sql, null, null, 0, -1);
+        return self::query('server', $serverName, null, $sql, null, [], null, 0, -1);
     }
 
     /**
      * @inheritDoc
      */
-    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, ?string $keyName, int $offset, int $limit)
+    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit)
     {
         // config
         $modelType === 'server' ? $serverName = $modelName : $serverName = self::$databaseList['postgre']['table'][$modelName]['server'];
@@ -147,18 +146,29 @@ class Base extends ModelBase implements BaseInterface
         // avoid sql injection
         empty($sqlData) ? $sqlData = null : null;
         $isLegal = true;
+        $stat_data = [];
         if (!is_null($sqlData)) {
             $schema = self::$databaseList['postgre']['server'][$serverName]['schema'];
             $tableName = "$schema.$tableName";
-            foreach ($sqlData as $key => $value) {
+
+            // prepared statement
+            $pre_stat_pk = self::sqlId();
+            @pg_prepare($conn, "pocoapoco-$pre_stat_pk", $sqlCommand);
+
+            foreach ($sqlData_bind as $data_flag => $colName) {
+                // pass $0
+                if ($data_flag == '0') {
+                    continue;
+                }
+
                 if ($isLegal) {
-                    $covert = @pg_convert($conn, $tableName, [$key => $value]);
+                    $covert = @pg_convert($conn, $tableName, [$colName => $sqlData[$colName]]);
                 }
                 if (!$covert) {
                     $isLegal = false;
                 }
-                $sqlCommand = str_replace(":$key:", "'$value'", $sqlCommand);
-
+                array_push($stat_data, $sqlData[$colName]);
+                $sqlCommand = str_replace("$$data_flag", "'$sqlData[$colName]'", $sqlCommand);
             }
         }
 
@@ -168,7 +178,13 @@ class Base extends ModelBase implements BaseInterface
             $dbRows['status'] = 'SUCCESS';
             switch ($action) {
                 case 'SELECT':
-                    $result = @pg_query($conn, $sqlCommand);
+                    if (!is_null($sqlData)) {
+                        $result = pg_execute($conn, "pocoapoco-$pre_stat_pk", $stat_data);
+                    } else {
+                        $result = @pg_query($conn, $sqlCommand);
+                    }
+
+                    // parse result
                     empty($result) ? $result = null : null;
                     $rows = pg_fetch_all($result);
                     if (!is_null($keyName) && !is_null($rows)) {
@@ -180,6 +196,7 @@ class Base extends ModelBase implements BaseInterface
                     } else {
                         $data = $rows;
                     }
+
                     $dbRows['result']['total'] = @pg_affected_rows($result);
                     $dbRows['result']['data'] = @$data;
                     break;
@@ -187,8 +204,15 @@ class Base extends ModelBase implements BaseInterface
                 case 'UPDATE':
                 case 'DELETE':
                 case 'MERGE':
-                    @pg_query($conn, "BEGIN");
-                    $result = @pg_query($conn, $sqlCommand);
+                    if (!is_null($sqlData)) {
+                        $result = pg_execute($conn, "pocoapoco-$pre_stat_pk", $stat_data);
+                    } else {
+                        var_dump(pg_last_error($conn));
+                        @pg_query($conn, 'BEGIN');
+                        $result = @pg_query($conn, $sqlCommand);
+                    }
+
+                    // parse result
                     $rows = @pg_affected_rows($result);
                     if (substr(trim($action), -1) === 'E') {
                         $todo = strtolower($action) . 'd';
@@ -230,7 +254,7 @@ class Base extends ModelBase implements BaseInterface
                         }
                         break;
                     case 'UPDATE_DATE':
-                        if(!strpos($value['DATA_SIZE'], '+') || !strpos($value['DATA_SIZE'], '-')) {
+                        if (!strpos($value['DATA_SIZE'], '+') || !strpos($value['DATA_SIZE'], '-')) {
                             $data_size = $value['DATA_SIZE'];
                         } else {
                             $data_size = 'yyyy-mm-dd hh24:mi:ss';

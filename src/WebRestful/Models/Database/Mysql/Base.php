@@ -3,10 +3,10 @@
 /**
  * Pocoapoco - PHP framework.
  *
- * @author    	Roy Lee <royhylee@mail.npac-ntch.org>
+ * @author        Roy Lee <royhylee@mail.npac-ntch.org>
  *
- * @see			https://github.com/Homeeat/Pocoapoco  - GitHub project
- * @license  	https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
+ * @see           https://github.com/Homeeat/Pocoapoco  - GitHub project
+ * @license       https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
  */
 
 namespace Ntch\Pocoapoco\WebRestful\Models\Database\Mysql;
@@ -108,16 +108,16 @@ class Base extends ModelBase implements BaseInterface
      */
     public function allTabColumns(string $serverName, string $serachName)
     {
-        $sql=<<<sqlCommand
+        $sql = <<<sqlCommand
             SELECT TABLE_NAME, COLUMN_NAME, ORDINAL_POSITION, COLUMN_DEFAULT, IS_NULLABLE, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, NUMERIC_PRECISION, NUMERIC_SCALE, COLUMN_TYPE, COLUMN_KEY, COLUMN_COMMENT FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '$serachName' ORDER BY ORDINAL_POSITION
         sqlCommand;
-        return self::query('server', $serverName, null, $sql, null, null, 0, -1);
+        return self::query('server', $serverName, null, $sql, null, [], null, 0, -1);
     }
 
     /**
      * @inheritDoc
      */
-    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, ?string $keyName, int $offset, int $limit)
+    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit)
     {
         // config
         $modelType === 'server' ? $serverName = $modelName : $serverName = self::$databaseList['mysql']['table'][$modelName]['server'];
