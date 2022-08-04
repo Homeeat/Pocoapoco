@@ -190,8 +190,13 @@ class Nginx extends Psr7
     {
         $ip = array('HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR');
         foreach ($ip as $key) {
-            if (!empty($_SERVER[$key]) && filter_var($_SERVER[$key], FILTER_VALIDATE_IP)) {
-                $this->uri->withHost($_SERVER[$key]);
+            if (!empty($_SERVER[$key])) {
+                $client = $_SERVER[$key];
+                if($key === 'HTTP_X_FORWARDED_FOR') {
+                    $client = explode(",", $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
+                }
+                $this->uri->withHost($client);
+                break;
             }
         }
     }
