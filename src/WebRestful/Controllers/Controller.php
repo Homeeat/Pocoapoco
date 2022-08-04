@@ -43,7 +43,11 @@ class Controller
         // controller
         $request = new \stdClass();
 
-        $request->uuid = $controllerBase->getUuid();
+        static $uuid;
+        if(empty($uuid)){
+            $uuid = $controllerBase->getUuid();
+        }
+        $request->uuid = $uuid;
         $request->url = $controllerBase->getUrl();
         $request->method = $controllerBase->getMethod();
         $request->uri = $controllerBase->getUri();
