@@ -187,8 +187,8 @@ class Base extends WebRestful
     {
         $unix = $this->nginx->request['time'];
         $time['unix'] = $unix;
-        $time['date'] = date('Y-m-d', $unix);
-        $time['time'] = date('H:i:s', $unix);
+        $time['date'] = date('Y-m-d', floor($unix));
+        $time['time'] = date('H:i:s', floor($unix));
         return $time;
     }
 
