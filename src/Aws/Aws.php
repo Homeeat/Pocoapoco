@@ -104,10 +104,13 @@ class Aws extends AwsBase
         ];
 
         $request = $this->aws[$this->awsName]->listObjects($awsParam);
+        $obj = $request->search('Contents[].Key');
 
         $data['result'] = [];
-        foreach ($request->search('Contents[].Key') as $key) {
-            array_push($data['result'], $key);
+        if (!is_null($obj)) {
+            foreach ($request->search('Contents[].Key') as $key) {
+                array_push($data['result'], $key);
+            }
         }
 
         return $data;
