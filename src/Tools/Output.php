@@ -31,13 +31,9 @@ trait Output
      *
      * @return array
      */
-    public function curl(string $method, string $url, ?string $data = null, array $header = [], int $timeout = 10, bool $showHeader = false): array
+    public function curl(string $method, string $url, ?string $data = null, array $headers = [], int $timeout = 10, bool $showHeader = false): array
     {
         $method = strtoupper($method);
-        $headers = [];
-        foreach ($header as $key => $value) {
-            $headers = array_merge("$key: $value");
-        }
 
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
