@@ -16,7 +16,7 @@ Pocoapoco框架是由國家兩廳院資訊組，針對自家開發需求撰寫�
 ### **- 安裝**
 composer：https://packagist.org/packages/ntch/pocoapoco
 ```bash
-composer create-project ntch/pocoapoco
+composer require ntch/pocoapoco
 ```
 <br>
 
