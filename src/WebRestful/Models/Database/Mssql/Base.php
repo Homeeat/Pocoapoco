@@ -23,26 +23,26 @@ class Base extends ModelBase implements BaseInterface
     /**
      * @inheritDoc
      */
-    public function execute()
+    public function execute(string $mvc)
     {
-        foreach (self::$databaseList['mssql']['server'] as $serverName => $serverConfig) {
+        foreach (self::$databaseList[$mvc]['mssql']['server'] as $serverName => $serverConfig) {
             $this->checkDriverConfig($serverName, $serverConfig);
             $conn = $this->connect($serverConfig);
 
             if ($conn) {
-                self::$databaseList['mssql']['server'][$serverName]['connect']['status'] = 'success';
-                self::$databaseList['mssql']['server'][$serverName]['connect']['result'] = $conn;
+                self::$databaseList[$mvc]['mssql']['server'][$serverName]['connect']['status'] = 'success';
+                self::$databaseList[$mvc]['mssql']['server'][$serverName]['connect']['result'] = $conn;
             } else {
                 $errors = sqlsrv_errors();
-                self::$databaseList['mssql']['server'][$serverName]['connect']['status'] = 'error';
+                self::$databaseList[$mvc]['mssql']['server'][$serverName]['connect']['status'] = 'error';
                 foreach ($errors as $error) {
-                    self::$databaseList['mssql']['server'][$serverName]['connect']['code'] = $error['code'];
-                    self::$databaseList['mssql']['server'][$serverName]['connect']['result'] = $error['message'];
+                    self::$databaseList[$mvc]['mssql']['server'][$serverName]['connect']['code'] = $error['code'];
+                    self::$databaseList[$mvc]['mssql']['server'][$serverName]['connect']['result'] = $error['message'];
                 }
 
             }
         }
-        isset(self::$databaseObject['mssql']->server) ? $this->loadModelUserSchema() : null;
+        isset(self::$databaseObject[$mvc]['mssql']->server) ? $this->loadModelUserSchema($mvc) : null;
     }
 
     /**
@@ -76,45 +76,45 @@ class Base extends ModelBase implements BaseInterface
     /**
      * @inheritDoc
      */
-    public function loadModelUserSchema()
+    public function loadModelUserSchema(string $mvc)
     {
-        foreach (self::$databaseObject['mssql']->server as $serverName => $serverInfo) {
-            if (self::$databaseList['mssql']['server'][$serverName]['connect']['status'] === 'success') {
+        foreach (self::$databaseObject[$mvc]['mssql']->server as $serverName => $serverInfo) {
+            if (self::$databaseList[$mvc]['mssql']['server'][$serverName]['connect']['status'] === 'success') {
 
-                $allTabColumns = $this->allTabColumns($serverName, self::$databaseList['mssql']['server'][$serverName]['user']);
+                $allTabColumns = $this->allTabColumns($serverName, self::$databaseList[$mvc]['mssql']['server'][$serverName]['user'], $mvc);
                 if ($allTabColumns['status'] === 'SUCCESS') {
                     for ($i = 0; $i < $allTabColumns['result']['total']; $i++) {
                         $tableName = $allTabColumns['result']['data'][$i]['TABLE_NAME'];
                         $columnName = $allTabColumns['result']['data'][$i]['COLUMN_NAME'];
 
-                        isset(self::$databaseObject['mssql']->server[$serverName]->$tableName) ? null : self::$databaseObject['mssql']->server[$serverName]->$tableName = new \stdClass();
-                        self::$databaseObject['mssql']->server[$serverName]->$tableName->schema[$columnName]['DATA_TYPE'] = $allTabColumns['result']['data'][$i]['DATA_TYPE'];
+                        isset(self::$databaseObject[$mvc]['mssql']->server[$serverName]->$tableName) ? null : self::$databaseObject[$mvc]['mssql']->server[$serverName]->$tableName = new \stdClass();
+                        self::$databaseObject[$mvc]['mssql']->server[$serverName]->$tableName->schema[$columnName]['DATA_TYPE'] = $allTabColumns['result']['data'][$i]['DATA_TYPE'];
                         $data_type = $allTabColumns['result']['data'][$i]['DATA_TYPE'];
                         switch ($data_type) {
                             case 'CHAR':
                             case 'NCHAR':
                             case 'VARCHAR2':
                             case 'NVARCHAR2':
-                                self::$databaseObject['mssql']->server[$serverName]->$tableName->schema[$columnName]['DATA_SIZE'] = $allTabColumns['result']['data'][$i]['DATA_LENGTH'];
+                                self::$databaseObject[$mvc]['mssql']->server[$serverName]->$tableName->schema[$columnName]['DATA_SIZE'] = $allTabColumns['result']['data'][$i]['DATA_LENGTH'];
                                 break;
                             case 'NUMBER':
                                 $dataPercision = $allTabColumns['result']['data'][$i]['DATA_PRECISION'];
                                 $dataScale = $allTabColumns['result']['data'][$i]['DATA_SCALE'];
-                                self::$databaseObject['mssql']->server[$serverName]->$tableName->schema[$columnName]['DATA_SIZE'] = "$dataPercision,$dataScale";
+                                self::$databaseObject[$mvc]['mssql']->server[$serverName]->$tableName->schema[$columnName]['DATA_SIZE'] = "$dataPercision,$dataScale";
                                 break;
                             case strpos($data_type, 'TIMESTAMP'):
                             case 'DATE':
                             case 'NCLOB':
-                                self::$databaseObject['mssql']->server[$serverName]->$tableName->schema[$columnName]['DATA_SIZE'] = null;
+                                self::$databaseObject[$mvc]['mssql']->server[$serverName]->$tableName->schema[$columnName]['DATA_SIZE'] = null;
                                 break;
                             case 'FLOAT':
-                                self::$databaseObject['mssql']->server[$serverName]->$tableName->schema[$columnName]['DATA_SIZE'] = $allTabColumns['result']['data'][$i]['DATA_PRECISION'];
+                                self::$databaseObject[$mvc]['mssql']->server[$serverName]->$tableName->schema[$columnName]['DATA_SIZE'] = $allTabColumns['result']['data'][$i]['DATA_PRECISION'];
                                 break;
                         }
-                        self::$databaseObject['mssql']->server[$serverName]->$tableName->schema[$columnName]['NULLABLE'] = $allTabColumns['result']['data'][$i]['IS_NULLABLE'];
-                        self::$databaseObject['mssql']->server[$serverName]->$tableName->schema[$columnName]['DATA_DEFAULT'] = str_replace(['(', ')', '\''], '', $allTabColumns['result']['data'][$i]['COLUMN_DEFAULT']);
-                        self::$databaseObject['mssql']->server[$serverName]->$tableName->schema[$columnName]['KEY_TYPE'] = $allTabColumns['result']['data'][$i]['CONSTRAINT_TYPE'];
-                        self::$databaseObject['mssql']->server[$serverName]->$tableName->schema[$columnName]['COMMENT'] = $allTabColumns['result']['data'][$i]['COMMENT'];
+                        self::$databaseObject[$mvc]['mssql']->server[$serverName]->$tableName->schema[$columnName]['NULLABLE'] = $allTabColumns['result']['data'][$i]['IS_NULLABLE'];
+                        self::$databaseObject[$mvc]['mssql']->server[$serverName]->$tableName->schema[$columnName]['DATA_DEFAULT'] = str_replace(['(', ')', '\''], '', $allTabColumns['result']['data'][$i]['COLUMN_DEFAULT']);
+                        self::$databaseObject[$mvc]['mssql']->server[$serverName]->$tableName->schema[$columnName]['KEY_TYPE'] = $allTabColumns['result']['data'][$i]['CONSTRAINT_TYPE'];
+                        self::$databaseObject[$mvc]['mssql']->server[$serverName]->$tableName->schema[$columnName]['COMMENT'] = $allTabColumns['result']['data'][$i]['COMMENT'];
                     }
                 }
             }
@@ -124,7 +124,7 @@ class Base extends ModelBase implements BaseInterface
     /**
      * @inheritDoc
      */
-    public function allTabColumns(string $serverName, string $serachName)
+    public function allTabColumns(string $serverName, string $serachName, string $mvc)
     {
         $sql = <<<sqlCommand
             SELECT
@@ -177,17 +177,17 @@ class Base extends ModelBase implements BaseInterface
                     INNER JOIN sys.columns AS clmns ON clmns.object_id = ic.object_id and clmns.column_id = ic.column_id
               	) as table2 ON table1.TABLE_NAME = table2.TABLE_NAME AND table1.COLUMN_NAME = table2.COLUMN_NAME
         sqlCommand;
-        return self::query('server', $serverName, null, $sql, null, [], null, 0, -1);
+        return self::query('server', $serverName, null, $sql, null, [], null, 0, -1, $mvc);
     }
 
     /**
      * @inheritDoc
      */
-    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit)
+    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit, string $mvc)
     {
         // config
-        $modelType === 'server' ? $serverName = $modelName : $serverName = self::$databaseList['mssql']['table'][$modelName]['server'];
-        $conn = self::$databaseList['mssql']['server'][$serverName]['connect']['result'];
+        $modelType === 'server' ? $serverName = $modelName : $serverName = self::$databaseList[$mvc]['mssql']['table'][$modelName]['server'];
+        $conn = self::$databaseList[$mvc]['mssql']['server'][$serverName]['connect']['result'];
 
         // debug
         sqlsrv_configure("WarningsReturnAsErrors", 1);
@@ -316,7 +316,7 @@ class Base extends ModelBase implements BaseInterface
     /**
      * @inheritDoc
      */
-    public static function dataBind(string $modelType, string $modelName, string $tableName, array $sqlData)
+    public static function dataBind(string $modelType, string $modelName, string $tableName, array $sqlData, string $mvc)
     {
 
     }

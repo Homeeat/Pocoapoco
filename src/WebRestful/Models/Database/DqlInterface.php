@@ -21,11 +21,13 @@ interface DqlInterface
      * @param string $modelName
      * @param string $tableName
      * @param array $data
+     * @param boolean $distinct
+     * @param string $mvc
      *
      * @return array
      */
-    public static function select(string $modelType, string $modelName, string $tableName, array $data);
-    
+    public static function select(string $modelType, string $modelName, string $tableName, array $data, bool $distinct, string $mvc);
+
     /**
      * Where.
      *
@@ -34,10 +36,11 @@ interface DqlInterface
      * @param string $tableName
      * @param array $data
      * @param array $data_bind
+     * @param string $mvc
      *
      * @return string
      */
-    public static function where(string $modelType, string $modelName, string $tableName, array $data, array $data_bind);
+    public static function where(string $modelType, string $modelName, string $tableName, array $data, array $data_bind, string $mvc);
 
     /**
      * Order by.

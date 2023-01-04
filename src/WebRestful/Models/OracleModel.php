@@ -70,6 +70,11 @@ class OracleModel
      */
     public int $limit = -1;
 
+    /**
+     * @var string
+     */
+    public string $mvc = '';
+
     // Base for query
     function __call(string $fun, array $args): array
     {
@@ -78,26 +83,36 @@ class OracleModel
             case 'query':
                 switch ($count) {
                     case 0:
-                        $result = OracleBase::query($this->modelType, $this->modelName, $this->tableName, $this->sql, $this->data, $this->data_bind, $this->keyName, $this->offset, $this->limit);
                         break;
                     case 1:
-                        $result = OracleBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $sqlBind = null, $this->data_bind, $this->keyName, $this->offset, $limit = -1);
+                        $this->sql = $args[0];
                         break;
                     case 2:
-                        $result = OracleBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $this->data_bind, $this->keyName, $this->offset, $limit = -1);
+                        $this->sql = $args[0];
+                        $this->data = $args[1];
                         break;
                     case 3:
-                        $result = OracleBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $this->data_bind, $args[2], $this->offset, $limit = -1);
+                        $this->sql = $args[0];
+                        $this->data = $args[1];
+                        $this->keyName = $args[2];
                         break;
                     case 4:
-                        $result = OracleBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $this->data_bind, $args[2], $args[3], $limit = -1);
+                        $this->sql = $args[0];
+                        $this->data = $args[1];
+                        $this->keyName = $args[2];
+                        $this->offset = $args[3];
                         break;
                     case 5:
-                        $result = OracleBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $this->data_bind, $args[2], $args[3], $args[4]);
+                        $this->sql = $args[0];
+                        $this->data = $args[1];
+                        $this->keyName = $args[2];
+                        $this->offset = $args[3];
+                        $this->limit = $args[4];
                         break;
                     default:
                         die("【ERROR】Wrong parameters for \"$fun\".");
                 }
+                $result = OracleBase::query($this->modelType, $this->modelName, $this->tableName, $this->sql, $this->data, $this->data_bind, $this->keyName, $this->offset, $this->limit, $this->mvc);
                 $this->clean();
                 return $result;
             default:
@@ -160,6 +175,7 @@ class OracleModel
     }
 
     // DDL
+
     /**
      * Create Table.
      *
@@ -167,7 +183,7 @@ class OracleModel
      */
     public function createTable(): string
     {
-        return Ddl::createTable($this->modelType, $this->modelName, $this->tableName);
+        return Ddl::createTable($this->modelType, $this->modelName, $this->tableName, $this->mvc);
     }
 
     /**
@@ -177,10 +193,11 @@ class OracleModel
      */
     public function commentTable(): string
     {
-        return Ddl::commentTable($this->modelType, $this->modelName, $this->tableName);
+        return Ddl::commentTable($this->modelType, $this->modelName, $this->tableName, $this->mvc);
     }
 
     // Dml
+
     /**
      * Insert data or Merge insert.
      *
@@ -190,7 +207,7 @@ class OracleModel
     {
         empty($this->action) ? $this->action = 'INSERT' : null;
         if ($this->action === 'INSERT') {
-            $this->sql = Dml::insert($this->modelType, $this->modelName, $this->tableName);
+            $this->sql = Dml::insert($this->modelType, $this->modelName, $this->tableName, $this->mvc);
         } elseif ($this->action === 'MERGE') {
             $this->sql .= Dml::mergeInsert();
         }
@@ -208,11 +225,11 @@ class OracleModel
     public function value(array $data = []): object
     {
         if ($this->action === 'INSERT') {
-            $res = Dml::value($this->modelType, $this->modelName, $this->tableName, $data);
+            $res = Dml::value($this->modelType, $this->modelName, $this->tableName, $data, [], $this->mvc);
             $this->sql .= $res['command'];
             $this->data = array_merge($this->data, $res['data']);
         } elseif ($this->action === 'MERGE') {
-            $this->sql .= Dml::mergeValue($this->modelType, $this->modelName, $this->tableName, $data);
+            $this->sql .= Dml::mergeValue($this->modelType, $this->modelName, $this->tableName, $data, $this->mvc);
         }
 
         return $this;
@@ -227,7 +244,7 @@ class OracleModel
     {
         empty($this->action) ? $this->action = 'DELETE' : null;
         if ($this->action === 'DELETE') {
-            $this->sql = Dml::delete($this->modelType, $this->modelName, $this->tableName);
+            $this->sql = Dml::delete($this->modelType, $this->modelName, $this->tableName, $this->mvc);
         }
 
         return $this;
@@ -242,7 +259,7 @@ class OracleModel
     {
         empty($this->action) ? $this->action = 'UPDATE' : null;
         if ($this->action === 'UPDATE') {
-            $this->sql = Dml::update($this->modelType, $this->modelName, $this->tableName);
+            $this->sql = Dml::update($this->modelType, $this->modelName, $this->tableName, $this->mvc);
         } elseif ($this->action === 'MERGE') {
             $this->sql .= Dml::mergeUpdate();
         }
@@ -260,11 +277,11 @@ class OracleModel
     public function set(array $data = []): object
     {
         if ($this->action === 'UPDATE') {
-            $res = Dml::set($this->modelType, $this->modelName, $this->tableName, $data);
+            $res = Dml::set($this->modelType, $this->modelName, $this->tableName, $data, [], $this->mvc);
             $this->sql .= $res['command'];
             $this->data = array_merge($this->data, $res['data']);
         } elseif ($this->action === 'MERGE') {
-            $this->sql .= Dml::mergeSet($this->modelName, $data);
+            $this->sql .= Dml::mergeSet($this->modelName, $data, $this->mvc);
         }
 
         return $this;
@@ -278,7 +295,7 @@ class OracleModel
     public function merge(): object
     {
         empty($this->action) ? $this->action = 'MERGE' : null;
-        $this->sql = Dml::merge($this->modelType, $this->modelName, $this->tableName);
+        $this->sql = Dml::merge($this->modelType, $this->modelName, $this->tableName, $this->mvc);
 
         return $this;
     }
@@ -338,6 +355,7 @@ class OracleModel
     }
 
     // Dql
+
     /**
      * Select data.
      *
@@ -348,7 +366,22 @@ class OracleModel
     public function select(array $data = []): object
     {
         empty($this->action) ? $this->action = 'SELECT' : null;
-        $this->sql = Dql::select($this->modelType, $this->modelName, $this->tableName, $data);
+        $this->sql = Dql::select($this->modelType, $this->modelName, $this->tableName, $data, 0, $this->mvc);
+
+        return $this;
+    }
+
+    /**
+     * Select distinct data.
+     *
+     * @param array $data
+     *
+     * @return object
+     */
+    public function select_distinct(array $data = []): object
+    {
+        empty($this->action) ? $this->action = 'SELECT' : null;
+        $this->sql = Dql::select($this->modelType, $this->modelName, $this->tableName, $data, 1, $this->mvc);
 
         return $this;
     }
@@ -362,7 +395,7 @@ class OracleModel
      */
     public function where(array $data): object
     {
-        $res = Dql::where($this->modelType, $this->modelName, $this->tableName, $data);
+        $res = Dql::where($this->modelType, $this->modelName, $this->tableName, $data, [], $this->mvc);
         $this->sql .= $res['command'];
         $this->data = array_merge($this->data, $res['data']);
 
@@ -398,6 +431,7 @@ class OracleModel
     }
 
     // Dcl
+
     /**
      * Commit.
      *
@@ -405,7 +439,7 @@ class OracleModel
      */
     public function commit()
     {
-        return Dcl::commit($this->modelType, $this->modelName);
+        return Dcl::commit($this->modelType, $this->modelName, $this->mvc);
     }
 
     /**
@@ -415,7 +449,7 @@ class OracleModel
      */
     public function rollback()
     {
-        return Dcl::rollback($this->modelType, $this->modelName);
+        return Dcl::rollback($this->modelType, $this->modelName, $this->mvc);
     }
 
 }

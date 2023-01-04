@@ -20,17 +20,17 @@ class Ddl extends MssqlBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function createTable(string $modelType, string $modelName, string $tableName)
+    public static function createTable(string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if ($modelType === 'server') {
             $serverName = $modelName;
             $table = $tableName;
-            $schema = self::$databaseObject['mssql']->$modelType[$modelName]->$tableName->schema;
+            $schema = self::$databaseObject[$mvc]['mssql']->$modelType[$modelName]->$tableName->schema;
         } else {
-            $serverName = self::$databaseList['mssql']['table'][$modelName]['server'];
-            $table = self::$databaseList['mssql']['table'][$modelName]['table'];
-            $schema = self::$databaseObject['mssql']->$modelType[$modelName]->schema;
+            $serverName = self::$databaseList[$mvc]['mssql']['table'][$modelName]['server'];
+            $table = self::$databaseList[$mvc]['mssql']['table'][$modelName]['table'];
+            $schema = self::$databaseObject[$mvc]['mssql']->$modelType[$modelName]->schema;
         }
 
         $SQL = "CREATE TABLE \"dbo\".\"$table\" (\n";
@@ -81,7 +81,7 @@ class Ddl extends MssqlBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function dropTable(string $modelType, string $modelName, string $tableName)
+    public static function dropTable(string $modelType, string $modelName, string $tableName, string $mvc)
     {
 
     }
@@ -89,7 +89,7 @@ class Ddl extends MssqlBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function alterTable(string $modelType, string $modelName, string $tableName)
+    public static function alterTable(string $modelType, string $modelName, string $tableName, string $mvc)
     {
 
     }
@@ -97,7 +97,7 @@ class Ddl extends MssqlBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function truncateTable(string $modelType, string $modelName, string $tableName)
+    public static function truncateTable(string $modelType, string $modelName, string $tableName, string $mvc)
     {
 
     }
@@ -105,17 +105,17 @@ class Ddl extends MssqlBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function commentTable(string $modelType, string $modelName, string $tableName)
+    public static function commentTable(string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if ($modelType === 'server') {
             $serverName = $modelName;
             $table = $tableName;
-            $schema = self::$databaseObject['mssql']->$modelType[$modelName]->$tableName->schema;
+            $schema = self::$databaseObject[$mvc]['mssql']->$modelType[$modelName]->$tableName->schema;
         } else {
-            $serverName = self::$databaseList['mssql']['table'][$modelName]['server'];
-            $table = self::$databaseList['mssql']['table'][$modelName]['table'];
-            $schema = self::$databaseObject['mssql']->$modelType[$modelName]->schema;
+            $serverName = self::$databaseList[$mvc]['mssql']['table'][$modelName]['server'];
+            $table = self::$databaseList[$mvc]['mssql']['table'][$modelName]['table'];
+            $schema = self::$databaseObject[$mvc]['mssql']->$modelType[$modelName]->schema;
         }
 
         $SQL = '';
@@ -129,7 +129,7 @@ class Ddl extends MssqlBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function renameTable(string $modelType, string $modelName, string $tableName)
+    public static function renameTable(string $modelType, string $modelName, string $tableName, string $mvc)
     {
 
     }

@@ -31,8 +31,12 @@ class Base extends WebRestful
      */
     public function settingBase(string $path, string $class)
     {
-        $fileExit = $this->webRestfulCheckList('setting', null, $path, $class, null);
-        $fileExit ? $this->setSettingData($class, $this->absoluteFile) : null;
+        $paths = ['/'];
+        isset($_SERVER['ENVIRONMENT']) ? $paths[] = '/' . $_SERVER['ENVIRONMENT'] : null;
+        foreach ($paths as $key => $value) {
+            $fileExit = $this->webRestfulCheckList('setting', null, $value, $class, null);
+            $fileExit ? $this->setSettingData($class, $this->absoluteFile) : null;
+        }
     }
 
     /**
@@ -46,10 +50,10 @@ class Base extends WebRestful
     private function setSettingData(string $fileName, string $absoluteFile)
     {
         switch ($fileName) {
-            case 'libraries':
             case 'log':
                 $process_sections = false;
                 break;
+            case 'libraries':
             case 'error':
             case 'mail':
             case 'aws':
@@ -64,7 +68,10 @@ class Base extends WebRestful
                 die('【ERROR】Setting fileName is not exist.');
         }
 
-        self::$settingVariable[$fileName] = parse_ini_file($absoluteFile, $process_sections);
+        $data = parse_ini_file($absoluteFile, $process_sections);
+        foreach ($data as $key => $value) {
+            self::$settingVariable[$fileName][$key] = $value;
+        }
     }
 
     /**

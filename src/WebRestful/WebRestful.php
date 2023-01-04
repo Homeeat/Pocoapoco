@@ -3,9 +3,9 @@
 /**
  * Pocoapoco - PHP framework.
  *
- * @author    	Roy Lee <royhylee@mail.npac-ntch.org>
- * @see			https://github.com/Homeeat/Pocoapoco  - GitHub project
- * @license  	https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
+ * @author      Roy Lee <royhylee@mail.npac-ntch.org>
+ * @see         https://github.com/Homeeat/Pocoapoco  - GitHub project
+ * @license     https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
  */
 
 namespace Ntch\Pocoapoco\WebRestful;
@@ -16,9 +16,11 @@ use Ntch\Pocoapoco\Http\Server\Nginx;
 use Ntch\Pocoapoco\Http\Request\Globals;
 use Ntch\Pocoapoco\Http\Request\Header;
 use Ntch\Pocoapoco\Http\Request\Body;
+use phpDocumentor\Reflection\Type;
 
 class WebRestful
 {
+    use \Ntch\Pocoapoco\Tools\Uuid;
 
     /**
      * @var AutoloaderClass
@@ -289,16 +291,26 @@ class WebRestful
     }
 
     /**
-     * Check function is can execute.
+     * Create class.
      *
      * @param string $class
+     *
+     * @return object
+     */
+    protected function createClass(string $class) {
+        return new $class();
+    }
+
+    /**
+     * Check function is can execute.
+     *
+     * @param object $class
      * @param string $method
      *
      * @return void
      */
-    protected function checkMethodCanExecute(string $class, string $method)
+    protected function checkMethodCanExecute(object $class, string $method)
     {
-        $class = new $class();
         return is_callable([$class, $method]) ? null : ErrorBase::triggerError("Method \"$method\" Access modifiers is not available. Please check the Access modifiers in the following file： $this->absoluteFile", 4, 0);
     }
 
@@ -311,7 +323,7 @@ class WebRestful
      * @param string|null $class
      * @param string|null $method
      *
-     * @return bool|null|void
+     * @return bool|null|void|object
      */
     protected function webRestfulCheckList(string $mvc, ?string $uri, ?string $path, ?string $class, ?string $method)
     {
@@ -351,8 +363,9 @@ class WebRestful
                     $this->includeFile();
 
                     $this->checkMethodExist($class, $method);
-                    $this->checkMethodCanExecute($class, $method);
-                    return true;
+                    $createClass = $this->createClass($class);
+                    $this->checkMethodCanExecute($createClass, $method);
+                    return $createClass;
                 }
                 break;
             case 'public':
@@ -404,17 +417,19 @@ class WebRestful
                 $this->checkFileExist($folder_name, $this->absoluteFile);
 
                 $this->includeFile();
-
+                $createClass = $this->createClass($class);
                 if (!is_null($method)) {
                     $this->checkMethodExist($class, $method);
-                    $this->checkMethodCanExecute($class, $method);
                 }
-                break;
+                return $createClass;
             case 'library':
                 $folder_name = 'libraries';
 
                 $this->setBasePath($folder_name);
                 $this->checkPathExist($this->basePath);
+
+                $this->setAbsolutePath($folder_name, $path);
+                $this->checkPathExist($this->absolutePath);
                 break;
             case 'log':
                 $folder_name = 'log';

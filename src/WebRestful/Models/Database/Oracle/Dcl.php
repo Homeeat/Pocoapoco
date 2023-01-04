@@ -20,18 +20,18 @@ class Dcl extends OracleBase implements DclInterface
     /**
      * @inheritDoc
      */
-    public static function commit(string $modelType, string $modelName)
+    public static function commit(string $modelType, string $modelName, string $mvc)
     {
         // config
         if($modelType === 'server') {
             $serverName = $modelName;
         } else {
-            $serverName = self::$databaseList['oracle']['table'][$modelName]['server'];
+            $serverName = self::$databaseList[$mvc]['oracle']['table'][$modelName]['server'];
         }
 
-        $serverStatus = self::$databaseList['oracle']['server'][$serverName]['connect']['status'];
+        $serverStatus = self::$databaseList[$mvc]['oracle']['server'][$serverName]['connect']['status'];
         if ($serverStatus === 'success') {
-            $serverResult = self::$databaseList['oracle']['server'][$serverName]['connect']['result'];
+            $serverResult = self::$databaseList[$mvc]['oracle']['server'][$serverName]['connect']['result'];
             @oci_commit($serverResult);
         }
     }
@@ -39,18 +39,18 @@ class Dcl extends OracleBase implements DclInterface
     /**
      * @inheritDoc
      */
-    public static function rollback(string $modelType, string $modelName)
+    public static function rollback(string $modelType, string $modelName, string $mvc)
     {
         // config
         if($modelType === 'server') {
             $serverName = $modelName;
         } else {
-            $serverName = self::$databaseList['oracle']['table'][$modelName]['server'];
+            $serverName = self::$databaseList[$mvc]['oracle']['table'][$modelName]['server'];
         }
 
-        $serverStatus = self::$databaseList['oracle']['server'][$serverName]['connect']['status'];
+        $serverStatus = self::$databaseList[$mvc]['oracle']['server'][$serverName]['connect']['status'];
         if ($serverStatus === 'success') {
-            $serverResult = self::$databaseList['oracle']['server'][$serverName]['connect']['result'];
+            $serverResult = self::$databaseList[$mvc]['oracle']['server'][$serverName]['connect']['result'];
             @oci_rollback($serverResult);
         }
     }

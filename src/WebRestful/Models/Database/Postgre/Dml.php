@@ -20,18 +20,18 @@ class Dml extends PostgreBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function insert(string $modelType, string $modelName, string $tableName)
+    public static function insert(string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if($modelType === 'server') {
             $serverName = $modelName;
             $table = $tableName;
         } else {
-            $serverName = self::$databaseList['postgre']['table'][$modelName]['server'];
-            $table = self::$databaseList['postgre']['table'][$modelName]['table'];
+            $serverName = self::$databaseList[$mvc]['postgre']['table'][$modelName]['server'];
+            $table = self::$databaseList[$mvc]['postgre']['table'][$modelName]['table'];
         }
-        $permission = self::$databaseList['postgre']['server'][$serverName]['schema'];
-        $user = self::$databaseList['postgre']['server'][$serverName]['user'];
+        $permission = self::$databaseList[$mvc]['postgre']['server'][$serverName]['schema'];
+        $user = self::$databaseList[$mvc]['postgre']['server'][$serverName]['user'];
 
         $sql = "\nINSERT INTO $permission.$table ";
         return $sql;
@@ -40,10 +40,10 @@ class Dml extends PostgreBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function value(string $modelType, string $modelName, string $tableName, array $data, array $data_bind)
+    public static function value(string $modelType, string $modelName, string $tableName, array $data, array $data_bind, string $mvc)
     {
-        $serverName = self::$databaseList['postgre']['table'][$modelName]['server'];
-        $schema = self::$databaseObject['postgre']->table[$modelName]->schema;
+        $serverName = self::$databaseList[$mvc]['postgre']['table'][$modelName]['server'];
+        $schema = self::$databaseObject[$mvc]['postgre']->table[$modelName]->schema;
 
         $data = PostgreBase::systemSet('INSERT', $schema, $data);
 
@@ -75,17 +75,17 @@ class Dml extends PostgreBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function delete(string $modelType, string $modelName, string $tableName)
+    public static function delete(string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if($modelType === 'server') {
             $serverName = $modelName;
             $table = $tableName;
         } else {
-            $serverName = self::$databaseList['postgre']['table'][$modelName]['server'];
-            $table = self::$databaseList['postgre']['table'][$modelName]['table'];
+            $serverName = self::$databaseList[$mvc]['postgre']['table'][$modelName]['server'];
+            $table = self::$databaseList[$mvc]['postgre']['table'][$modelName]['table'];
         }
-        $user = self::$databaseList['postgre']['server'][$serverName]['user'];
+        $user = self::$databaseList[$mvc]['postgre']['server'][$serverName]['user'];
 
         $sql = "\nDELETE FROM $table ";
         return $sql;
@@ -94,18 +94,18 @@ class Dml extends PostgreBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function update(string $modelType, string $modelName, string $tableName)
+    public static function update(string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if($modelType === 'server') {
             $serverName = $modelName;
             $table = $tableName;
         } else {
-            $serverName = self::$databaseList['postgre']['table'][$modelName]['server'];
-            $table = self::$databaseList['postgre']['table'][$modelName]['table'];
+            $serverName = self::$databaseList[$mvc]['postgre']['table'][$modelName]['server'];
+            $table = self::$databaseList[$mvc]['postgre']['table'][$modelName]['table'];
         }
-        $permission = self::$databaseList['postgre']['server'][$serverName]['schema'];
-        $user = self::$databaseList['postgre']['server'][$serverName]['user'];
+        $permission = self::$databaseList[$mvc]['postgre']['server'][$serverName]['schema'];
+        $user = self::$databaseList[$mvc]['postgre']['server'][$serverName]['user'];
 
         $sql = "\nUPDATE $permission.$table ";
         return $sql;
@@ -114,15 +114,15 @@ class Dml extends PostgreBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function set(string $modelType, string $modelName, string $tableName, array $data, array $data_bind)
+    public static function set(string $modelType, string $modelName, string $tableName, array $data, array $data_bind, string $mvc)
     {
         // config
         if($modelType === 'server') {
             $serverName = $modelName;
-            $schema = self::$databaseObject['postgre']->$modelType[$modelName]->$tableName->schema;
+            $schema = self::$databaseObject[$mvc]['postgre']->$modelType[$modelName]->$tableName->schema;
         } else {
-            $serverName = self::$databaseList['postgre']['table'][$modelName]['server'];
-            $schema = self::$databaseObject['postgre']->$modelType[$modelName]->schema;
+            $serverName = self::$databaseList[$mvc]['postgre']['table'][$modelName]['server'];
+            $schema = self::$databaseObject[$mvc]['postgre']->$modelType[$modelName]->schema;
         }
 
         $data = PostgreBase::systemSet('UPDATE', $schema, $data);

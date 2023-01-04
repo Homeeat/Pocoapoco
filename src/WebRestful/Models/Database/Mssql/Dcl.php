@@ -20,18 +20,18 @@ class Dcl extends MssqlBase implements DclInterface
     /**
      * @inheritDoc
      */
-    public static function commit(string $modelType, string $modelName)
+    public static function commit(string $modelType, string $modelName, string $mvc)
     {
         // config
         if ($modelType === 'server') {
             $serverName = $modelName;
         } else {
-            $serverName = self::$databaseList['mssql']['table'][$modelName]['server'];
+            $serverName = self::$databaseList[$mvc]['mssql']['table'][$modelName]['server'];
         }
 
-        $serverStatus = self::$databaseList['mssql']['server'][$serverName]['connect']['status'];
+        $serverStatus = self::$databaseList[$mvc]['mssql']['server'][$serverName]['connect']['status'];
         if ($serverStatus === 'success') {
-            $serverResult = self::$databaseList['mssql']['server'][$serverName]['connect']['result'];
+            $serverResult = self::$databaseList[$mvc]['mssql']['server'][$serverName]['connect']['result'];
             @sqlsrv_commit($serverResult);
         }
     }
@@ -39,18 +39,18 @@ class Dcl extends MssqlBase implements DclInterface
     /**
      * @inheritDoc
      */
-    public static function rollback(string $modelType, string $modelName)
+    public static function rollback(string $modelType, string $modelName, string $mvc)
     {
         // config
         if ($modelType === 'server') {
             $serverName = $modelName;
         } else {
-            $serverName = self::$databaseList['mssql']['table'][$modelName]['server'];
+            $serverName = self::$databaseList[$mvc]['mssql']['table'][$modelName]['server'];
         }
 
-        $serverStatus = self::$databaseList['mssql']['server'][$serverName]['connect']['status'];
+        $serverStatus = self::$databaseList[$mvc]['mssql']['server'][$serverName]['connect']['status'];
         if ($serverStatus === 'success') {
-            $serverResult = self::$databaseList['mssql']['server'][$serverName]['connect']['result'];
+            $serverResult = self::$databaseList[$mvc]['mssql']['server'][$serverName]['connect']['result'];
             @sqlsrv_rollback($serverResult);
         }
     }

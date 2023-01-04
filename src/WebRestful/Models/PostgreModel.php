@@ -69,6 +69,11 @@ class PostgreModel
      */
     public int $limit = -1;
 
+    /**
+     * @var string
+     */
+    public string $mvc = '';
+
     // Base for query
     function __call(string $fun, array $args): array
     {
@@ -77,31 +82,64 @@ class PostgreModel
             case 'query':
                 switch ($count) {
                     case 0:
-                        $result = PostgreBase::query($this->modelType, $this->modelName, $this->tableName, $this->sql, $this->data, $this->data_bind, $this->keyName, $this->offset, $this->limit);
                         break;
                     case 1:
-                        $result = PostgreBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $sqlBind = null, $this->data_bind, $this->keyName, $this->offset, $limit = -1);
+                        $this->sql = $args[0];
                         break;
                     case 2:
-                        $result = PostgreBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $this->data_bind, $this->keyName, $this->offset, $limit = -1);
+                        $this->sql = $args[0];
+                        $this->data = $args[1];
+                        $this->dataBind($this->sql, $this->data);
                         break;
                     case 3:
-                        $result = PostgreBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $this->data_bind, $args[2], $this->offset, $limit = -1);
+                        $this->sql = $args[0];
+                        $this->data = $args[1];
+                        $this->keyName = $args[2];
+                        $this->dataBind($this->sql, $this->data);
                         break;
                     case 4:
-                        $result = PostgreBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $this->data_bind, $args[2], $args[3], $limit = -1);
+                        $this->sql = $args[0];
+                        $this->data = $args[1];
+                        $this->keyName = $args[2];
+                        $this->offset = $args[3];
+                        $this->dataBind($this->sql, $this->data);
                         break;
                     case 5:
-                        $result = PostgreBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $this->data_bind, $args[2], $args[3], $args[4]);
+                        $this->sql = $args[0];
+                        $this->data = $args[1];
+                        $this->keyName = $args[2];
+                        $this->offset = $args[3];
+                        $this->limit = $args[4];
+                        $this->dataBind($this->sql, $this->data);
                         break;
                     default:
                         die("【ERROR】Wrong parameters for \"$fun\".");
                 }
+                $result = PostgreBase::query($this->modelType, $this->modelName, $this->tableName, $this->sql, $this->data, $this->data_bind, $this->keyName, $this->offset, $this->limit, $this->mvc);
                 $this->clean();
                 return $result;
             default:
                 die("【ERROR】Not support \"$fun\"");
         }
+    }
+
+    /**
+     * Data bind.
+     *
+     * @param string $sql
+     * @param array $data
+     *
+     * @return boolean
+     */
+    private function dataBind(string $sql, array $data)
+    {
+        $bind_flag = 1;
+        foreach ($data as $key => $value) {
+            $sql = str_replace(":$key", "$$bind_flag", $sql);
+            $this->data_bind[$bind_flag] = $key;
+            $bind_flag++;
+        }
+        $this->sql = $sql;
     }
 
     /**
@@ -168,7 +206,7 @@ class PostgreModel
      */
     public function createTable(): string
     {
-        return Ddl::createTable($this->modelType, $this->modelName, $this->tableName);
+        return Ddl::createTable($this->modelType, $this->modelName, $this->tableName, $this->mvc);
     }
 
     /**
@@ -178,7 +216,7 @@ class PostgreModel
      */
     public function commentTable(): string
     {
-        return Ddl::commentTable($this->modelType, $this->modelName, $this->tableName);
+        return Ddl::commentTable($this->modelType, $this->modelName, $this->tableName, $this->mvc);
     }
 
     // Dml
@@ -191,7 +229,7 @@ class PostgreModel
     public function insert(): object
     {
         empty($this->action) ? $this->action = 'INSERT' : null;
-        $this->sql = Dml::insert($this->modelType, $this->modelName, $this->tableName);
+        $this->sql = Dml::insert($this->modelType, $this->modelName, $this->tableName, $this->mvc);
 
         return $this;
     }
@@ -205,7 +243,7 @@ class PostgreModel
      */
     public function value(array $data = []): object
     {
-        $res = Dml::value($this->modelType, $this->modelName, $this->tableName, $data, $this->data_bind);
+        $res = Dml::value($this->modelType, $this->modelName, $this->tableName, $data, $this->data_bind, $this->mvc);
         $this->sql .= $res['command'];
         $this->data = array_merge($this->data, $res['data']);
         $this->data_bind = $res['data_bind'];
@@ -221,7 +259,7 @@ class PostgreModel
     public function delete(): object
     {
         empty($this->action) ? $this->action = 'DELETE' : null;
-        $this->sql = Dml::delete($this->modelType, $this->modelName, $this->tableName);
+        $this->sql = Dml::delete($this->modelType, $this->modelName, $this->tableName, $this->mvc);
 
         return $this;
     }
@@ -234,7 +272,7 @@ class PostgreModel
     public function update(): object
     {
         empty($this->action) ? $this->action = 'UPDATE' : null;
-        $this->sql = Dml::update($this->modelType, $this->modelName, $this->tableName);
+        $this->sql = Dml::update($this->modelType, $this->modelName, $this->tableName, $this->mvc);
 
         return $this;
     }
@@ -248,7 +286,7 @@ class PostgreModel
      */
     public function set(array $data = []): object
     {
-        $res = Dml::set($this->modelType, $this->modelName, $this->tableName, $data, $this->data_bind);
+        $res = Dml::set($this->modelType, $this->modelName, $this->tableName, $data, $this->data_bind, $this->mvc);
         $this->sql .= $res['command'];
         $this->data = array_merge($this->data, $res['data']);
         $this->data_bind = $res['data_bind'];
@@ -268,7 +306,22 @@ class PostgreModel
     public function select(array $data = []): object
     {
         empty($this->action) ? $this->action = 'SELECT' : null;
-        $this->sql = Dql::select($this->modelType, $this->modelName, $this->tableName, $data);
+        $this->sql = Dql::select($this->modelType, $this->modelName, $this->tableName, $data, 0, $this->mvc);
+
+        return $this;
+    }
+
+    /**
+     * Select distinct data.
+     *
+     * @param array $data
+     *
+     * @return object
+     */
+    public function select_distinct(array $data = []): object
+    {
+        empty($this->action) ? $this->action = 'SELECT' : null;
+        $this->sql = Dql::select($this->modelType, $this->modelName, $this->tableName, $data, 1, $this->mvc);
 
         return $this;
     }
@@ -282,7 +335,7 @@ class PostgreModel
      */
     public function where(array $data): object
     {
-        $res = Dql::where($this->modelType, $this->modelName, $this->tableName, $data, $this->data_bind);
+        $res = Dql::where($this->modelType, $this->modelName, $this->tableName, $data, $this->data_bind, $this->mvc);
         $this->sql .= $res['command'];
         $this->data = array_merge($this->data, $res['data']);
         $this->data_bind = $res['data_bind'];
@@ -327,7 +380,7 @@ class PostgreModel
      */
     public function commit()
     {
-        return Dcl::commit($this->modelType, $this->modelName);
+        return Dcl::commit($this->modelType, $this->modelName, $this->mvc);
     }
 
     /**
@@ -337,6 +390,7 @@ class PostgreModel
      */
     public function rollback()
     {
-        return Dcl::rollback($this->modelType, $this->modelName);
+        return Dcl::rollback($this->modelType, $this->modelName, $this->mvc);
     }
+
 }

@@ -23,22 +23,22 @@ class Base extends ModelBase implements BaseInterface
     /**
      * @inheritDoc
      */
-    public function execute()
+    public function execute(string $mvc)
     {
-        foreach (self::$databaseList['mysql']['server'] as $serverName => $serverConfig) {
-            $this->checkDriverConfig($serverName, $serverConfig);
+        foreach (self::$databaseList[$mvc]['mysql']['server'] as $serverName => $serverConfig) {
+            $this->checkDriverConfig($serverName, $serverConfig, $mvc);
             $conn = $this->connect($serverConfig);
 
             if ($conn) {
-                self::$databaseList['mysql']['server'][$serverName]['connect']['status'] = 'success';
-                self::$databaseList['mysql']['server'][$serverName]['connect']['result'] = $conn;
+                self::$databaseList[$mvc]['mysql']['server'][$serverName]['connect']['status'] = 'success';
+                self::$databaseList[$mvc]['mysql']['server'][$serverName]['connect']['result'] = $conn;
             } else {
                 $error = mysqli_connect_error();
-                self::$databaseList['mysql']['server'][$serverName]['connect']['status'] = 'error';
-                self::$databaseList['mysql']['server'][$serverName]['connect']['result'] = $error;
+                self::$databaseList[$mvc]['mysql']['server'][$serverName]['connect']['status'] = 'error';
+                self::$databaseList[$mvc]['mysql']['server'][$serverName]['connect']['result'] = $error;
             }
         }
-        isset(self::$databaseObject['mysql']->server) ? $this->loadModelUserSchema() : null;
+        isset(self::$databaseObject[$mvc]['mysql']->server) ? $this->loadModelUserSchema($mvc) : null;
     }
 
     /**
@@ -72,31 +72,31 @@ class Base extends ModelBase implements BaseInterface
     /**
      * @inheritDoc
      */
-    public function loadModelUserSchema()
+    public function loadModelUserSchema(string $mvc)
     {
-        foreach (self::$databaseObject['mysql']->server as $serverName => $serverInfo) {
-            if (self::$databaseList['mysql']['server'][$serverName]['connect']['status'] === 'success') {
+        foreach (self::$databaseObject[$mvc]['mysql']->server as $serverName => $serverInfo) {
+            if (self::$databaseList[$mvc]['mysql']['server'][$serverName]['connect']['status'] === 'success') {
 
-                $allTabColumns = $this->allTabColumns($serverName, self::$databaseList['mysql']['server'][$serverName]['database']);
+                $allTabColumns = $this->allTabColumns($serverName, self::$databaseList[$mvc]['mysql']['server'][$serverName]['database'], $mvc);
                 if ($allTabColumns['status'] === 'SUCCESS') {
                     for ($i = 0; $i < $allTabColumns['result']['total']; $i++) {
                         $tableName = $allTabColumns['result']['data'][$i]['TABLE_NAME'];
                         $columnName = $allTabColumns['result']['data'][$i]['COLUMN_NAME'];
 
-                        isset(self::$databaseObject['mysql']->server[$serverName]->$tableName) ? null : self::$databaseObject['mysql']->server[$serverName]->$tableName = new \stdClass();
-                        self::$databaseObject['mysql']->server[$serverName]->$tableName->schema[$columnName]['DATA_TYPE'] = $allTabColumns['result']['data'][$i]['DATA_TYPE'];
+                        isset(self::$databaseObject[$mvc]['mysql']->server[$serverName]->$tableName) ? null : self::$databaseObject[$mvc]['mysql']->server[$serverName]->$tableName = new \stdClass();
+                        self::$databaseObject[$mvc]['mysql']->server[$serverName]->$tableName->schema[$columnName]['DATA_TYPE'] = $allTabColumns['result']['data'][$i]['DATA_TYPE'];
 
                         preg_match_all('/(?:\()(.*)(?:\))/i', $allTabColumns['result']['data'][$i]['COLUMN_TYPE'], $res);
-                        self::$databaseObject['mysql']->server[$serverName]->$tableName->schema[$columnName]['DATA_SIZE'] = isset($res[1][0]) ? $res[1][0] : null;
+                        self::$databaseObject[$mvc]['mysql']->server[$serverName]->$tableName->schema[$columnName]['DATA_SIZE'] = isset($res[1][0]) ? $res[1][0] : null;
 
-                        self::$databaseObject['mysql']->server[$serverName]->$tableName->schema[$columnName]['NULLABLE'] = $allTabColumns['result']['data'][$i]['IS_NULLABLE'] === 'YES' ? 'Y' : 'N';
-                        self::$databaseObject['mysql']->server[$serverName]->$tableName->schema[$columnName]['DATA_DEFAULT'] = $allTabColumns['result']['data'][$i]['COLUMN_DEFAULT'];
+                        self::$databaseObject[$mvc]['mysql']->server[$serverName]->$tableName->schema[$columnName]['NULLABLE'] = $allTabColumns['result']['data'][$i]['IS_NULLABLE'] === 'YES' ? 'Y' : 'N';
+                        self::$databaseObject[$mvc]['mysql']->server[$serverName]->$tableName->schema[$columnName]['DATA_DEFAULT'] = $allTabColumns['result']['data'][$i]['COLUMN_DEFAULT'];
                         switch ($allTabColumns['result']['data'][$i]['COLUMN_KEY']) {
                             case 'PRI':
-                                self::$databaseObject['mysql']->server[$serverName]->$tableName->schema[$columnName]['KEY_TYPE'] = 'P';
+                                self::$databaseObject[$mvc]['mysql']->server[$serverName]->$tableName->schema[$columnName]['KEY_TYPE'] = 'P';
                                 break;
                         }
-                        self::$databaseObject['mysql']->server[$serverName]->$tableName->schema[$columnName]['COMMENT'] = $allTabColumns['result']['data'][$i]['COLUMN_COMMENT'];
+                        self::$databaseObject[$mvc]['mysql']->server[$serverName]->$tableName->schema[$columnName]['COMMENT'] = $allTabColumns['result']['data'][$i]['COLUMN_COMMENT'];
                     }
                 }
             }
@@ -106,22 +106,22 @@ class Base extends ModelBase implements BaseInterface
     /**
      * @inheritDoc
      */
-    public function allTabColumns(string $serverName, string $serachName)
+    public function allTabColumns(string $serverName, string $serachName, string $mvc)
     {
         $sql = <<<sqlCommand
             SELECT TABLE_NAME, COLUMN_NAME, ORDINAL_POSITION, COLUMN_DEFAULT, IS_NULLABLE, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, NUMERIC_PRECISION, NUMERIC_SCALE, COLUMN_TYPE, COLUMN_KEY, COLUMN_COMMENT FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '$serachName' ORDER BY ORDINAL_POSITION
         sqlCommand;
-        return self::query('server', $serverName, null, $sql, null, [], null, 0, -1);
+        return self::query('server', $serverName, null, $sql, null, [], null, 0, -1, $mvc);
     }
 
     /**
      * @inheritDoc
      */
-    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit)
+    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit, string $mvc)
     {
         // config
-        $modelType === 'server' ? $serverName = $modelName : $serverName = self::$databaseList['mysql']['table'][$modelName]['server'];
-        $conn = self::$databaseList['mysql']['server'][$serverName]['connect']['result'];
+        $modelType === 'server' ? $serverName = $modelName : $serverName = self::$databaseList[$mvc]['mysql']['table'][$modelName]['server'];
+        $conn = self::$databaseList[$mvc]['mysql']['server'][$serverName]['connect']['result'];
 
         // auto commit
         mysqli_autocommit($conn, false);
@@ -148,7 +148,7 @@ class Base extends ModelBase implements BaseInterface
         empty($sqlData) ? $sqlData = null : null;
         if (!is_null($sqlData)) {
 
-            $sqlBind = self::dataBind($modelType, $modelName, $tableName, $sqlData);
+            $sqlBind = self::dataBind($modelType, $modelName, $tableName, $sqlData, $mvc);
             $sql_type = '';
             $sql_data = [];
             foreach ($sqlData as $key => $value) {
@@ -192,7 +192,7 @@ class Base extends ModelBase implements BaseInterface
                             $dbRows['result']['total']++;
                         }
                     } else {
-                        $keyName = strtoupper($keyName);
+                        $keyName = strtolower($keyName);
                         while ($row = @mysqli_fetch_array($result, MYSQLI_ASSOC)) {
                             $dbRows['result']['data'][$row[$keyName]] = $row;
                             $dbRows['result']['total']++;
@@ -260,13 +260,13 @@ class Base extends ModelBase implements BaseInterface
     /**
      * @inheritDoc
      */
-    public static function dataBind(string $modelType, string $modelName, string $tableName, array $sqlData)
+    public static function dataBind(string $modelType, string $modelName, string $tableName, array $sqlData, string $mvc)
     {
         // config
         if ($modelType === 'server') {
-            $schema = self::$databaseObject['mysql']->$modelType[$modelName]->$tableName->schema;
+            $schema = self::$databaseObject[$mvc]['mysql']->$modelType[$modelName]->$tableName->schema;
         } else {
-            $schema = self::$databaseObject['mysql']->$modelType[$modelName]->schema;
+            $schema = self::$databaseObject[$mvc]['mysql']->$modelType[$modelName]->schema;
         }
 
         foreach ($sqlData as $key => $value) {

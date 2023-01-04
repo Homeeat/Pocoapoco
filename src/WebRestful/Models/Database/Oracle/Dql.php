@@ -13,7 +13,6 @@ namespace Ntch\Pocoapoco\WebRestful\Models\Database\Oracle;
 
 use Ntch\Pocoapoco\WebRestful\Models\Database\Oracle\Base as OracleBase;
 use Ntch\Pocoapoco\WebRestful\Models\Database\DqlInterface;
-use Saint\Loader\Psr4;
 
 class Dql extends OracleBase implements DqlInterface
 {
@@ -21,76 +20,114 @@ class Dql extends OracleBase implements DqlInterface
     /**
      * @inheritDoc
      */
-    public static function select(string $modelType, string $modelName, string $tableName, array $data)
+    public static function select(string $modelType, string $modelName, string $tableName, array $data, bool $distinct, string $mvc)
     {
         // config
         if ($modelType === 'server') {
             $serverName = $modelName;
             $table = $tableName;
-            $schema = self::$databaseObject['oracle']->$modelType[$modelName]->$tableName->schema;
+            $schema = self::$databaseObject[$mvc]['oracle']->$modelType[$modelName]->$tableName->schema;
         } else {
-            $serverName = self::$databaseList['oracle']['table'][$modelName]['server'];
-            $table = self::$databaseList['oracle']['table'][$modelName]['table'];
-            $schema = self::$databaseObject['oracle']->$modelType[$modelName]->schema;
+            $serverName = self::$databaseList[$mvc]['oracle']['table'][$modelName]['server'];
+            $table = self::$databaseList[$mvc]['oracle']['table'][$modelName]['table'];
+            $schema = self::$databaseObject[$mvc]['oracle']->$modelType[$modelName]->schema;
         }
-        $user = self::$databaseList['oracle']['server'][$serverName]['user'];
+        $user = self::$databaseList[$mvc]['oracle']['server'][$serverName]['user'];
 
         if (empty($data)) {
             $sql_search = '*';
         } else {
-            $data = array_flip($data);
             $sql_search = '';
             foreach ($data as $key => $value) {
-                if (preg_match('/[a-zA-Z]+\(+\w+\)$/', $key)) {
-                    $sql_search .= "$key, ";
-                } else {
-                    if ($schema[$key]['DATA_TYPE'] === 'DATE') {
-                        $data_size = $schema[$key]['DATA_SIZE'];
-                        $sql_search .= "TO_CHAR($key, '$data_size') as $key, ";
+                $colName = null;
+                $alias = null;
+                if (is_int($key)) {
+                    $colName = $value;
+                    if (preg_match('/[a-zA-Z]+\(+\w+\)$/', $colName) || !strpos(' ', $colName)) {
+                        $sql_search .= "$colName, ";
                     } else {
-                        $sql_search .= "$key, ";
+                        if ($schema[$colName]['DATA_TYPE'] === 'DATE') {
+                            $data_size = $schema[$colName]['DATA_SIZE'];
+                            $sql_search .= "TO_CHAR($colName, '$data_size'), ";
+                        } else {
+                            $sql_search .= "$colName, ";
+                        }
+                    }
+                } else {
+                    $colName = $key;
+                    $alias = $value;
+                    if (preg_match('/[a-zA-Z]+\(+\w+\)$/', $colName) || !strpos(' ', $colName)) {
+                        $sql_search .= "$colName AS $alias, ";
+                    } else {
+                        if ($schema[$colName]['DATA_TYPE'] === 'DATE') {
+                            $data_size = $schema[$colName]['DATA_SIZE'];
+                            $sql_search .= "TO_CHAR($colName, '$data_size') AS $alias, ";
+                        } else {
+                            $sql_search .= "$colName AS $alias, ";
+                        }
                     }
                 }
             }
             $sql_search = substr(trim($sql_search), 0, -1);
         }
 
-        $sqlCommand = "\nSELECT $sql_search \nFROM $user.$table ";
+        if ($distinct) {
+            $sqlCommand = "\nSELECT DISTINCT \n$sql_search \nFROM $user.$table ";
+        } else {
+            $sqlCommand = "\nSELECT $sql_search \nFROM $user.$table ";
+        }
+
         return $sqlCommand;
     }
 
     /**
      * @inheritDoc
      */
-    public static function where(string $modelType, string $modelName, string $tableName, array $data, array $data_bind = [])
+    public static function where(string $modelType, string $modelName, string $tableName, array $data, array $data_bind, string $mvc)
     {
         // config
         if ($modelType === 'server') {
             $serverName = $modelName;
-            $schema = self::$databaseObject['oracle']->$modelType[$modelName]->$tableName->schema;
+            $schema = self::$databaseObject[$mvc]['oracle']->$modelType[$modelName]->$tableName->schema;
         } else {
-            $serverName = self::$databaseList['oracle']['table'][$modelName]['server'];
-            $schema = self::$databaseObject['oracle']->$modelType[$modelName]->schema;
+            $serverName = self::$databaseList[$mvc]['oracle']['table'][$modelName]['server'];
+            $schema = self::$databaseObject[$mvc]['oracle']->$modelType[$modelName]->schema;
         }
 
         $sql_where = '';
-        foreach ($data as $key => $value) {
-            $sql_where .= "$key = ";
-            if (is_null($value)) {
-                $sql_where .= " null, ";
-            } else {
-                if ($schema[$key]['DATA_TYPE'] === 'DATE') {
-                    $data_size = isset($schema[$key]['DATA_SIZE']) ? empty($schema[$key]['DATA_SIZE']) ? 'YYYY-MM-DD HH24:MI:SS' : $schema[$key]['DATA_SIZE'] : 'YYYY-MM-DD HH24:MI:SS';
-                    $sql_where .= "TO_DATE(:$key, '$data_size'), ";
+        $data_where = [];
+        foreach ($data as $colName => $value) {
+            $sql_where .= "$colName ";
+            if(is_array($value)) {
+                if (is_null($value[0])) {
+                    $sql_where .= "IS NOT NULL AND ";
                 } else {
-                    $sql_where .= ":$key AND ";
+                    if ($schema[$colName]['DATA_TYPE'] === 'DATE') {
+                        $data_size = isset($schema[$colName]['DATA_SIZE']) ? empty($schema[$colName]['DATA_SIZE']) ? 'YYYY-MM-DD HH24:MI:SS' : $schema[$colName]['DATA_SIZE'] : 'YYYY-MM-DD HH24:MI:SS';
+                        $sql_where .= "TO_DATE(:$colName, '$data_size'), ";
+                    } else {
+                        $sql_where .= "$value[1] :$colName AND ";
+                    }
+                    $data_where[$colName] = $value[0];
+                }
+            } else {
+                if (is_null($value)) {
+                    $sql_where .= "IS NULL AND ";
+                } else {
+                    if ($schema[$colName]['DATA_TYPE'] === 'DATE') {
+                        $data_size = isset($schema[$colName]['DATA_SIZE']) ? empty($schema[$colName]['DATA_SIZE']) ? 'YYYY-MM-DD HH24:MI:SS' : $schema[$colName]['DATA_SIZE'] : 'YYYY-MM-DD HH24:MI:SS';
+                        $sql_where .= "TO_DATE(:$colName, '$data_size'), ";
+                    } else {
+                        $sql_where .= "= :$colName AND ";
+                    }
+                    $data_where[$colName] = $value;
                 }
             }
         }
         $sql_where = substr(trim($sql_where), 0, -4);
 
         $sqlCommand = "\nWHERE $sql_where";
-        return $sql = ['command' => $sqlCommand, 'data' => $data];
+        return $sql = ['command' => $sqlCommand, 'data' => $data_where];
     }
 
     /**

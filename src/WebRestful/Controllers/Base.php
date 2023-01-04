@@ -3,20 +3,24 @@
 /**
  * Pocoapoco - PHP framework.
  *
- * @author    	Roy Lee <royhylee@mail.npac-ntch.org>
+ * @author        Roy Lee <royhylee@mail.npac-ntch.org>
  *
- * @see			https://github.com/Homeeat/Pocoapoco  - GitHub project
- * @license  	https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
+ * @see            https://github.com/Homeeat/Pocoapoco  - GitHub project
+ * @license    https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
  */
 
 namespace Ntch\Pocoapoco\WebRestful\Controllers;
 
+use Ntch\Pocoapoco\Error\Base as ErrorBase;
 use Ntch\Pocoapoco\WebRestful\WebRestful;
 
 class Base extends WebRestful
 {
 
-    use \Ntch\Pocoapoco\Tools\Uuid;
+    /**
+     * @var string
+     */
+    protected static string $uuid = '';
 
     /**
      * Controller entry point.
@@ -28,26 +32,24 @@ class Base extends WebRestful
      *
      * @return void
      */
-    public function controllerBase(string $uri, string $path, string $class, string $method)
+    public function controllerBase(string $uri, string $path, string $class, string $method, string $uuid)
     {
-        $isWebRestfulPass = $this->webRestfulCheckList('controller', $uri, $path, $class, $method);
-        if ($isWebRestfulPass) {
-            $this->controllerExecute($class, $method);
-        }
+        self::$uuid = $uuid;
+        $createClass = $this->webRestfulCheckList('controller', $uri, $path, $class, $method);
+        is_null($createClass) ? null : $this->controllerExecute($createClass, $method);
     }
 
     /**
      * Execute controller method.
      *
-     * @param string $class
+     * @param object $createClass
      * @param string $method
      *
      * @return void
      */
-    private function controllerExecute(string $class, string $method = 'index')
+    private function controllerExecute(object $createClass, string $method = 'index')
     {
-        $controller = new $class();
-        $controller->$method();
+        $createClass->$method();
         exit();
     }
 
@@ -58,7 +60,7 @@ class Base extends WebRestful
      */
     public function getUuid(): string
     {
-        return self::uuid();
+        return self::$uuid;
     }
 
     /**
@@ -187,8 +189,8 @@ class Base extends WebRestful
     {
         $unix = $this->nginx->request['time'];
         $time['unix'] = $unix;
-        $time['date'] = date('Y-m-d', floor($unix));
-        $time['time'] = date('H:i:s', floor($unix));
+        $time['date'] = date('Y-m-d', $unix);
+        $time['time'] = date('H:i:s', $unix);
         return $time;
     }
 

@@ -20,19 +20,21 @@ interface DclInterface
      *
      * @param string $modelType
      * @param string $modelName
+     * @param string $mvc
      *
      * @return void
      */
-    public static function commit(string $modelType, string $modelName);
+    public static function commit(string $modelType, string $modelName, string $mvc);
 
     /**
      * Rollback.
      *
      * @param string $modelType
      * @param string $modelName
+     * @param string $mvc
      *
      * @return void
      */
-    public static function rollback(string $modelType, string $modelName);
+    public static function rollback(string $modelType, string $modelName, string $mvc);
 
 }

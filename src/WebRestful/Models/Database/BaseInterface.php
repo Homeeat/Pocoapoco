@@ -17,9 +17,11 @@ interface BaseInterface
     /**
      * Execute.
      *
+     * @param string $mvc
+     *
      * @return void
      */
-    public function execute();
+    public function execute(string $mvc);
 
     /**
      * Connect driver.
@@ -43,9 +45,11 @@ interface BaseInterface
     /**
      * Load model user define in object schema method.
      *
+     * @param string $mvc
+     *
      * @return void
      */
-    public function loadModelUserSchema();
+    public function loadModelUserSchema(string $mvc);
 
     /**
      * Select all_tab_columns.
@@ -55,7 +59,7 @@ interface BaseInterface
      *
      * @return array
      */
-    public function allTabColumns(string $serverName, string $serachName);
+    public function allTabColumns(string $serverName, string $serachName, string $mvc);
 
     /**
      * Query.
@@ -69,10 +73,11 @@ interface BaseInterface
      * @param string|null $keyName
      * @param int $offset
      * @param int $limit
+     * @param string $mvc
      *
      * @return array
      */
-    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit);
+    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit, string $mvc);
 
     /**
      * System set data from model setting.
@@ -92,9 +97,10 @@ interface BaseInterface
      * @param string $modelName
      * @param string $tableName
      * @param array $sqlBind
+     * @param string $mvc
      *
      * @return array
      */
-    public static function dataBind(string $modelType, string $modelName, string $tableName, array $sqlBind);
+    public static function dataBind(string $modelType, string $modelName, string $tableName, array $sqlBind, string $mvc);
 
 }

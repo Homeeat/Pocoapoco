@@ -22,22 +22,22 @@ class Base extends ModelBase implements BaseInterface
     /**
      * @inheritDoc
      */
-    public function execute()
+    public function execute(string $mvc)
     {
-        foreach (self::$databaseList['oracle']['server'] as $serverName => $serverConfig) {
+        foreach (self::$databaseList[$mvc]['oracle']['server'] as $serverName => $serverConfig) {
             $this->checkDriverConfig($serverName, $serverConfig);
             $conn = $this->connect($serverConfig);
 
             if ($conn) {
-                self::$databaseList['oracle']['server'][$serverName]['connect']['status'] = 'success';
-                self::$databaseList['oracle']['server'][$serverName]['connect']['result'] = $conn;
+                self::$databaseList[$mvc]['oracle']['server'][$serverName]['connect']['status'] = 'success';
+                self::$databaseList[$mvc]['oracle']['server'][$serverName]['connect']['result'] = $conn;
             } else {
                 $error = oci_error();
-                self::$databaseList['oracle']['server'][$serverName]['connect']['status'] = 'error';
-                self::$databaseList['oracle']['server'][$serverName]['connect']['result'] = $error['message'];
+                self::$databaseList[$mvc]['oracle']['server'][$serverName]['connect']['status'] = 'error';
+                self::$databaseList[$mvc]['oracle']['server'][$serverName]['connect']['result'] = $error['message'];
             }
         }
-        isset(self::$databaseObject['oracle']->server) ? $this->loadModelUserSchema() : null;
+        isset(self::$databaseObject[$mvc]['oracle']->server) ? $this->loadModelUserSchema($mvc) : null;
     }
 
     /**
@@ -71,45 +71,45 @@ class Base extends ModelBase implements BaseInterface
     /**
      * @inheritDoc
      */
-    public function loadModelUserSchema()
+    public function loadModelUserSchema(string $mvc)
     {
-        foreach (self::$databaseObject['oracle']->server as $serverName => $serverInfo) {
-            if (self::$databaseList['oracle']['server'][$serverName]['connect']['status'] === 'success') {
+        foreach (self::$databaseObject[$mvc]['oracle']->server as $serverName => $serverInfo) {
+            if (self::$databaseList[$mvc]['oracle']['server'][$serverName]['connect']['status'] === 'success') {
 
-                $allTabColumns = $this->allTabColumns($serverName, self::$databaseList['oracle']['server'][$serverName]['user']);
+                $allTabColumns = $this->allTabColumns($serverName, self::$databaseList[$mvc]['oracle']['server'][$serverName]['user'], $mvc);
                 if ($allTabColumns['status'] === 'SUCCESS') {
                     for ($i = 0; $i < $allTabColumns['result']['total']; $i++) {
                         $tableName = $allTabColumns['result']['data'][$i]['TABLE_NAME'];
                         $columnName = $allTabColumns['result']['data'][$i]['COLUMN_NAME'];
 
-                        isset(self::$databaseObject['oracle']->server[$serverName]->$tableName) ? null : self::$databaseObject['oracle']->server[$serverName]->$tableName = new \stdClass();
-                        self::$databaseObject['oracle']->server[$serverName]->$tableName->schema[$columnName]['DATA_TYPE'] = $allTabColumns['result']['data'][$i]['DATA_TYPE'];
+                        isset(self::$databaseObject[$mvc]['oracle']->server[$serverName]->$tableName) ? null : self::$databaseObject[$mvc]['oracle']->server[$serverName]->$tableName = new \stdClass();
+                        self::$databaseObject[$mvc]['oracle']->server[$serverName]->$tableName->schema[$columnName]['DATA_TYPE'] = $allTabColumns['result']['data'][$i]['DATA_TYPE'];
                         $data_type = $allTabColumns['result']['data'][$i]['DATA_TYPE'];
                         switch ($data_type) {
                             case 'CHAR':
                             case 'NCHAR':
                             case 'VARCHAR2':
                             case 'NVARCHAR2':
-                                self::$databaseObject['oracle']->server[$serverName]->$tableName->schema[$columnName]['DATA_SIZE'] = $allTabColumns['result']['data'][$i]['DATA_LENGTH'];
+                                self::$databaseObject[$mvc]['oracle']->server[$serverName]->$tableName->schema[$columnName]['DATA_SIZE'] = $allTabColumns['result']['data'][$i]['DATA_LENGTH'];
                                 break;
                             case 'NUMBER':
                                 $dataPercision = $allTabColumns['result']['data'][$i]['DATA_PRECISION'];
                                 $dataScale = $allTabColumns['result']['data'][$i]['DATA_SCALE'];
-                                self::$databaseObject['oracle']->server[$serverName]->$tableName->schema[$columnName]['DATA_SIZE'] = "$dataPercision,$dataScale";
+                                self::$databaseObject[$mvc]['oracle']->server[$serverName]->$tableName->schema[$columnName]['DATA_SIZE'] = "$dataPercision,$dataScale";
                                 break;
                             case strpos($data_type, 'TIMESTAMP'):
                             case 'DATE':
                             case 'NCLOB':
-                                self::$databaseObject['oracle']->server[$serverName]->$tableName->schema[$columnName]['DATA_SIZE'] = null;
+                                self::$databaseObject[$mvc]['oracle']->server[$serverName]->$tableName->schema[$columnName]['DATA_SIZE'] = null;
                                 break;
                             case 'FLOAT':
-                                self::$databaseObject['oracle']->server[$serverName]->$tableName->schema[$columnName]['DATA_SIZE'] = $allTabColumns['result']['data'][$i]['DATA_PRECISION'];
+                                self::$databaseObject[$mvc]['oracle']->server[$serverName]->$tableName->schema[$columnName]['DATA_SIZE'] = $allTabColumns['result']['data'][$i]['DATA_PRECISION'];
                                 break;
                         }
-                        self::$databaseObject['oracle']->server[$serverName]->$tableName->schema[$columnName]['NULLABLE'] = $allTabColumns['result']['data'][$i]['NULLABLE'];
-                        self::$databaseObject['oracle']->server[$serverName]->$tableName->schema[$columnName]['DATA_DEFAULT'] = $allTabColumns['result']['data'][$i]['DATA_DEFAULT'];
-                        self::$databaseObject['oracle']->server[$serverName]->$tableName->schema[$columnName]['KEY_TYPE'] = $allTabColumns['result']['data'][$i]['CONSTRAINT_TYPE'];
-                        self::$databaseObject['oracle']->server[$serverName]->$tableName->schema[$columnName]['COMMENT'] = $allTabColumns['result']['data'][$i]['COMMENTS'];
+                        self::$databaseObject[$mvc]['oracle']->server[$serverName]->$tableName->schema[$columnName]['NULLABLE'] = $allTabColumns['result']['data'][$i]['NULLABLE'];
+                        self::$databaseObject[$mvc]['oracle']->server[$serverName]->$tableName->schema[$columnName]['DATA_DEFAULT'] = $allTabColumns['result']['data'][$i]['DATA_DEFAULT'];
+                        self::$databaseObject[$mvc]['oracle']->server[$serverName]->$tableName->schema[$columnName]['KEY_TYPE'] = $allTabColumns['result']['data'][$i]['CONSTRAINT_TYPE'];
+                        self::$databaseObject[$mvc]['oracle']->server[$serverName]->$tableName->schema[$columnName]['COMMENT'] = $allTabColumns['result']['data'][$i]['COMMENTS'];
                     }
                 }
             }
@@ -119,7 +119,7 @@ class Base extends ModelBase implements BaseInterface
     /**
      * @inheritDoc
      */
-    public function allTabColumns(string $serverName, string $serachName)
+    public function allTabColumns(string $serverName, string $serachName, string $mvc)
     {
         $sql = <<<sqlCommand
             SELECT ATC.TABLE_NAME, ATC.COLUMN_NAME, ATC.DATA_TYPE, ATC.DATA_LENGTH, ATC.DATA_PRECISION, ATC.DATA_SCALE, ATC.NULLABLE, ATC.COLUMN_ID, ATC.DATA_DEFAULT, ACC.COMMENTS, CON.CONSTRAINT_NAME, CON.CONSTRAINT_TYPE
@@ -135,17 +135,17 @@ class Base extends ModelBase implements BaseInterface
             WHERE ATC.OWNER = '$serachName'
             ORDER BY COLUMN_ID
         sqlCommand;
-        return self::query('server', $serverName, null, $sql, null, [], null, 0, -1);
+        return self::query('server', $serverName, null, $sql, null, [], null, 0, -1, $mvc);
     }
 
     /**
      * @inheritDoc
      */
-    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit)
+    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit, string $mvc)
     {
         // config
-        $modelType === 'server' ? $serverName = $modelName : $serverName = self::$databaseList['oracle']['table'][$modelName]['server'];
-        $conn = self::$databaseList['oracle']['server'][$serverName]['connect']['result'];
+        $modelType === 'server' ? $serverName = $modelName : $serverName = self::$databaseList[$mvc]['oracle']['table'][$modelName]['server'];
+        $conn = self::$databaseList[$mvc]['oracle']['server'][$serverName]['connect']['result'];
 
         // response
         $action = explode(' ', strtoupper(trim($sqlCommand)))[0];
@@ -168,7 +168,7 @@ class Base extends ModelBase implements BaseInterface
         // avoid sql injection
         empty($sqlData) ? $sqlData = null : null;
         if (!is_null($sqlData)) {
-            $sqlBind = self::dataBind($modelType, $modelName, $tableName, $sqlData);
+            $sqlBind = self::dataBind($modelType, $modelName, $tableName, $sqlData, $mvc);
             foreach ($sqlData as $key => $value) {
                 $$key = $value;
                 @oci_bind_by_name($stid, ":$key", $$key, $sqlBind[$key]['DATA_SIZE'], $sqlBind[$key]['SQL_TYPE']);
@@ -191,7 +191,6 @@ class Base extends ModelBase implements BaseInterface
                         $keyName = strtoupper($keyName);
                         foreach ($rows as $key => $value) {
                             $data[$value[$keyName]] = $value;
-                            unset($data[$value[$keyName]][$keyName]);
                         }
                     } else {
                         $data = $rows;
@@ -257,13 +256,13 @@ class Base extends ModelBase implements BaseInterface
     /**
      * @inheritDoc
      */
-    public static function dataBind(string $modelType, string $modelName, string $tableName, array $sqlData)
+    public static function dataBind(string $modelType, string $modelName, string $tableName, array $sqlData, string $mvc)
     {
         // config
         if ($modelType === 'server') {
-            $schema = self::$databaseObject['oracle']->$modelType[$modelName]->$tableName->schema;
+            $schema = self::$databaseObject[$mvc]['oracle']->$modelType[$modelName]->$tableName->schema;
         } else {
-            $schema = self::$databaseObject['oracle']->$modelType[$modelName]->schema;
+            $schema = self::$databaseObject[$mvc]['oracle']->$modelType[$modelName]->schema;
         }
 
         foreach ($sqlData as $key => $value) {

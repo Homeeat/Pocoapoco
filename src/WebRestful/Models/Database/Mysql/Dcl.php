@@ -20,18 +20,18 @@ class Dcl extends MysqlBase implements DclInterface
     /**
      * @inheritDoc
      */
-    public static function commit(string $modelType, string $modelName)
+    public static function commit(string $modelType, string $modelName, string $mvc)
     {
         // config
         if ($modelType === 'server') {
             $serverName = $modelName;
         } else {
-            $serverName = self::$databaseList['mysql']['table'][$modelName]['server'];
+            $serverName = self::$databaseList[$mvc]['mysql']['table'][$modelName]['server'];
         }
 
-        $serverStatus = self::$databaseList['mysql']['server'][$serverName]['connect']['status'];
+        $serverStatus = self::$databaseList[$mvc]['mysql']['server'][$serverName]['connect']['status'];
         if ($serverStatus === 'success') {
-            $serverResult = self::$databaseList['mysql']['server'][$serverName]['connect']['result'];
+            $serverResult = self::$databaseList[$mvc]['mysql']['server'][$serverName]['connect']['result'];
             @mysqli_commit($serverResult);
         }
     }
@@ -39,18 +39,18 @@ class Dcl extends MysqlBase implements DclInterface
     /**
      * @inheritDoc
      */
-    public static function rollback(string $modelType, string $modelName)
+    public static function rollback(string $modelType, string $modelName, string $mvc)
     {
         // config
         if ($modelType === 'server') {
             $serverName = $modelName;
         } else {
-            $serverName = self::$databaseList['mysql']['table'][$modelName]['server'];
+            $serverName = self::$databaseList[$mvc]['mysql']['table'][$modelName]['server'];
         }
 
-        $serverStatus = self::$databaseList['mysql']['server'][$serverName]['connect']['status'];
+        $serverStatus = self::$databaseList[$mvc]['mysql']['server'][$serverName]['connect']['status'];
         if ($serverStatus === 'success') {
-            $serverResult = self::$databaseList['mysql']['server'][$serverName]['connect']['result'];
+            $serverResult = self::$databaseList[$mvc]['mysql']['server'][$serverName]['connect']['result'];
             @mysqli_rollback($serverResult);
         }
     }

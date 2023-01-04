@@ -20,15 +20,15 @@ class Dml extends MssqlBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function insert(string $modelType, string $modelName, string $tableName)
+    public static function insert(string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if($modelType === 'server') {
             $serverName = $modelName;
             $table = $tableName;
         } else {
-            $serverName = self::$databaseList['mssql']['table'][$modelName]['server'];
-            $table = self::$databaseList['mssql']['table'][$modelName]['table'];
+            $serverName = self::$databaseList[$mvc]['mssql']['table'][$modelName]['server'];
+            $table = self::$databaseList[$mvc]['mssql']['table'][$modelName]['table'];
         }
 
         $sql = "\nINSERT INTO [dbo].[$table] ";
@@ -38,10 +38,10 @@ class Dml extends MssqlBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function value(string $modelType, string $modelName, string $tableName, array $data, array $data_bind = [])
+    public static function value(string $modelType, string $modelName, string $tableName, array $data, array $data_bind, string $mvc)
     {
-        $serverName = self::$databaseList['mssql']['table'][$modelName]['server'];
-        $schema = self::$databaseObject['mssql']->table[$modelName]->schema;
+        $serverName = self::$databaseList[$mvc]['mssql']['table'][$modelName]['server'];
+        $schema = self::$databaseObject[$mvc]['mssql']->table[$modelName]->schema;
 
         $data = MssqlBase::systemSet('INSERT', $schema, $data);
 
@@ -68,15 +68,15 @@ class Dml extends MssqlBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function delete(string $modelType, string $modelName, string $tableName)
+    public static function delete(string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if($modelType === 'server') {
             $serverName = $modelName;
             $table = $tableName;
         } else {
-            $serverName = self::$databaseList['mssql']['table'][$modelName]['server'];
-            $table = self::$databaseList['mssql']['table'][$modelName]['table'];
+            $serverName = self::$databaseList[$mvc]['mssql']['table'][$modelName]['server'];
+            $table = self::$databaseList[$mvc]['mssql']['table'][$modelName]['table'];
         }
 
         $sql = "\nDELETE FROM [dbo].[$table] ";
@@ -86,15 +86,15 @@ class Dml extends MssqlBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function update(string $modelType, string $modelName, string $tableName)
+    public static function update(string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if($modelType === 'server') {
             $serverName = $modelName;
             $table = $tableName;
         } else {
-            $serverName = self::$databaseList['mssql']['table'][$modelName]['server'];
-            $table = self::$databaseList['mssql']['table'][$modelName]['table'];
+            $serverName = self::$databaseList[$mvc]['mssql']['table'][$modelName]['server'];
+            $table = self::$databaseList[$mvc]['mssql']['table'][$modelName]['table'];
         }
 
         $sql = "\nUPDATE [dbo].[$table] ";
@@ -104,15 +104,15 @@ class Dml extends MssqlBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function set(string $modelType, string $modelName, string $tableName, array $data, array $data_bind = [])
+    public static function set(string $modelType, string $modelName, string $tableName, array $data, array $data_bind, string $mvc)
     {
         // config
         if($modelType === 'server') {
             $serverName = $modelName;
-            $schema = self::$databaseObject['mssql']->$modelType[$modelName]->$tableName->schema;
+            $schema = self::$databaseObject[$mvc]['mssql']->$modelType[$modelName]->$tableName->schema;
         } else {
-            $serverName = self::$databaseList['mssql']['table'][$modelName]['server'];
-            $schema = self::$databaseObject['mssql']->$modelType[$modelName]->schema;
+            $serverName = self::$databaseList[$mvc]['mssql']['table'][$modelName]['server'];
+            $schema = self::$databaseObject[$mvc]['mssql']->$modelType[$modelName]->schema;
         }
 
         $data = MssqlBase::systemSet('UPDATE', $schema, $data);

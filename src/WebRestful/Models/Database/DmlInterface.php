@@ -20,10 +20,11 @@ interface DmlInterface
      * @param string $modelType
      * @param string $modelName
      * @param string $tableName
+     * @param string $mvc
      *
      * @return string
      */
-    public static function insert(string $modelType, string $modelName, string $tableName);
+    public static function insert(string $modelType, string $modelName, string $tableName, string $mvc);
 
     /**
      * Insert value.
@@ -33,10 +34,11 @@ interface DmlInterface
      * @param string $tableName
      * @param array $data
      * @param array $data_bind
+     * @param string $mvc
      *
      * @return string
      */
-    public static function value(string $modelType, string $modelName, string $tableName, array $data, array $data_bind);
+    public static function value(string $modelType, string $modelName, string $tableName, array $data, array $data_bind, string $mvc);
 
     /**
      * Delete data.
@@ -44,10 +46,11 @@ interface DmlInterface
      * @param string $modelType
      * @param string $modelName
      * @param string $tableName
+     * @param string $mvc
      *
      * @return string
      */
-    public static function delete(string $modelType, string $modelName, string $tableName);
+    public static function delete(string $modelType, string $modelName, string $tableName, string $mvc);
 
     /**
      * Update data.
@@ -55,10 +58,11 @@ interface DmlInterface
      * @param string $modelType
      * @param string $modelName
      * @param string $tableName
+     * @param string $mvc
      *
      * @return string
      */
-    public static function update(string $modelType, string $modelName, string $tableName);
+    public static function update(string $modelType, string $modelName, string $tableName, string $mvc);
 
     /**
      * Update set.
@@ -68,9 +72,10 @@ interface DmlInterface
      * @param string $tableName
      * @param array $data
      * @param array $data_bind
+     * @param string $mvc
      *
      * @return array
      */
-    public static function set(string $modelType, string $modelName, string $tableName, array $data, array $data_bind);
+    public static function set(string $modelType, string $modelName, string $tableName, array $data, array $data_bind, string $mvc);
 
 }

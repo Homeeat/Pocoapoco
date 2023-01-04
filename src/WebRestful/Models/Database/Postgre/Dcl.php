@@ -20,18 +20,18 @@ class Dcl extends PostgreBase implements DclInterface
     /**
      * @inheritDoc
      */
-    public static function commit(string $modelType, string $modelName)
+    public static function commit(string $modelType, string $modelName, string $mvc)
     {
         // config
         if($modelType === 'server') {
             $serverName = $modelName;
         } else {
-            $serverName = self::$databaseList['postgre']['table'][$modelName]['server'];
+            $serverName = self::$databaseList[$mvc]['postgre']['table'][$modelName]['server'];
         }
 
-        $serverStatus = self::$databaseList['postgre']['server'][$serverName]['connect']['status'];
+        $serverStatus = self::$databaseList[$mvc]['postgre']['server'][$serverName]['connect']['status'];
         if ($serverStatus === 'success') {
-            $serverResult = self::$databaseList['postgre']['server'][$serverName]['connect']['result'];
+            $serverResult = self::$databaseList[$mvc]['postgre']['server'][$serverName]['connect']['result'];
             @pg_query($serverResult, "COMMIT;");
         }
     }
@@ -39,18 +39,18 @@ class Dcl extends PostgreBase implements DclInterface
     /**
      * @inheritDoc
      */
-    public static function rollback(string $modelType, string $modelName)
+    public static function rollback(string $modelType, string $modelName, string $mvc)
     {
         // config
         if($modelType === 'server') {
             $serverName = $modelName;
         } else {
-            $serverName = self::$databaseList['postgre']['table'][$modelName]['server'];
+            $serverName = self::$databaseList[$mvc]['postgre']['table'][$modelName]['server'];
         }
 
-        $serverStatus = self::$databaseList['postgre']['server'][$serverName]['connect']['status'];
+        $serverStatus = self::$databaseList[$mvc]['postgre']['server'][$serverName]['connect']['status'];
         if ($serverStatus === 'success') {
-            $serverResult = self::$databaseList['postgre']['server'][$serverName]['connect']['result'];
+            $serverResult = self::$databaseList[$mvc]['postgre']['server'][$serverName]['connect']['result'];
             @pg_query($serverResult, 'ROLLBACK;');
         }
     }

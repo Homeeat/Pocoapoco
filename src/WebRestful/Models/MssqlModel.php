@@ -70,6 +70,11 @@ class MssqlModel
      */
     public int $limit = -1;
 
+    /**
+     * @var string
+     */
+    public string $mvc = '';
+
     // Base for query
     function __call(string $fun, array $args): array
     {
@@ -78,31 +83,61 @@ class MssqlModel
             case 'query':
                 switch ($count) {
                     case 0:
-                        $result = MssqlBase::query($this->modelType, $this->modelName, $this->tableName, $this->sql, $this->data, $this->data_bind, $this->keyName, $this->offset, $this->limit);
                         break;
                     case 1:
-                        $result = MssqlBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $sqlBind = null, $this->data_bind, $this->keyName, $this->offset, $limit = -1);
+                        $this->sql = $args[0];
                         break;
                     case 2:
-                        $result = MssqlBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $this->data_bind, $this->keyName, $this->offset, $limit = -1);
+                        $this->sql = $args[0];
+                        $this->data = $args[1];
+                        $this->dataBind($this->sql, $this->data);
                         break;
                     case 3:
-                        $result = MssqlBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $this->data_bind, $args[2], $this->offset, $limit = -1);
+                        $this->sql = $args[0];
+                        $this->data = $args[1];
+                        $this->keyName = $args[2];
+                        $this->dataBind($this->sql, $this->data);
                         break;
                     case 4:
-                        $result = MssqlBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $this->data_bind, $args[2], $args[3], $limit = -1);
+                        $this->sql = $args[0];
+                        $this->data = $args[1];
+                        $this->keyName = $args[2];
+                        $this->offset = $args[3];
+                        $this->dataBind($this->sql, $this->data);
                         break;
                     case 5:
-                        $result = MssqlBase::query($this->modelType, $this->modelName, $this->tableName, $args[0], $args[1], $this->data_bind, $args[2], $args[3], $args[4]);
+                        $this->sql = $args[0];
+                        $this->data = $args[1];
+                        $this->keyName = $args[2];
+                        $this->offset = $args[3];
+                        $this->limit = $args[4];
+                        $this->dataBind($this->sql, $this->data);
                         break;
                     default:
                         die("【ERROR】Wrong parameters for \"$fun\".");
                 }
+                $result = MssqlBase::query($this->modelType, $this->modelName, $this->tableName, $this->sql, $this->data, $this->data_bind, $this->keyName, $this->offset, $this->limit, $this->mvc);
                 $this->clean();
                 return $result;
             default:
                 die("【ERROR】Not support \"$fun\"");
         }
+    }
+
+    /**
+     * Data bind.
+     *
+     * @param string $sql
+     * @param array $data
+     *
+     * @return boolean
+     */
+    private function dataBind(string $sql, array $data)
+    {
+        foreach ($data as $key => $value) {
+            $sql = str_replace(":$key", "?", $sql);
+        }
+        $this->sql = $sql;
     }
 
     /**
@@ -173,6 +208,7 @@ class MssqlModel
     }
 
     // DDL
+
     /**
      * Create Table.
      *
@@ -180,7 +216,7 @@ class MssqlModel
      */
     public function createTable(): string
     {
-        return Ddl::createTable($this->modelType, $this->modelName, $this->tableName);
+        return Ddl::createTable($this->modelType, $this->modelName, $this->tableName, $this->mvc);
     }
 
     /**
@@ -190,10 +226,11 @@ class MssqlModel
      */
     public function commentTable(): string
     {
-        return Ddl::commentTable($this->modelType, $this->modelName, $this->tableName);
+        return Ddl::commentTable($this->modelType, $this->modelName, $this->tableName, $this->mvc);
     }
 
     // Dml
+
     /**
      * Insert data or Merge insert.
      *
@@ -202,7 +239,7 @@ class MssqlModel
     public function insert(): object
     {
         empty($this->action) ? $this->action = 'INSERT' : null;
-        $this->sql = Dml::insert($this->modelType, $this->modelName, $this->tableName);
+        $this->sql = Dml::insert($this->modelType, $this->modelName, $this->tableName, $this->mvc);
 
         return $this;
     }
@@ -216,7 +253,7 @@ class MssqlModel
      */
     public function value(array $data = []): object
     {
-        $res = Dml::value($this->modelType, $this->modelName, $this->tableName, $data);
+        $res = Dml::value($this->modelType, $this->modelName, $this->tableName, $data, [], $this->mvc);
         $this->sql .= $res['command'];
         $this->data = array_merge($this->data, $res['data']);
 
@@ -231,7 +268,7 @@ class MssqlModel
     public function delete(): object
     {
         empty($this->action) ? $this->action = 'DELETE' : null;
-        $this->sql = Dml::delete($this->modelType, $this->modelName, $this->tableName);
+        $this->sql = Dml::delete($this->modelType, $this->modelName, $this->tableName, $this->mvc);
 
         return $this;
     }
@@ -244,7 +281,7 @@ class MssqlModel
     public function update(): object
     {
         empty($this->action) ? $this->action = 'UPDATE' : null;
-        $this->sql = Dml::update($this->modelType, $this->modelName, $this->tableName);
+        $this->sql = Dml::update($this->modelType, $this->modelName, $this->tableName, $this->mvc);
 
         return $this;
     }
@@ -258,7 +295,7 @@ class MssqlModel
      */
     public function set(array $data = []): object
     {
-        $res = Dml::set($this->modelType, $this->modelName, $this->tableName, $data);
+        $res = Dml::set($this->modelType, $this->modelName, $this->tableName, $data, [], $this->mvc);
         $this->sql .= $res['command'];
         $this->data = array_merge($this->data, $res['data']);
 
@@ -266,6 +303,7 @@ class MssqlModel
     }
 
     // Dql
+
     /**
      * Select data.
      *
@@ -276,7 +314,22 @@ class MssqlModel
     public function select(array $data = []): object
     {
         empty($this->action) ? $this->action = 'SELECT' : null;
-        $this->sql = Dql::select($this->modelType, $this->modelName, $this->tableName, $data);
+        $this->sql = Dql::select($this->modelType, $this->modelName, $this->tableName, $data, 0, $this->mvc);
+
+        return $this;
+    }
+
+    /**
+     * Select distinct data.
+     *
+     * @param array $data
+     *
+     * @return object
+     */
+    public function select_distinct(array $data = []): object
+    {
+        empty($this->action) ? $this->action = 'SELECT' : null;
+        $this->sql = Dql::select($this->modelType, $this->modelName, $this->tableName, $data, 1, $this->mvc);
 
         return $this;
     }
@@ -290,7 +343,7 @@ class MssqlModel
      */
     public function where(array $data): object
     {
-        $res = Dql::where($this->modelType, $this->modelName, $this->tableName, $data);
+        $res = Dql::where($this->modelType, $this->modelName, $this->tableName, $data, [], $this->mvc);
         $this->sql .= $res['command'];
         $this->data = array_merge($this->data, $res['data']);
         return $this;
@@ -323,6 +376,7 @@ class MssqlModel
     }
 
     // Dcl
+
     /**
      * Commit.
      *
@@ -330,7 +384,7 @@ class MssqlModel
      */
     public function commit()
     {
-        return Dcl::commit($this->modelType, $this->modelName);
+        return Dcl::commit($this->modelType, $this->modelName, $this->mvc);
     }
 
     /**
@@ -340,7 +394,7 @@ class MssqlModel
      */
     public function rollback()
     {
-        return Dcl::rollback($this->modelType, $this->modelName);
+        return Dcl::rollback($this->modelType, $this->modelName, $this->mvc);
     }
 
 }

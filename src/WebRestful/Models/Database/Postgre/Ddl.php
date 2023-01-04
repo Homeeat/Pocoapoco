@@ -20,20 +20,20 @@ class Ddl extends PostgreBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function createTable(string $modelType, string $modelName, string $tableName)
+    public static function createTable(string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if ($modelType === 'server') {
             $serverName = $modelName;
             $table = $tableName;
-            $schema = self::$databaseObject['postgre']->$modelType[$modelName]->$tableName->schema;
+            $schema = self::$databaseObject[$mvc]['postgre']->$modelType[$modelName]->$tableName->schema;
         } else {
-            $serverName = self::$databaseList['postgre']['table'][$modelName]['server'];
-            $table = self::$databaseList['postgre']['table'][$modelName]['table'];
-            $schema = self::$databaseObject['postgre']->$modelType[$modelName]->schema;
+            $serverName = self::$databaseList[$mvc]['postgre']['table'][$modelName]['server'];
+            $table = self::$databaseList[$mvc]['postgre']['table'][$modelName]['table'];
+            $schema = self::$databaseObject[$mvc]['postgre']->$modelType[$modelName]->schema;
         }
-        $permission = self::$databaseList['postgre']['server'][$serverName]['schema'];
-        $user = self::$databaseList['postgre']['server'][$serverName]['user'];
+        $permission = self::$databaseList[$mvc]['postgre']['server'][$serverName]['schema'];
+        $user = self::$databaseList[$mvc]['postgre']['server'][$serverName]['user'];
 
         $SQL = "CREATE TABLE $permission.$table (\n";
         $SQL_KEY = '';
@@ -89,7 +89,7 @@ class Ddl extends PostgreBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function dropTable(string $modelType, string $modelName, string $tableName)
+    public static function dropTable(string $modelType, string $modelName, string $tableName, string $mvc)
     {
 
     }
@@ -97,7 +97,7 @@ class Ddl extends PostgreBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function alterTable(string $modelType, string $modelName, string $tableName)
+    public static function alterTable(string $modelType, string $modelName, string $tableName, string $mvc)
     {
 
     }
@@ -105,7 +105,7 @@ class Ddl extends PostgreBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function truncateTable(string $modelType, string $modelName, string $tableName)
+    public static function truncateTable(string $modelType, string $modelName, string $tableName, string $mvc)
     {
 
     }
@@ -113,20 +113,20 @@ class Ddl extends PostgreBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function commentTable(string $modelType, string $modelName, string $tableName)
+    public static function commentTable(string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if ($modelType === 'server') {
             $serverName = $modelName;
             $table = $tableName;
-            $schema = self::$databaseObject['postgre']->$modelType[$modelName]->$tableName->schema;
+            $schema = self::$databaseObject[$mvc]['postgre']->$modelType[$modelName]->$tableName->schema;
         } else {
-            $serverName = self::$databaseList['postgre']['table'][$modelName]['server'];
-            $table = self::$databaseList['postgre']['table'][$modelName]['table'];
-            $schema = self::$databaseObject['postgre']->$modelType[$modelName]->schema;
+            $serverName = self::$databaseList[$mvc]['postgre']['table'][$modelName]['server'];
+            $table = self::$databaseList[$mvc]['postgre']['table'][$modelName]['table'];
+            $schema = self::$databaseObject[$mvc]['postgre']->$modelType[$modelName]->schema;
         }
         $permission = self::$databaseList['postgre']['server'][$serverName]['schema'];
-        $user = self::$databaseList['postgre']['server'][$serverName]['user'];
+        $user = self::$databaseList[$mvc]['postgre']['server'][$serverName]['user'];
 
         $SQL = '';
         foreach ($schema as $columnName => $info) {
@@ -139,7 +139,7 @@ class Ddl extends PostgreBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function renameTable(string $modelType, string $modelName, string $tableName)
+    public static function renameTable(string $modelType, string $modelName, string $tableName, string $mvc)
     {
 
     }

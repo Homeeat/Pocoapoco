@@ -3,10 +3,10 @@
 /**
  * Pocoapoco - PHP framework.
  *
- * @author    	Roy Lee <royhylee@mail.npac-ntch.org>
+ * @author      Roy Lee <royhylee@mail.npac-ntch.org>
  *
- * @see			https://github.com/Homeeat/Pocoapoco  - GitHub project
- * @license  	https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
+ * @see         https://github.com/Homeeat/Pocoapoco  - GitHub project
+ * @license     https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
  */
 
 namespace Ntch\Pocoapoco\Mail;
@@ -19,9 +19,9 @@ class Base
 {
 
     /**
-     * @var array|null
+     * @var array
      */
-    protected static ?array $mailList;
+    protected static array $mailList = [];
 
     /**
      * @var SettingBase
@@ -32,45 +32,49 @@ class Base
      * Mail entry point.
      *
      * @param array $mail
+     * @param array $mvc
      *
      * @return void
      * @throws Exception
      */
-    public function mailBase(array $mail)
+    public function mailBase(array $mail, string $mvc)
     {
         $this->settingBase = new SettingBase();
-        $this->setMailList();
-        $this->checkMailConfig($mail);
+        $this->setMailList($mvc);
+        $this->checkMailConfig($mail, $mvc);
         foreach ($mail as $keyName) {
-            $this->connect($keyName);
+            $this->connect($keyName, $mvc);
         }
     }
 
     /**
      * Set mail list.
      *
+     * @param array $mvc
+     *
      * @return void
      */
-    private function setMailList()
+    private function setMailList(string $mvc)
     {
         $settingList = $this->settingBase->getSettingData('mail');
-        self::$mailList = $settingList;
+        self::$mailList[$mvc] = $settingList;
     }
 
     /**
      * Check model config.
      *
      * @param array $mail
+     * @param string $mvc
      *
      * @return void
      */
-    private function checkMailConfig(array $mail)
+    private function checkMailConfig(array $mail, string $mvc)
     {
         $mailConfigList = ['Host', 'Port', 'Username', 'Password', 'SMTPAuth', 'SMTPSecure', 'CharSet', 'SMTPDebug'];
 
         foreach ($mail as $mailName) {
             foreach ($mailConfigList as $key) {
-                isset(self::$mailList[$mailName][$key]) ? null : die("【ERROR】Setting mail.ini tag \"$key\" is not exist.");
+                isset(self::$mailList[$mvc][$mailName][$key]) ? null : die("【ERROR】Setting mail.ini tag \"$key\" is not exist.");
             }
         }
     }
@@ -79,28 +83,29 @@ class Base
      * Connect mail server.
      *
      * @param string $mailName
+     * @param string $mvc
      *
      * @return void
      * @throws Exception
      */
-    public function connect(string $mailName)
+    public function connect(string $mailName, string $mvc)
     {
         $mailer = new PHPMailer();
         $mailer->isSMTP();
-        $mailer->Host = self::$mailList[$mailName]['Host'];
-        $mailer->Port = self::$mailList[$mailName]['Port'];
-        $mailer->Username = self::$mailList[$mailName]['Username'];
-        $mailer->Password = self::$mailList[$mailName]['Password'];
-        $mailer->SMTPAuth = self::$mailList[$mailName]['SMTPAuth'];
-        $mailer->Timeout = self::$mailList[$mailName]['Timeout'];
+        $mailer->Host = self::$mailList[$mvc][$mailName]['Host'];
+        $mailer->Port = self::$mailList[$mvc][$mailName]['Port'];
+        $mailer->Username = self::$mailList[$mvc][$mailName]['Username'];
+        $mailer->Password = self::$mailList[$mvc][$mailName]['Password'];
+        $mailer->SMTPAuth = self::$mailList[$mvc][$mailName]['SMTPAuth'];
+        $mailer->Timeout = self::$mailList[$mvc][$mailName]['Timeout'];
 
         $conn = $mailer->smtpConnect();
 
         if ($conn) {
-            self::$mailList[$mailName]['connect']['status'] = 'success';
+            self::$mailList[$mvc][$mailName]['connect']['status'] = 'success';
             $mailer->smtpClose();
         } else {
-            self::$mailList[$mailName]['connect']['status'] = 'error';
+            self::$mailList[$mvc][$mailName]['connect']['status'] = 'error';
         }
 
     }
@@ -108,20 +113,21 @@ class Base
     /**
      * Get mail list.
      *
+     * @param string $mvc
+     *
      * @return array
      */
-    public function getMailList(): array
+    public function getMailList(string $mvc): array
     {
         $showData = [];
-        if(isset(self::$mailList)) {
-            $showData = self::$mailList;
-            foreach (self::$mailList as $mailName => $mailInfo) {
+        if(isset(self::$mailList[$mvc])) {
+            $showData = self::$mailList[$mvc];
+            foreach (self::$mailList[$mvc] as $mailName => $mailInfo) {
                 $showData[$mailName]['Password'] = '***************';
             }
         }
 
         return $showData;
     }
-
 
 }

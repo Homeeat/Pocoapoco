@@ -20,17 +20,17 @@ class Dml extends MysqlBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function insert(string $modelType, string $modelName, string $tableName)
+    public static function insert(string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if($modelType === 'server') {
             $serverName = $modelName;
             $table = $tableName;
         } else {
-            $serverName = self::$databaseList['mysql']['table'][$modelName]['server'];
-            $table = self::$databaseList['mysql']['table'][$modelName]['table'];
+            $serverName = self::$databaseList[$mvc]['mysql']['table'][$modelName]['server'];
+            $table = self::$databaseList[$mvc]['mysql']['table'][$modelName]['table'];
         }
-        $user = self::$databaseList['mysql']['server'][$serverName]['user'];
+        $user = self::$databaseList[$mvc]['mysql']['server'][$serverName]['user'];
 
         $sql = "\nINSERT INTO `$user`.`$table` ";
         return $sql;
@@ -39,10 +39,10 @@ class Dml extends MysqlBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function value(string $modelType, string $modelName, string $tableName, array $data, array $data_bind = [])
+    public static function value(string $modelType, string $modelName, string $tableName, array $data, array $data_bind, string $mvc)
     {
-        $serverName = self::$databaseList['mysql']['table'][$modelName]['server'];
-        $schema = self::$databaseObject['mysql']->table[$modelName]->schema;
+        $serverName = self::$databaseList[$mvc]['mysql']['table'][$modelName]['server'];
+        $schema = self::$databaseObject[$mvc]['mysql']->table[$modelName]->schema;
 
         $data = MysqlBase::systemSet('INSERT', $schema, $data);
 
@@ -69,17 +69,17 @@ class Dml extends MysqlBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function delete(string $modelType, string $modelName, string $tableName)
+    public static function delete(string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if($modelType === 'server') {
             $serverName = $modelName;
             $table = $tableName;
         } else {
-            $serverName = self::$databaseList['mysql']['table'][$modelName]['server'];
-            $table = self::$databaseList['mysql']['table'][$modelName]['table'];
+            $serverName = self::$databaseList[$mvc]['mysql']['table'][$modelName]['server'];
+            $table = self::$databaseList[$mvc]['mysql']['table'][$modelName]['table'];
         }
-        $user = self::$databaseList['mysql']['server'][$serverName]['user'];
+        $user = self::$databaseList[$mvc]['mysql']['server'][$serverName]['user'];
 
         $sql = "\nDELETE FROM `$user`.`$table` ";
         return $sql;
@@ -88,17 +88,17 @@ class Dml extends MysqlBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function update(string $modelType, string $modelName, string $tableName)
+    public static function update(string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if($modelType === 'server') {
             $serverName = $modelName;
             $table = $tableName;
         } else {
-            $serverName = self::$databaseList['mysql']['table'][$modelName]['server'];
-            $table = self::$databaseList['mysql']['table'][$modelName]['table'];
+            $serverName = self::$databaseList[$mvc]['mysql']['table'][$modelName]['server'];
+            $table = self::$databaseList[$mvc]['mysql']['table'][$modelName]['table'];
         }
-        $user = self::$databaseList['mysql']['server'][$serverName]['user'];
+        $user = self::$databaseList[$mvc]['mysql']['server'][$serverName]['user'];
 
         $sql = "\nUPDATE `$user`.`$table` ";
         return $sql;
@@ -107,15 +107,15 @@ class Dml extends MysqlBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function set(string $modelType, string $modelName, string $tableName, array $data, array $data_bind = [])
+    public static function set(string $modelType, string $modelName, string $tableName, array $data, array $data_bind, string $mvc)
     {
         // config
         if($modelType === 'server') {
             $serverName = $modelName;
-            $schema = self::$databaseObject['mysql']->$modelType[$modelName]->$tableName->schema;
+            $schema = self::$databaseObject[$mvc]['mysql']->$modelType[$modelName]->$tableName->schema;
         } else {
-            $serverName = self::$databaseList['mysql']['table'][$modelName]['server'];
-            $schema = self::$databaseObject['mysql']->$modelType[$modelName]->schema;
+            $serverName = self::$databaseList[$mvc]['mysql']['table'][$modelName]['server'];
+            $schema = self::$databaseObject[$mvc]['mysql']->$modelType[$modelName]->schema;
         }
 
         $data = MysqlBase::systemSet('UPDATE', $schema, $data);

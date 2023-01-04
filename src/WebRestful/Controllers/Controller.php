@@ -15,6 +15,7 @@ use Ntch\Pocoapoco\Error\Base as ErrorBase;
 use Ntch\Pocoapoco\Log\Base as LogBase;
 use Ntch\Pocoapoco\WebRestful\Controllers\Base as ControllerBase;
 use Ntch\Pocoapoco\WebRestful\Settings\Base as SettingsBase;
+use Ntch\Pocoapoco\WebRestful\Libraries\Base as LibrariesBase;
 use Ntch\Pocoapoco\Mail\Base as MailBase;
 use Ntch\Pocoapoco\Mail\Mail;
 use Ntch\Pocoapoco\Aws\Base as AwsBase;
@@ -36,6 +37,7 @@ class Controller
         // config
         $controllerBase = new ControllerBase();
         $settingsBase = new SettingsBase();
+        $librariesBase = new LibrariesBase();
         $mailBase = new MailBase();
         $awsBase = new AWSBase();
         $modelBase = new ModelBase();
@@ -43,11 +45,7 @@ class Controller
         // controller
         $request = new \stdClass();
 
-        static $uuid;
-        if(empty($uuid)){
-            $uuid = $controllerBase->getUuid();
-        }
-        $request->uuid = $uuid;
+        $request->uuid = $controllerBase->getUuid();
         $request->url = $controllerBase->getUrl();
         $request->method = $controllerBase->getMethod();
         $request->uri = $controllerBase->getUri();
@@ -71,28 +69,28 @@ class Controller
         $this->setting['log'] = $settingsBase->getSettingData('log');
 
         // libraries
-        $libraries = $settingsBase->getSettingData('libraries');
-        if (!is_null($libraries)) {
-            $this->setting['libraries'] = $libraries;
+        $settingLibrary = $librariesBase->getLibrariesList();
+        if(!empty($settingLibrary)) {
+            $this->setting['libraries'] = $librariesBase->getLibrariesList();
         }
 
         // mail
-        $settingMail = $mailBase->getMailList();
+        $settingMail = $mailBase->getMailList('controller');
         if (!empty($settingMail)) {
             $this->setting['mail'] = $settingMail;
 
             foreach ($this->setting['mail'] as $server => $config) {
-                $this->mail[$server] = new Mail($server);
+                $this->mail[$server] = new Mail($server, 'controller');
             }
         }
 
         // aws
-        $settingAws = $awsBase->getAwsList();
+        $settingAws = $awsBase->getAwsList('controller');
         if (!empty($settingAws)) {
             $this->setting['aws'] = $settingAws;
 
             foreach ($this->setting['aws'] as $account => $config) {
-                $this->aws[$account] = new Aws($account);
+                $this->aws[$account] = new Aws($account, 'controller');
             }
         }
 
@@ -104,12 +102,14 @@ class Controller
         }
 
         // model
-        $settingModels = $modelBase->getDatabaseList();
-        foreach ($settingModels as $key => $value) {
-            $this->setting[$key] = $value;
+        $settingModels = $modelBase->getDatabaseList('controller');
+        if(!empty($settingModels)) {
+            foreach ($settingModels as $key => $value) {
+                $this->setting[$key] = $value;
+            }
         }
 
-        $models = $modelBase->getDatabaseObject();
+        $models = $modelBase->getDatabaseObject('controller');
         if (!empty($models)) {
             $this->models = $models;
         }

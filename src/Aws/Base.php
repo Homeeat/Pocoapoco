@@ -3,10 +3,10 @@
 /**
  * Pocoapoco - PHP framework.
  *
- * @author    	Roy Lee <royhylee@mail.npac-ntch.org>
+ * @author      Roy Lee <royhylee@mail.npac-ntch.org>
  *
- * @see			https://github.com/Homeeat/Pocoapoco  - GitHub project
- * @license  	https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
+ * @see         https://github.com/Homeeat/Pocoapoco  - GitHub project
+ * @license     https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
  */
 
 namespace Ntch\Pocoapoco\Aws;
@@ -30,41 +30,45 @@ class Base
      * Aws entry point.
      *
      * @param array $aws
+     * @param string $mvc
      *
      * @return void
      */
-    public function awsBase(array $aws)
+    public function awsBase(array $aws, string $mvc)
     {
         $this->settingBase = new SettingBase();
-        $this->setAwsList();
-        $this->checkAwsConfig($aws);
+        $this->setAwsList($mvc);
+        $this->checkAwsConfig($aws, $mvc);
     }
 
     /**
      * Set aws list.
      *
+     * @param string $mvc
+     *
      * @return void
      */
-    private function setAwsList()
+    private function setAwsList(string $mvc)
     {
         $settingList = $this->settingBase->getSettingData('aws');
-        self::$awsList = $settingList;
+        self::$awsList[$mvc] = $settingList;
     }
 
     /**
      * Check model config.
      *
      * @param array $aws
+     * @param string $mvc
      *
      * @return void
      */
-    private function checkAwsConfig(array $aws)
+    private function checkAwsConfig(array $aws, string $mvc)
     {
         $awsConfigList = ['version', 'region', 'key', 'secret'];
 
         foreach ($aws as $awsName) {
             foreach ($awsConfigList as $key) {
-                isset(self::$awsList[$awsName][$key]) ? null : die("【ERROR】Setting aws.ini tag \"$key\" is not exist.");
+                isset(self::$awsList[$mvc][$awsName][$key]) ? null : die("【ERROR】Setting aws.ini tag \"$key\" is not exist.");
             }
         }
     }
@@ -72,14 +76,16 @@ class Base
     /**
      * Get aws list.
      *
+     * @param string $mvc
+     *
      * @return array
      */
-    public function getAwsList(): array
+    public function getAwsList(string $mvc): array
     {
         $showData = [];
-        if(isset(self::$awsList)) {
-            $showData = self::$awsList;
-            foreach (self::$awsList as $awsName => $awsInfo) {
+        if(isset(self::$awsList[$mvc])) {
+            $showData = self::$awsList[$mvc];
+            foreach (self::$awsList[$mvc] as $awsName => $awsInfo) {
                 $showData[$awsName]['Password'] = '***************';
             }
         }

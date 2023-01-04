@@ -32,20 +32,19 @@ class Aws extends AwsBase
      * Construct
      *
      * @param string $awsName
-     *
-     * @return void
+     * @param string $mvc
      */
-    public function __construct(string $awsName)
+    public function __construct(string $awsName, string $mvc)
     {
         // mail config
         $this->awsName = $awsName;
         $this->aws[$awsName] = new S3Client(
             [
-                'version' => self::$awsList[$awsName]['version'],
-                'region' => self::$awsList[$awsName]['region'],
+                'version' => self::$awsList[$mvc][$awsName]['version'],
+                'region' => self::$awsList[$mvc][$awsName]['region'],
                 'credentials' => [
-                    'key' => self::$awsList[$awsName]['key'],
-                    'secret' => self::$awsList[$awsName]['secret'],
+                    'key' => self::$awsList[$mvc][$awsName]['key'],
+                    'secret' => self::$awsList[$mvc][$awsName]['secret'],
                 ],
             ]
         );
@@ -296,7 +295,7 @@ class Aws extends AwsBase
                 }
 
                 // download
-                if((bool)$download) {
+                if ((bool)$download) {
                     $awsParam['ContentType'] = 'binary/octet-stream';
                 }
 

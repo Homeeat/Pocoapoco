@@ -3,10 +3,10 @@
 /**
  * Pocoapoco - PHP framework.
  *
- * @author    	Roy Lee <royhylee@mail.npac-ntch.org>
+ * @author      Roy Lee <royhylee@mail.npac-ntch.org>
  *
- * @see			https://github.com/Homeeat/Pocoapoco  - GitHub project
- * @license  	https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
+ * @see         https://github.com/Homeeat/Pocoapoco  - GitHub project
+ * @license     https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
  */
 
 namespace Ntch\Pocoapoco\Mail;
@@ -33,24 +33,23 @@ class Mail extends MailBase
      * Construct
      *
      * @param string $mailName
-     *
-     * @return void
+     * @param string $mvc
      */
-    public function __construct(string $mailName)
+    public function __construct(string $mailName, string $mvc)
     {
         // mail config
         $this->mailName = $mailName;
         $this->mailer[$mailName] = new PHPMailer();
         $this->mailer[$mailName]->isSMTP();
-        $this->mailer[$mailName]->Host = self::$mailList[$mailName]['Host'];
-        $this->mailer[$mailName]->Port = self::$mailList[$mailName]['Port'];
-        $this->mailer[$mailName]->Username = self::$mailList[$mailName]['Username'];
-        $this->mailer[$mailName]->Password = self::$mailList[$mailName]['Password'];
-        $this->mailer[$mailName]->SMTPAuth = self::$mailList[$mailName]['SMTPAuth'];
-        $this->mailer[$mailName]->SMTPSecure = self::$mailList[$mailName]['SMTPSecure'];
-        $this->mailer[$mailName]->CharSet = self::$mailList[$mailName]['CharSet'];
-        $this->mailer[$mailName]->SMTPDebug = self::$mailList[$mailName]['SMTPDebug'];
-        $this->mailer[$mailName]->Timeout = self::$mailList[$mailName]['Timeout'];
+        $this->mailer[$mailName]->Host = self::$mailList[$mvc][$mailName]['Host'];
+        $this->mailer[$mailName]->Port = self::$mailList[$mvc][$mailName]['Port'];
+        $this->mailer[$mailName]->Username = self::$mailList[$mvc][$mailName]['Username'];
+        $this->mailer[$mailName]->Password = self::$mailList[$mvc][$mailName]['Password'];
+        $this->mailer[$mailName]->SMTPAuth = self::$mailList[$mvc][$mailName]['SMTPAuth'];
+        $this->mailer[$mailName]->SMTPSecure = self::$mailList[$mvc][$mailName]['SMTPSecure'];
+        $this->mailer[$mailName]->CharSet = self::$mailList[$mvc][$mailName]['CharSet'];
+        $this->mailer[$mailName]->SMTPDebug = self::$mailList[$mvc][$mailName]['SMTPDebug'];
+        $this->mailer[$mailName]->Timeout = self::$mailList[$mvc][$mailName]['Timeout'];
     }
 
     /**

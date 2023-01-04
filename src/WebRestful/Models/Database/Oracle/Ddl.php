@@ -20,19 +20,19 @@ class Ddl extends OracleBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function createTable(string $modelType, string $modelName, string $tableName)
+    public static function createTable(string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if ($modelType === 'server') {
             $serverName = $modelName;
             $table = $tableName;
-            $schema = self::$databaseObject['oracle']->$modelType[$modelName]->$tableName->schema;
+            $schema = self::$databaseObject[$mvc]['oracle']->$modelType[$modelName]->$tableName->schema;
         } else {
-            $serverName = self::$databaseList['oracle']['table'][$modelName]['server'];
-            $table = self::$databaseList['oracle']['table'][$modelName]['table'];
-            $schema = self::$databaseObject['oracle']->$modelType[$modelName]->schema;
+            $serverName = self::$databaseList[$mvc]['oracle']['table'][$modelName]['server'];
+            $table = self::$databaseList[$mvc]['oracle']['table'][$modelName]['table'];
+            $schema = self::$databaseObject[$mvc]['oracle']->$modelType[$modelName]->schema;
         }
-        $user = self::$databaseList['oracle']['server'][$serverName]['user'];
+        $user = self::$databaseList[$mvc]['oracle']['server'][$serverName]['user'];
 
         $SQL = "CREATE TABLE $user.$table (\n";
         $SQL_KEY = '';
@@ -55,6 +55,9 @@ class Ddl extends OracleBase implements DdlInterface
                     break;
                 case strpos($dataType, 'TIMESTAMP'):
                 case 'DATE':
+                case 'TIMESTAMP':
+                case 'TIMESTAMP WITH TIME ZONE':
+                case 'TIMESTAMP WITH LOCAL TIME ZONE':
                     $dataDefault = isset($info['DATA_DEFAULT']) ? empty($info['DATA_DEFAULT']) ? null : ' DEFAULT SYSDATE' : null;
                     break;
                 default:
@@ -81,7 +84,7 @@ class Ddl extends OracleBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function dropTable(string $modelType, string $modelName, string $tableName)
+    public static function dropTable(string $modelType, string $modelName, string $tableName, string $mvc)
     {
 
     }
@@ -89,7 +92,7 @@ class Ddl extends OracleBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function alterTable(string $modelType, string $modelName, string $tableName)
+    public static function alterTable(string $modelType, string $modelName, string $tableName, string $mvc)
     {
 
     }
@@ -97,7 +100,7 @@ class Ddl extends OracleBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function truncateTable(string $modelType, string $modelName, string $tableName)
+    public static function truncateTable(string $modelType, string $modelName, string $tableName, string $mvc)
     {
 
     }
@@ -105,19 +108,19 @@ class Ddl extends OracleBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function commentTable(string $modelType, string $modelName, string $tableName)
+    public static function commentTable(string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if ($modelType === 'server') {
             $serverName = $modelName;
             $table = $tableName;
-            $schema = self::$databaseObject['oracle']->$modelType[$modelName]->$tableName->schema;
+            $schema = self::$databaseObject[$mvc]['oracle']->$modelType[$modelName]->$tableName->schema;
         } else {
-            $serverName = self::$databaseList['oracle']['table'][$modelName]['server'];
-            $table = self::$databaseList['oracle']['table'][$modelName]['table'];
-            $schema = self::$databaseObject['oracle']->$modelType[$modelName]->schema;
+            $serverName = self::$databaseList[$mvc]['oracle']['table'][$modelName]['server'];
+            $table = self::$databaseList[$mvc]['oracle']['table'][$modelName]['table'];
+            $schema = self::$databaseObject[$mvc]['oracle']->$modelType[$modelName]->schema;
         }
-        $user = self::$databaseList['oracle']['server'][$serverName]['user'];
+        $user = self::$databaseList[$mvc]['oracle']['server'][$serverName]['user'];
 
         $SQL = '';
         foreach ($schema as $columnName => $info) {
@@ -130,7 +133,7 @@ class Ddl extends OracleBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function renameTable(string $modelType, string $modelName, string $tableName)
+    public static function renameTable(string $modelType, string $modelName, string $tableName, string $mvc)
     {
 
     }

@@ -25,22 +25,22 @@ composer require ntch/pocoapoco
 
 ```bash
 # 需自行調整參數
-# path -> 執行 composer 的地方
-# web_basic -> 專案名稱
+# web_basic -> 專案名稱（執行 composer 的地方）
 
 server {
         listen 60000;
-        root   /{path}/pocoapoco/web/{web_basic}/public/;
+        root   /{web_basic}/src/public/;
         index  index.html index.htm index.php;
         location /NTCH/ {
-            alias /{path}/pocoapoco/src/;
+            alias /{web_basic}/vendor/ntch/pocoapoco/src/;
             location ~ \.php$ {
                 fastcgi_pass 127.0.0.1:30001;
                 fastcgi_index index.php;
                 include fastcgi_params;
                 fastcgi_param SCRIPT_FILENAME $request_filename;
                 fastcgi_param DOCUMENT_ROOT $document_root;
-                fastcgi_param PROJECT_ROOT /{path}/pocoapoco/web/{web_basic}/;
+                fastcgi_param PROJECT_ROOT /{web_basic}/src/;
+                fastcgi_param ENVIRONMENT :ENV
             }
         }
         location / {
@@ -54,36 +54,32 @@ server {
 ## 目錄結構
 ---------- 
 ```
-pocoapoco
+
+pocoapoco（your projects）
 │
-└─── src（framework）
-│
-└─── tests（PHPUnit）
+└─── src（your code)
+│    │
+│    │─── controllers
+│    │
+│    │─── libraries
+│    │
+│    │─── log
+│    │
+│    │─── models
+│    │
+│    │─── public
+│    │
+│    │─── routes
+│    │
+│    │─── settings
+│    │
+│    └─── view
 │
 └─── vendor（require package）
-│
-└─── web（your projects）
-│    │
-│    └─── web_basic 
-│         │
-│         │─── controllers
-│         │
-│         │─── libraries
-│         │
-│         │─── log
-│         │
-│         │─── models
-│         │
-│         │─── public
-│         │
-│         │─── routes
-│         │
-│         │─── settings
-│         │
-│         └─── view
 │ 
 │  composer.json
 │  composer.lock
+
 
 ```
 <br><br>
@@ -110,7 +106,7 @@ $router->view($uri, $path, $file, $data);
 
 $router->public($path, $file);
 
-$router->mvc($uri,
+$router->mix($uri,
     [
         'controller' => [$path, $file],
         'libraries' => [$libraryName],
@@ -126,7 +122,7 @@ $router->view('/uri/:parameter', '/path', 'class', ["pocoapoco" => "framework"])
 
 $router->public('/path', 'index.html');
 
-$router->mvc('/uri/:parameter',
+$router->mix('/uri/:parameter',
     [
         'controller' => ['/path', 'class', 'method'],
         'libraries' => ['name'],
@@ -144,7 +140,7 @@ $router->mvc('/uri/:parameter',
 | controller  | 轉向 controller 方法 |
 | view        | 轉向 view 方法 |
 | public      | 轉向 public 方法 |
-| mvc         | 需要引入 model 和 library 等物件並轉向 controller 方法 |
+| mix         | 需要引入 model 和 library 等物件並轉向 controller 方法 |
 
 ＊model 提供的類型再請參考 model 的文件
 
@@ -262,6 +258,7 @@ class xxx extends Controller
 資料夾：settings<br>
 檔案：xxx.ini<br>
 
+  * 檔案讀取順序：先讀取 settings 根目錄，再依據 Nginx ENVIRONMENT 設定讀取，若名稱重複做覆蓋。
   - library.ini：libraries 命名與載入層級設定，實際引入由 router 載入
   - mail.ini：郵件參數設定
   - aws.ini：aws iam 參數設定
@@ -273,8 +270,15 @@ class xxx extends Controller
 < settings 起手式 >
 ```ini
 # 檔名：libraries.ini
-# 別名 = 路徑（要載入至哪個路徑下的所有檔案）
-name = /path
+# path 為必填外，其餘依需求給予。
+[name]
+path      = /path（要載入至哪個路徑下的所有檔案）
+oracle    = server_name, tb_name (oracle.ini)
+mysql     = server_name, tb_name (mysql.ini)
+mssql     = server_name, tb_name (mssql.ini)
+postgre   = server_name, tb_name (postgre.ini)
+mail      = server_name (mail.ini)
+aws       = user (aws.ini)
 
 # 檔名：mail.ini
 [name]
@@ -431,7 +435,9 @@ class   = class
 # 依據 PSR-4 命名規則，給予路徑
 namespace la\lb\lc;
 
-class xxx
+use Ntch\Pocoapoco\WebRestful\Libraries\Library;
+
+class xxx extends Library
 {
     public function index()
     {
@@ -442,7 +448,8 @@ class xxx
 
 < setting 定義別名 >
 ```ini
-lib = /la
+[lib]
+path = /la
 ```
 
 < router 檔案引入至 controller 使用 >
@@ -541,6 +548,9 @@ class model_demo extends OracleModel # 依據使用的類型繼承
    - FLOAT
    - NUMBER
    - DATE
+   - TIMESTAMP
+   - TIMESTAMP WITH TIME ZONE
+   - TIMESTAMP WITH LOCAL TIME ZONE
   
  - Mysql 提供的 DATA_TYPE
    - char
@@ -642,7 +652,7 @@ class test extends Controller
         $sql = $tb_name->commentTable();
 
         # select 範例
-        $data = $server_name->select(['a', 'b', 'SUM(c)'])->
+        $data = $server_name->select(['a', 'b', 'SUM(c)' => 'c'])->
         where(['b' => 1])->groupby(['a', 'b'])->
         orderby(['a'])->query();
 
@@ -653,7 +663,7 @@ class test extends Controller
         $data = $tb_name->update()->set(['a' => 1])->where(['b' => 2])->query();
 
         # delete 範例
-        $data = $tb_name->delete()->where(['a' => 1])->query();
+        $data = $tb_name->delete()->where(['a' => [1, '>']])->query();
 
         # merge 範例 - 僅提供 Oracle 使用
         $data = $tb_name->merge()->using('user', 'table')->on("a", "b")->
@@ -692,6 +702,7 @@ class test extends Controller
    - update()
    - set($set)
    - select($select)
+   - select_distinct($select)
    - where($where)
    - orderby($orderby)
    - groupby($groupby)
@@ -711,8 +722,8 @@ class test extends Controller
 | :----     | :----   | :---- |
 | value     | array   | \[ '欄位名稱' => 值 \] |
 | set       | array   | \[ '欄位名稱' => 值 \] |
-| select    | array   | 一維陣列填入欄位名稱 |
-| where     | array   | \[ '欄位名稱' => 值 \] |
+| select    | array   | 一維陣列填入欄位名稱, 二維陣列 value 視為別名(as) |
+| where     | array   | \[ '欄位名稱' => 值 \] or  \[ '欄位名稱' => \[值, 關係運算子\] \]|
 | orderby   | array   | 一維陣列填入欄位名稱 |
 | groupby   | array   | 一維陣列填入欄位名稱 |
 | keyName   | string  | 指定返回的值的 key |
