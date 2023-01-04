@@ -207,7 +207,8 @@ class Base extends ModelBase implements BaseInterface
                     } else {
                         $todo = strtolower($action) . 'ed';
                     }
-                    $dbRows['result'] = "$rows row(s) $todo.";
+                    $dbRows['result']['total'] = $rows;
+                    $dbRows['result']['message'] = "$rows row(s) $todo.";
                     break;
                 default:
                     die("【ERROR】Model is not support \"$action\".");

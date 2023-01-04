@@ -129,18 +129,18 @@ class Base extends ModelBase implements BaseInterface
         $sql = <<<sqlCommand
             SELECT
                 table1.*,
-              	table2.CONSTRAINT_NAME,
+                table2.CONSTRAINT_NAME,
                 table2.CONSTRAINT_TYPE
             FROM
-              	(
-              	    SELECT 
+                (
+                    SELECT 
                         tab.name as TABLE_NAME,
                         col.name as COLUMN_NAME,
                         typ.name as DATA_TYPE,
                         col.length as CHARACTER_MAXIMUM_LENGTH,
                         col.prec as NUMERIC_PRECISION,
                         col.scale as NUMERIC_SCALE,
-              	        com.text as COLUMN_DEFAULT,
+                        com.text as COLUMN_DEFAULT,
                         (
                             CASE 
                             WHEN col.isnullable = 1 THEN 'Y' 
@@ -160,9 +160,9 @@ class Base extends ModelBase implements BaseInterface
                     WHERE  tab.id = col.id 
                             AND tab.xtype = 'U' 
                             AND col.xusertype = typ.xusertype  
-              	) as table1
+                ) as table1
             LEFT JOIN 
-              	(
+                (
                     SELECT 
                         tab.name as TABLE_NAME,
                         clmns.name as COLUMN_NAME,
@@ -175,7 +175,7 @@ class Base extends ModelBase implements BaseInterface
                                                 AND (ic.index_id=CAST(i.index_id AS int) 
                                                 AND ic.object_id=i.object_id)
                     INNER JOIN sys.columns AS clmns ON clmns.object_id = ic.object_id and clmns.column_id = ic.column_id
-              	) as table2 ON table1.TABLE_NAME = table2.TABLE_NAME AND table1.COLUMN_NAME = table2.COLUMN_NAME
+                ) as table2 ON table1.TABLE_NAME = table2.TABLE_NAME AND table1.COLUMN_NAME = table2.COLUMN_NAME
         sqlCommand;
         return self::query('server', $serverName, null, $sql, null, [], null, 0, -1, $mvc);
     }
@@ -269,7 +269,8 @@ class Base extends ModelBase implements BaseInterface
                     if (!$rows) {
                         $rows = 0;
                     }
-                    $dbRows['result'] = "$rows row(s) $todo.";
+                    $dbRows['result']['total'] = $rows;
+                    $dbRows['result']['message'] = "$rows row(s) $todo.";
                     break;
                 default:
                     die("【ERROR】Model is not support \"$action\".");

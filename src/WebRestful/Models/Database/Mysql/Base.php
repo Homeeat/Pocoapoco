@@ -52,7 +52,7 @@ class Base extends ModelBase implements BaseInterface
         $port = $driverConfig['port'];
         $database = $driverConfig['database'];
         $tns = "$ip:$port";
-        $conn = @mysqli_connect($tns, $user, $password);
+        $conn = @mysqli_connect($tns, $user, $password, $database);
 
         return $conn;
     }
@@ -213,7 +213,8 @@ class Base extends ModelBase implements BaseInterface
                     if ($rows < 0) {
                         $rows = 0;
                     }
-                    $dbRows['result'] = "$rows row(s) $todo.";
+                    $dbRows['result']['total'] = $rows;
+                    $dbRows['result']['message'] = "$rows row(s) $todo.";
                     break;
                 default:
                     die("【ERROR】Model is not support \"$action\".");

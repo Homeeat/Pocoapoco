@@ -207,7 +207,6 @@ class Base extends ModelBase implements BaseInterface
                     if (!is_null($sqlData)) {
                         $result = pg_execute($conn, "pocoapoco-$pre_stat_pk", $stat_data);
                     } else {
-                        var_dump(pg_last_error($conn));
                         @pg_query($conn, 'BEGIN');
                         $result = @pg_query($conn, $sqlCommand);
                     }
@@ -219,7 +218,16 @@ class Base extends ModelBase implements BaseInterface
                     } else {
                         $todo = strtolower($action) . 'ed';
                     }
-                    $dbRows['result'] = "$rows row(s) $todo.";
+                    $dbRows['result']['total'] = $rows;
+                    $dbRows['result']['message'] = "$rows row(s) $todo.";
+                    break;
+                case 'CREATE':
+                    if (!is_null($sqlData)) {
+                        pg_execute($conn, "pocoapoco-$pre_stat_pk", $stat_data);
+                    } else {
+                        @pg_query($conn, $sqlCommand);
+                    }
+                    unset($dbRows['result']);
                     break;
                 default:
                     die("【ERROR】Model is not support \"$action\".");
