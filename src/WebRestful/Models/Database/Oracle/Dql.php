@@ -98,13 +98,16 @@ class Dql extends OracleBase implements DqlInterface
         $data_where = [];
         foreach ($data as $colName => $value) {
             $sql_where .= "$colName ";
-            if(is_array($value)) {
+            if (is_array($value)) {
                 if (is_null($value[0])) {
                     $sql_where .= "IS NOT NULL AND ";
                 } else {
                     if ($schema[$colName]['DATA_TYPE'] === 'DATE') {
                         $data_size = isset($schema[$colName]['DATA_SIZE']) ? empty($schema[$colName]['DATA_SIZE']) ? 'YYYY-MM-DD HH24:MI:SS' : $schema[$colName]['DATA_SIZE'] : 'YYYY-MM-DD HH24:MI:SS';
-                        $sql_where .= "TO_DATE(:$colName, '$data_size'), ";
+                        $sql_where .= "= TO_DATE(:$colName, '$data_size') AND ";
+                    } elseif ($schema[$colName]['DATA_TYPE'] === 'TIMESTAMP WITH TIME ZONE' || $schema[$colName]['DATA_TYPE'] === 'TIMESTAMP WITH LOCAL TIME ZONE') {
+                        $data_size = isset($schema[$colName]['DATA_SIZE']) ? empty($schema[$colName]['DATA_SIZE']) ? 'YYYY-MM-DD HH24:MI:SS' : $schema[$colName]['DATA_SIZE'] : 'YYYY-MM-DD HH24:MI:SS';
+                        $sql_where .= "= TO_TIMESTAMP(:$colName, '$data_size') AND ";
                     } else {
                         $sql_where .= "$value[1] :$colName AND ";
                     }
@@ -116,7 +119,10 @@ class Dql extends OracleBase implements DqlInterface
                 } else {
                     if ($schema[$colName]['DATA_TYPE'] === 'DATE') {
                         $data_size = isset($schema[$colName]['DATA_SIZE']) ? empty($schema[$colName]['DATA_SIZE']) ? 'YYYY-MM-DD HH24:MI:SS' : $schema[$colName]['DATA_SIZE'] : 'YYYY-MM-DD HH24:MI:SS';
-                        $sql_where .= "TO_DATE(:$colName, '$data_size'), ";
+                        $sql_where .= "= TO_DATE(:$colName, '$data_size') AND ";
+                    } elseif ($schema[$colName]['DATA_TYPE'] === 'TIMESTAMP WITH TIME ZONE' || $schema[$colName]['DATA_TYPE'] === 'TIMESTAMP WITH LOCAL TIME ZONE') {
+                        $data_size = isset($schema[$colName]['DATA_SIZE']) ? empty($schema[$colName]['DATA_SIZE']) ? 'YYYY-MM-DD HH24:MI:SS' : $schema[$colName]['DATA_SIZE'] : 'YYYY-MM-DD HH24:MI:SS';
+                        $sql_where .= "= TO_TIMESTAMP(:$colName, '$data_size') AND ";
                     } else {
                         $sql_where .= "= :$colName AND ";
                     }

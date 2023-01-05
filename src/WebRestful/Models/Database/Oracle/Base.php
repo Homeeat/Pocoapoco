@@ -179,7 +179,7 @@ class Base extends ModelBase implements BaseInterface
         // execute
         @oci_execute($stid, OCI_NO_AUTO_COMMIT);
 
-        // result
+        // resultUPDATE_DATE
         $error = oci_error($stid);
         if (!$error) {
             $dbRows['status'] = 'SUCCESS';
@@ -284,6 +284,8 @@ class Base extends ModelBase implements BaseInterface
                     break;
                 case 'FLOAT':
                 case 'TIMESTAMP':
+                case 'TIMESTAMP WITH TIME ZONE':
+                case 'TIMESTAMP WITH LOCAL TIME ZONE':
                 case 'DATE':
                 case 'NCLOB':
                     $data_size = -1;

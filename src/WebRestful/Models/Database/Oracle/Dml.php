@@ -59,6 +59,9 @@ class Dml extends OracleBase implements DmlInterface
             if ($schema[$key]['DATA_TYPE'] === 'DATE' || $schema[$key]['DATA_TYPE'] === 'TIMESTAMP') {
                 $data_size = isset($schema[$key]['DATA_SIZE']) ? empty($schema[$key]['DATA_SIZE']) ? 'YYYY-MM-DD HH24:MI:SS' : $schema[$key]['DATA_SIZE'] : 'YYYY-MM-DD HH24:MI:SS';
                 $sql_value .= "TO_DATE(:$key, '$data_size'), ";
+            } elseif ($schema[$key]['DATA_TYPE'] === 'TIMESTAMP WITH TIME ZONE' || $schema[$key]['DATA_TYPE'] === 'TIMESTAMP WITH LOCAL TIME ZONE') {
+                $data_size = isset($schema[$key]['DATA_SIZE']) ? empty($schema[$key]['DATA_SIZE']) ? 'YYYY-MM-DD HH24:MI:SS' : $schema[$key]['DATA_SIZE'] : 'YYYY-MM-DD HH24:MI:SS';
+                $sql_value .= "TO_TIMESTAMP(:$key, '$data_size'), ";
             } else {
                 $sql_value .= ":$key, ";
             }
@@ -135,6 +138,9 @@ class Dml extends OracleBase implements DmlInterface
                 if ($schema[$key]['DATA_TYPE'] === 'DATE') {
                     $data_size = isset($schema[$key]['DATA_SIZE']) ? empty($schema[$key]['DATA_SIZE']) ? 'YYYY-MM-DD HH24:MI:SS' : $schema[$key]['DATA_SIZE'] : 'YYYY-MM-DD HH24:MI:SS';
                     $sql_set .= "TO_DATE(:$key, '$data_size'), ";
+                } elseif ($schema[$key]['DATA_TYPE'] === 'TIMESTAMP WITH TIME ZONE' || $schema[$key]['DATA_TYPE'] === 'TIMESTAMP WITH LOCAL TIME ZONE') {
+                    $data_size = isset($schema[$key]['DATA_SIZE']) ? empty($schema[$key]['DATA_SIZE']) ? 'YYYY-MM-DD HH24:MI:SS' : $schema[$key]['DATA_SIZE'] : 'YYYY-MM-DD HH24:MI:SS';
+                    $sql_set .= "TO_TIMESTAMP(:$key, '$data_size'), ";
                 } else {
                     $sql_set .= ":$key, ";
                 }
