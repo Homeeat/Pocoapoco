@@ -27,7 +27,7 @@ interface DmlInterface
     public static function insert(string $modelType, string $modelName, string $tableName, string $mvc);
 
     /**
-     * Insert value.
+     * Insert values.
      *
      * @param string $modelType
      * @param string $modelName
@@ -38,7 +38,7 @@ interface DmlInterface
      *
      * @return string
      */
-    public static function value(string $modelType, string $modelName, string $tableName, array $data, array $data_bind, string $mvc);
+    public static function values(string $modelType, string $modelName, string $tableName, array $data, array $data_bind, string $mvc);
 
     /**
      * Delete data.

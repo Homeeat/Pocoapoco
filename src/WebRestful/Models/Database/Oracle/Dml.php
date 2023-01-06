@@ -39,7 +39,7 @@ class Dml extends OracleBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function value(string $modelType, string $modelName, string $tableName, array $data, array $data_bind, string $mvc)
+    public static function values(string $modelType, string $modelName, string $tableName, array $data, array $data_bind, string $mvc)
     {
         // config
         if ($modelType === 'server') {
@@ -289,7 +289,7 @@ class Dml extends OracleBase implements DmlInterface
      *
      * @return string
      */
-    public static function mergeValue(string $modelType, string $modelName, string $tableName, array $colName, string $mvc)
+    public static function mergeValues(string $modelType, string $modelName, string $tableName, array $colName, string $mvc)
     {
         $sql_key = '(';
         $sql_value = '(';

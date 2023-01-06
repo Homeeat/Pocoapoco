@@ -251,9 +251,9 @@ class MssqlModel
      *
      * @return object
      */
-    public function value(array $data = []): object
+    public function values(array $data = []): object
     {
-        $res = Dml::value($this->modelType, $this->modelName, $this->tableName, $data, [], $this->mvc);
+        $res = Dml::values($this->modelType, $this->modelName, $this->tableName, $data, [], $this->mvc);
         $this->sql .= $res['command'];
         $this->data = array_merge($this->data, $res['data']);
 

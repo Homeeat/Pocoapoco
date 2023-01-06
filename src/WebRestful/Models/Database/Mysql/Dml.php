@@ -39,7 +39,7 @@ class Dml extends MysqlBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function value(string $modelType, string $modelName, string $tableName, array $data, array $data_bind, string $mvc)
+    public static function values(string $modelType, string $modelName, string $tableName, array $data, array $data_bind, string $mvc)
     {
         $serverName = self::$databaseList[$mvc]['mysql']['table'][$modelName]['server'];
         $schema = self::$databaseObject[$mvc]['mysql']->table[$modelName]->schema;

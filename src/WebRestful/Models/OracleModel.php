@@ -222,14 +222,14 @@ class OracleModel
      *
      * @return object
      */
-    public function value(array $data = []): object
+    public function values(array $data = []): object
     {
         if ($this->action === 'INSERT') {
-            $res = Dml::value($this->modelType, $this->modelName, $this->tableName, $data, [], $this->mvc);
+            $res = Dml::values($this->modelType, $this->modelName, $this->tableName, $data, [], $this->mvc);
             $this->sql .= $res['command'];
             $this->data = array_merge($this->data, $res['data']);
         } elseif ($this->action === 'MERGE') {
-            $this->sql .= Dml::mergeValue($this->modelType, $this->modelName, $this->tableName, $data, $this->mvc);
+            $this->sql .= Dml::mergeValues($this->modelType, $this->modelName, $this->tableName, $data, $this->mvc);
         }
 
         return $this;

@@ -657,7 +657,7 @@ class test extends Controller
         orderby(['a'])->query();
 
         # insert 範例
-        $data = $tb_name->insert()->value(['a' => 1])->query();
+        $data = $tb_name->insert()->values(['a' => 1])->query();
 
         # update 範例
         $data = $tb_name->update()->set(['a' => 1])->where(['b' => 2])->query();
@@ -697,7 +697,7 @@ class test extends Controller
    - createTable()
    - commentTable()  // Mysql 不適用
    - insert()
-   - value($value)
+   - values($values)
    - delete()
    - update()
    - set($set)
@@ -720,7 +720,7 @@ class test extends Controller
 
 | 參數       | 型態    | 說明  |
 | :----     | :----   | :---- |
-| value     | array   | \[ '欄位名稱' => 值 \] |
+| values    | array   | \[ '欄位名稱' => 值 \] |
 | set       | array   | \[ '欄位名稱' => 值 \] |
 | select    | array   | 一維陣列填入欄位名稱, 二維陣列 value 視為別名(as) |
 | where     | array   | \[ '欄位名稱' => 值 \] or  \[ '欄位名稱' => \[值, 關係運算子\] \]|
