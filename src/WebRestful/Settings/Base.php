@@ -69,8 +69,17 @@ class Base extends WebRestful
         }
 
         $data = parse_ini_file($absoluteFile, $process_sections);
-        foreach ($data as $key => $value) {
-            self::$settingVariable[$fileName][$key] = $value;
+        foreach ($data as $mainKey => $mainValue) {
+            if (is_array($mainValue) || is_object($mainValue)) {
+                if (!isset(self::$settingVariable[$fileName][$mainKey])) {
+                    self::$settingVariable[$fileName][$mainKey] = [];
+                }
+                foreach ($mainValue as $key => $value) {
+                    self::$settingVariable[$fileName][$mainKey][$key] = $value;
+                }
+            } else {
+                self::$settingVariable[$fileName][$mainKey] = $mainValue;
+            }
         }
     }
 
