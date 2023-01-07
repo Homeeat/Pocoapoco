@@ -11,6 +11,7 @@
 
 namespace Ntch\Pocoapoco\WebRestful\Models\Database\Mysql;
 
+use Ntch\Pocoapoco\Error\Base as ErrorBase;
 use Ntch\Pocoapoco\WebRestful\Models\Database\BaseInterface;
 use Ntch\Pocoapoco\WebRestful\Models\Base as ModelBase;
 use function Couchbase\passthruEncoder;
@@ -111,13 +112,13 @@ class Base extends ModelBase implements BaseInterface
         $sql = <<<sqlCommand
             SELECT TABLE_NAME, COLUMN_NAME, ORDINAL_POSITION, COLUMN_DEFAULT, IS_NULLABLE, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, NUMERIC_PRECISION, NUMERIC_SCALE, COLUMN_TYPE, COLUMN_KEY, COLUMN_COMMENT FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '$serachName' ORDER BY ORDINAL_POSITION
         sqlCommand;
-        return self::query('server', $serverName, null, $sql, null, [], null, 0, -1, $mvc);
+        return self::query('server', $serverName, null, $sql, null, [], null, 0, -1, $mvc, false);
     }
 
     /**
      * @inheritDoc
      */
-    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit, string $mvc)
+    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit, string $mvc, bool $query_pass)
     {
         // config
         $modelType === 'server' ? $serverName = $modelName : $serverName = self::$databaseList[$mvc]['mysql']['table'][$modelName]['server'];
@@ -148,7 +149,7 @@ class Base extends ModelBase implements BaseInterface
         empty($sqlData) ? $sqlData = null : null;
         if (!is_null($sqlData)) {
 
-            $sqlBind = self::dataBind($modelType, $modelName, $tableName, $sqlData, $mvc);
+            $sqlBind = self::dataBind($modelType, $modelName, $tableName, $sqlData, $mvc, $query_pass);
             $sql_type = '';
             $sql_data = [];
             foreach ($sqlData as $key => $value) {
@@ -261,7 +262,7 @@ class Base extends ModelBase implements BaseInterface
     /**
      * @inheritDoc
      */
-    public static function dataBind(string $modelType, string $modelName, string $tableName, array $sqlData, string $mvc)
+    public static function dataBind(string $modelType, string $modelName, string $tableName, array $sqlData, string $mvc, bool $query_pass)
     {
         // config
         if ($modelType === 'server') {
@@ -271,27 +272,35 @@ class Base extends ModelBase implements BaseInterface
         }
 
         foreach ($sqlData as $key => $value) {
-            switch (@$schema[$key]['DATA_TYPE']) {
-                case 'char':
-                case 'varchar':
-                case 'timestamp':
-                case 'datetime':
-                case 'date':
-                case 'time':
-                case 'year':
+            if (isset($schema[$key])) {
+                switch (@$schema[$key]['DATA_TYPE']) {
+                    case 'char':
+                    case 'varchar':
+                    case 'timestamp':
+                    case 'datetime':
+                    case 'date':
+                    case 'time':
+                    case 'year':
+                        $sql_type = 's';
+                        break;
+                    case 'tinyint':
+                    case 'smallint':
+                    case 'mediumint':
+                    case 'bigint':
+                    case 'int':
+                        $sql_type = 'i';
+                        break;
+                    case 'float':
+                    case 'decimal':
+                        $sql_type = 'd';
+                        break;
+                }
+            } else {
+                if ($query_pass) {
                     $sql_type = 's';
-                    break;
-                case 'tinyint':
-                case 'smallint':
-                case 'mediumint':
-                case 'bigint':
-                case 'int':
-                    $sql_type = 'i';
-                    break;
-                case 'float':
-                case 'decimal':
-                    $sql_type = 'd';
-                    break;
+                } else {
+                    ErrorBase::triggerError("Column name \"$key\" can't find in model schema", 4, 0);
+                }
             }
             @$sqlBind[$key]['SQL_TYPE'] = $sql_type;
         }

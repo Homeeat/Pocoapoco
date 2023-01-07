@@ -707,6 +707,7 @@ class test extends Controller
    - orderby($orderby)
    - groupby($groupby)
    - query()
+   - query_pass()  // 有不包含 schema 的值 - Postgre 不適用
    - commit()
    - rollback()
    - keyName($keyName) (指定 key 欄位)

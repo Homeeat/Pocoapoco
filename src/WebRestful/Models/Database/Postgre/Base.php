@@ -13,6 +13,7 @@ namespace Ntch\Pocoapoco\WebRestful\Models\Database\Postgre;
 
 use Ntch\Pocoapoco\WebRestful\Models\Database\BaseInterface;
 use Ntch\Pocoapoco\WebRestful\Models\Base as ModelBase;
+use PHPUnit\Runner\Extension\PharLoader;
 
 class Base extends ModelBase implements BaseInterface
 {
@@ -116,13 +117,13 @@ class Base extends ModelBase implements BaseInterface
             WHERE
                 isc.table_schema = '$serachName'
         sqlCommand;
-        return self::query('server', $serverName, null, $sql, null, [], null, 0, -1, $mvc);
+        return self::query('server', $serverName, null, $sql, null, [], null, 0, -1, $mvc, false);
     }
 
     /**
      * @inheritDoc
      */
-    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit, string $mvc)
+    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit, string $mvc, bool $query_pass)
     {
         // config
         $modelType === 'server' ? $serverName = $modelName : $serverName = self::$databaseList[$mvc]['postgre']['table'][$modelName]['server'];
@@ -147,7 +148,7 @@ class Base extends ModelBase implements BaseInterface
         empty($sqlData) ? $sqlData = null : null;
         $isLegal = true;
         $stat_data = [];
-        if (!is_null($sqlData)) {
+        if (!is_null($sqlData) && !$query_pass) {
             $schema = self::$databaseList['postgre']['server'][$serverName]['schema'];
             $tableName = "$schema.$tableName";
 
@@ -288,7 +289,7 @@ class Base extends ModelBase implements BaseInterface
     /**
      * @inheritDoc
      */
-    public static function dataBind(string $modelType, string $modelName, string $tableName, array $sqlData, string $mvc)
+    public static function dataBind(string $modelType, string $modelName, string $tableName, array $sqlData, string $mvc, bool $query_pass)
     {
 
     }

@@ -74,6 +74,11 @@ class PostgreModel
      */
     public string $mvc = '';
 
+    /**
+     * @var boolean
+     */
+    public bool $query_pass = false;
+
     // Base for query
     function __call(string $fun, array $args): array
     {
@@ -115,7 +120,7 @@ class PostgreModel
                     default:
                         die("【ERROR】Wrong parameters for \"$fun\".");
                 }
-                $result = PostgreBase::query($this->modelType, $this->modelName, $this->tableName, $this->sql, $this->data, $this->data_bind, $this->keyName, $this->offset, $this->limit, $this->mvc);
+                $result = PostgreBase::query($this->modelType, $this->modelName, $this->tableName, $this->sql, $this->data, $this->data_bind, $this->keyName, $this->offset, $this->limit, $this->mvc, $this->query_pass);
                 $this->clean();
                 return $result;
             default:
@@ -156,6 +161,7 @@ class PostgreModel
         $this->keyName = null;
         $this->offset = 0;
         $this->limit = -1;
+        $this->query_pass = false;
     }
 
     /**

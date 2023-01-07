@@ -11,6 +11,7 @@
 
 namespace Ntch\Pocoapoco\WebRestful\Models\Database\Oracle;
 
+use Ntch\Pocoapoco\Error\Base as ErrorBase;
 use Ntch\Pocoapoco\WebRestful\Models\Database\BaseInterface;
 use Ntch\Pocoapoco\WebRestful\Models\Base as ModelBase;
 
@@ -99,6 +100,9 @@ class Base extends ModelBase implements BaseInterface
                                 break;
                             case strpos($data_type, 'TIMESTAMP'):
                             case 'DATE':
+                            case 'TIMESTAMP':
+                            case 'TIMESTAMP WITH TIME ZONE':
+                            case 'TIMESTAMP WITH LOCAL TIME ZONE':
                             case 'NCLOB':
                                 self::$databaseObject[$mvc]['oracle']->server[$serverName]->$tableName->schema[$columnName]['DATA_SIZE'] = null;
                                 break;
@@ -135,13 +139,13 @@ class Base extends ModelBase implements BaseInterface
             WHERE ATC.OWNER = '$serachName'
             ORDER BY COLUMN_ID
         sqlCommand;
-        return self::query('server', $serverName, null, $sql, null, [], null, 0, -1, $mvc);
+        return self::query('server', $serverName, null, $sql, null, [], null, 0, -1, $mvc, false);
     }
 
     /**
      * @inheritDoc
      */
-    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit, string $mvc)
+    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit, string $mvc, bool $query_pass)
     {
         // config
         $modelType === 'server' ? $serverName = $modelName : $serverName = self::$databaseList[$mvc]['oracle']['table'][$modelName]['server'];
@@ -168,7 +172,7 @@ class Base extends ModelBase implements BaseInterface
         // avoid sql injection
         empty($sqlData) ? $sqlData = null : null;
         if (!is_null($sqlData)) {
-            $sqlBind = self::dataBind($modelType, $modelName, $tableName, $sqlData, $mvc);
+            $sqlBind = self::dataBind($modelType, $modelName, $tableName, $sqlData, $mvc, $query_pass);
             foreach ($sqlData as $key => $value) {
                 $$key = $value;
                 @oci_bind_by_name($stid, ":$key", $$key, $sqlBind[$key]['DATA_SIZE'], $sqlBind[$key]['SQL_TYPE']);
@@ -179,7 +183,7 @@ class Base extends ModelBase implements BaseInterface
         // execute
         @oci_execute($stid, OCI_NO_AUTO_COMMIT);
 
-        // resultUPDATE_DATE
+        // result
         $error = oci_error($stid);
         if (!$error) {
             $dbRows['status'] = 'SUCCESS';
@@ -257,7 +261,7 @@ class Base extends ModelBase implements BaseInterface
     /**
      * @inheritDoc
      */
-    public static function dataBind(string $modelType, string $modelName, string $tableName, array $sqlData, string $mvc)
+    public static function dataBind(string $modelType, string $modelName, string $tableName, array $sqlData, string $mvc, bool $query_pass)
     {
         // config
         if ($modelType === 'server') {
@@ -267,31 +271,41 @@ class Base extends ModelBase implements BaseInterface
         }
 
         foreach ($sqlData as $key => $value) {
-            switch ($schema[$key]['DATA_TYPE']) {
-                case 'CHAR':
-                case 'NCHAR':
-                    $data_size = $schema[$key]['DATA_SIZE'];
-                    $sql_type = SQLT_AFC;
-                    break;
-                case 'VARCHAR2':
-                case 'NVARCHAR2':
-                    $data_size = $schema[$key]['DATA_SIZE'];
-                    $sql_type = SQLT_CHR;
-                    break;
-                case 'NUMBER':
-                    $data_size = 22;
-                    $sql_type = SQLT_CHR;
-                    break;
-                case 'FLOAT':
-                case 'TIMESTAMP':
-                case 'TIMESTAMP WITH TIME ZONE':
-                case 'TIMESTAMP WITH LOCAL TIME ZONE':
-                case 'DATE':
-                case 'NCLOB':
-                    $data_size = -1;
-                    $sql_type = SQLT_CHR;
-                    break;
+            if (isset($schema[$key])) {
+                switch ($schema[$key]['DATA_TYPE']) {
+                    case 'CHAR':
+                    case 'NCHAR':
+                        $data_size = $schema[$key]['DATA_SIZE'];
+                        $sql_type = SQLT_AFC;
+                        break;
+                    case 'VARCHAR2':
+                    case 'NVARCHAR2':
+                        $data_size = $schema[$key]['DATA_SIZE'];
+                        $sql_type = SQLT_CHR;
+                        break;
+                    case 'NUMBER':
+                        $data_size = 22;
+                        $sql_type = SQLT_CHR;
+                        break;
+                    case 'FLOAT':
+                    case 'TIMESTAMP':
+                    case 'TIMESTAMP WITH TIME ZONE':
+                    case 'TIMESTAMP WITH LOCAL TIME ZONE':
+                    case 'DATE':
+                    case 'NCLOB':
+                        $data_size = -1;
+                        $sql_type = SQLT_CHR;
+                        break;
+                }
+            } else {
+                if ($query_pass) {
+                    $data_size = null;
+                    $sql_type = null;
+                } else {
+                    ErrorBase::triggerError("Column name \"$key\" can't find in model schema", 4, 0);
+                }
             }
+
             $sqlBind[$key]['DATA_SIZE'] = $data_size;
             $sqlBind[$key]['SQL_TYPE'] = $sql_type;
         }

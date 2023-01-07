@@ -177,13 +177,13 @@ class Base extends ModelBase implements BaseInterface
                     INNER JOIN sys.columns AS clmns ON clmns.object_id = ic.object_id and clmns.column_id = ic.column_id
                 ) as table2 ON table1.TABLE_NAME = table2.TABLE_NAME AND table1.COLUMN_NAME = table2.COLUMN_NAME
         sqlCommand;
-        return self::query('server', $serverName, null, $sql, null, [], null, 0, -1, $mvc);
+        return self::query('server', $serverName, null, $sql, null, [], null, 0, -1, $mvc, false);
     }
 
     /**
      * @inheritDoc
      */
-    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit, string $mvc)
+    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit, string $mvc, bool $query_pass)
     {
         // config
         $modelType === 'server' ? $serverName = $modelName : $serverName = self::$databaseList[$mvc]['mssql']['table'][$modelName]['server'];
@@ -317,7 +317,7 @@ class Base extends ModelBase implements BaseInterface
     /**
      * @inheritDoc
      */
-    public static function dataBind(string $modelType, string $modelName, string $tableName, array $sqlData, string $mvc)
+    public static function dataBind(string $modelType, string $modelName, string $tableName, array $sqlData, string $mvc, bool $query_pass)
     {
 
     }

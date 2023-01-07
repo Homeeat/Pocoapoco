@@ -75,9 +75,18 @@ class OracleModel
      */
     public string $mvc = '';
 
+    /**
+     * @var boolean
+     */
+    public bool $query_pass = false;
+
     // Base for query
     function __call(string $fun, array $args): array
     {
+        if ($fun === 'query_pass') {
+            $this->query_pass = true;
+            $fun = 'query';
+        }
         $count = count($args);
         switch ($fun) {
             case 'query':
@@ -112,7 +121,7 @@ class OracleModel
                     default:
                         die("【ERROR】Wrong parameters for \"$fun\".");
                 }
-                $result = OracleBase::query($this->modelType, $this->modelName, $this->tableName, $this->sql, $this->data, $this->data_bind, $this->keyName, $this->offset, $this->limit, $this->mvc);
+                $result = OracleBase::query($this->modelType, $this->modelName, $this->tableName, $this->sql, $this->data, $this->data_bind, $this->keyName, $this->offset, $this->limit, $this->mvc, $this->query_pass);
                 $this->clean();
                 return $result;
             default:
@@ -133,6 +142,7 @@ class OracleModel
         $this->keyName = null;
         $this->offset = 0;
         $this->limit = -1;
+        $this->query_pass = false;
     }
 
     /**

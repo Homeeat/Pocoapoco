@@ -74,10 +74,11 @@ interface BaseInterface
      * @param int $offset
      * @param int $limit
      * @param string $mvc
+     * @param bool $query_pass
      *
      * @return array
      */
-    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit, string $mvc);
+    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit, string $mvc, bool $query_pass);
 
     /**
      * System set data from model setting.
@@ -98,9 +99,10 @@ interface BaseInterface
      * @param string $tableName
      * @param array $sqlBind
      * @param string $mvc
+     * @param bool $query_pass
      *
      * @return array
      */
-    public static function dataBind(string $modelType, string $modelName, string $tableName, array $sqlBind, string $mvc);
+    public static function dataBind(string $modelType, string $modelName, string $tableName, array $sqlBind, string $mvc, bool $query_pass);
 
 }
