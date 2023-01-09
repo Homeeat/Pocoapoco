@@ -711,6 +711,7 @@ class test extends Controller
    - commit()
    - rollback()
    - keyName($keyName) (指定 key 欄位)
+   - dataBind()
 
  - Oracle 方法
    - merge()

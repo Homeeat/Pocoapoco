@@ -99,20 +99,20 @@ class MysqlModel
                     case 2:
                         $this->sql = $args[0];
                         $this->data = $args[1];
-                        $this->dataBind($this->sql, $this->data);
+                        $this->sqlDataBind($this->sql, $this->data);
                         break;
                     case 3:
                         $this->sql = $args[0];
                         $this->data = $args[1];
                         $this->keyName = $args[2];
-                        $this->dataBind($this->sql, $this->data);
+                        $this->sqlDataBind($this->sql, $this->data);
                         break;
                     case 4:
                         $this->sql = $args[0];
                         $this->data = $args[1];
                         $this->keyName = $args[2];
                         $this->offset = $args[3];
-                        $this->dataBind($this->sql, $this->data);
+                        $this->sqlDataBind($this->sql, $this->data);
                         break;
                     case 5:
                         $this->sql = $args[0];
@@ -120,7 +120,7 @@ class MysqlModel
                         $this->keyName = $args[2];
                         $this->offset = $args[3];
                         $this->limit = $args[4];
-                        $this->dataBind($this->sql, $this->data);
+                        $this->sqlDataBind($this->sql, $this->data);
                         break;
                     default:
                         die("【ERROR】Wrong parameters for \"$fun\".");
@@ -136,12 +136,30 @@ class MysqlModel
     /**
      * Data bind.
      *
+     * @param array $data
+     *
+     * @return array
+     */
+    public function dataBind(array $data)
+    {
+        $bind = [];
+        foreach ($data as $key => $value) {
+            if (isset($this->schema[$key])) {
+                $bind[$key] = $value;
+            }
+        }
+        return $bind;
+    }
+
+    /**
+     * Sql data bind.
+     *
      * @param string $sql
      * @param array $data
      *
      * @return boolean
      */
-    private function dataBind(string $sql, array $data)
+    private function sqlDataBind(string $sql, array $data)
     {
         foreach ($data as $key => $value) {
             $sql = str_replace(":$key", "?", $sql);

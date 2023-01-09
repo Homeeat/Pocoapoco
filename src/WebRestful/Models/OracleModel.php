@@ -130,6 +130,24 @@ class OracleModel
     }
 
     /**
+     * Data bind.
+     *
+     * @param array $data
+     *
+     * @return array
+     */
+    public function dataBind(array $data)
+    {
+        $bind = [];
+        foreach ($data as $key => $value) {
+            if (isset($this->schema[$key])) {
+                $bind[$key] = $value;
+            }
+        }
+        return $bind;
+    }
+
+    /**
      * Clear all set variables.
      *
      * @return void
