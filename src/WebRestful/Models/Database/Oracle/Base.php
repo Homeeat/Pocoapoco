@@ -299,8 +299,8 @@ class Base extends ModelBase implements BaseInterface
                 }
             } else {
                 if ($query_pass) {
-                    $data_size = null;
-                    $sql_type = null;
+                    $data_size = -1;
+                    $sql_type = 0;
                 } else {
                     ErrorBase::triggerError("Column name \"$key\" can't find in model schema", 4, 0);
                 }
