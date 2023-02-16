@@ -9,7 +9,7 @@
  * @license       https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
  */
 
-namespace Ntch\Pocoapoco\WebRestful\Models\Database\Postgre;
+namespace Ntch\Pocoapoco\WebRestful\Models\Database\Postgres;
 
 use Ntch\Pocoapoco\WebRestful\Models\Database\BaseInterface;
 use Ntch\Pocoapoco\WebRestful\Models\Base as ModelBase;
@@ -25,18 +25,18 @@ class Base extends ModelBase implements BaseInterface
      */
     public function execute(string $mvc)
     {
-        foreach (self::$databaseList[$mvc]['postgre']['server'] as $serverName => $serverConfig) {
+        foreach (self::$databaseList[$mvc]['postgres']['server'] as $serverName => $serverConfig) {
             $this->checkDriverConfig($serverName, $serverConfig);
             $conn = $this->connect($serverConfig);
 
             if ($conn) {
-                self::$databaseList[$mvc]['postgre']['server'][$serverName]['connect']['status'] = 'success';
-                self::$databaseList[$mvc]['postgre']['server'][$serverName]['connect']['result'] = $conn;
+                self::$databaseList[$mvc]['postgres']['server'][$serverName]['connect']['status'] = 'success';
+                self::$databaseList[$mvc]['postgres']['server'][$serverName]['connect']['result'] = $conn;
             } else {
-                self::$databaseList[$mvc]['postgre']['server'][$serverName]['connect']['status'] = 'error';
+                self::$databaseList[$mvc]['postgres']['server'][$serverName]['connect']['status'] = 'error';
             }
         }
-        isset(self::$databaseObject[$mvc]['postgre']->server) ? $this->loadModelUserSchema($mvc) : null;
+        isset(self::$databaseObject[$mvc]['postgres']->server) ? $this->loadModelUserSchema($mvc) : null;
     }
 
     /**
@@ -60,7 +60,7 @@ class Base extends ModelBase implements BaseInterface
     public function checkDriverConfig(string $serverName, array $driver)
     {
         $driverConfigList = ['ip', 'port', 'database', 'user', 'password'];
-        self::$databaseList['postgre']['server'][$serverName]['schema'] = (!isset($driver['schema']) || is_null($driver['schema'])) ? 'public' : $driver['schema'];
+        self::$databaseList['postgres']['server'][$serverName]['schema'] = (!isset($driver['schema']) || is_null($driver['schema'])) ? 'public' : $driver['schema'];
 
         foreach ($driverConfigList as $key) {
             isset($driver[$key]) ? null : die("【ERROR】Model $serverName tag \"$key\" is not exist.");
@@ -72,25 +72,25 @@ class Base extends ModelBase implements BaseInterface
      */
     public function loadModelUserSchema(string $mvc)
     {
-        foreach (self::$databaseObject[$mvc]['postgre']->server as $serverName => $serverInfo) {
-            if (self::$databaseList[$mvc]['postgre']['server'][$serverName]['connect']['status'] === 'success') {
+        foreach (self::$databaseObject[$mvc]['postgres']->server as $serverName => $serverInfo) {
+            if (self::$databaseList[$mvc]['postgres']['server'][$serverName]['connect']['status'] === 'success') {
 
-                $schema = self::$databaseList[$mvc]['postgre']['server'][$serverName]['schema'];
+                $schema = self::$databaseList[$mvc]['postgres']['server'][$serverName]['schema'];
                 $allTabColumns = $this->allTabColumns($serverName, $schema, $mvc);
                 if ($allTabColumns['status'] === 'SUCCESS') {
                     for ($i = 0; $i < $allTabColumns['result']['total']; $i++) {
                         $tableName = $allTabColumns['result']['data'][$i]['table_name'];
                         $columnName = $allTabColumns['result']['data'][$i]['column_name'];
 
-                        isset(self::$databaseObject[$mvc]['postgre']->server[$serverName]->$tableName) ? null : self::$databaseObject[$mvc]['postgre']->server[$serverName]->$tableName = new \stdClass();
-                        self::$databaseObject[$mvc]['postgre']->server[$serverName]->$tableName->schema[$columnName]['DATA_TYPE'] = $allTabColumns['result']['data'][$i]['data_type'];
+                        isset(self::$databaseObject[$mvc]['postgres']->server[$serverName]->$tableName) ? null : self::$databaseObject[$mvc]['postgres']->server[$serverName]->$tableName = new \stdClass();
+                        self::$databaseObject[$mvc]['postgres']->server[$serverName]->$tableName->schema[$columnName]['DATA_TYPE'] = $allTabColumns['result']['data'][$i]['data_type'];
 
-                        self::$databaseObject[$mvc]['postgre']->server[$serverName]->$tableName->schema[$columnName]['DATA_SIZE'] = isset($res[1][0]) ? $res[1][0] : null;
+                        self::$databaseObject[$mvc]['postgres']->server[$serverName]->$tableName->schema[$columnName]['DATA_SIZE'] = isset($res[1][0]) ? $res[1][0] : null;
 
-                        self::$databaseObject[$mvc]['postgre']->server[$serverName]->$tableName->schema[$columnName]['NULLABLE'] = $allTabColumns['result']['data'][$i]['is_nullable'] === 'YES' ? 'Y' : 'N';
-                        self::$databaseObject[$mvc]['postgre']->server[$serverName]->$tableName->schema[$columnName]['DATA_DEFAULT'] = $allTabColumns['result']['data'][$i]['column_default'];
-                        self::$databaseObject[$mvc]['postgre']->server[$serverName]->$tableName->schema[$columnName]['KEY_TYPE'] = $allTabColumns['result']['data'][$i]['ordinal_position'];
-                        self::$databaseObject[$mvc]['postgre']->server[$serverName]->$tableName->schema[$columnName]['COMMENT'] = $allTabColumns['result']['data'][$i]['description'];
+                        self::$databaseObject[$mvc]['postgres']->server[$serverName]->$tableName->schema[$columnName]['NULLABLE'] = $allTabColumns['result']['data'][$i]['is_nullable'] === 'YES' ? 'Y' : 'N';
+                        self::$databaseObject[$mvc]['postgres']->server[$serverName]->$tableName->schema[$columnName]['DATA_DEFAULT'] = $allTabColumns['result']['data'][$i]['column_default'];
+                        self::$databaseObject[$mvc]['postgres']->server[$serverName]->$tableName->schema[$columnName]['KEY_TYPE'] = $allTabColumns['result']['data'][$i]['ordinal_position'];
+                        self::$databaseObject[$mvc]['postgres']->server[$serverName]->$tableName->schema[$columnName]['COMMENT'] = $allTabColumns['result']['data'][$i]['description'];
                     }
                 }
             }
@@ -126,8 +126,8 @@ class Base extends ModelBase implements BaseInterface
     public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit, string $mvc, bool $query_pass)
     {
         // config
-        $modelType === 'server' ? $serverName = $modelName : $serverName = self::$databaseList[$mvc]['postgre']['table'][$modelName]['server'];
-        $conn = self::$databaseList[$mvc]['postgre']['server'][$serverName]['connect']['result'];
+        $modelType === 'server' ? $serverName = $modelName : $serverName = self::$databaseList[$mvc]['postgres']['table'][$modelName]['server'];
+        $conn = self::$databaseList[$mvc]['postgres']['server'][$serverName]['connect']['result'];
 
         // response
         $action = explode(' ', strtoupper(trim($sqlCommand)))[0];
@@ -149,7 +149,7 @@ class Base extends ModelBase implements BaseInterface
         $isLegal = true;
         $stat_data = [];
         if (!is_null($sqlData) && !$query_pass) {
-            $schema = self::$databaseList['postgre']['server'][$serverName]['schema'];
+            $schema = self::$databaseList['postgres']['server'][$serverName]['schema'];
             $tableName = "$schema.$tableName";
 
             // prepared statement

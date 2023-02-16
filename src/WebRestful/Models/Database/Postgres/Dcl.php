@@ -9,12 +9,12 @@
  * @license       https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
  */
 
-namespace Ntch\Pocoapoco\WebRestful\Models\Database\Postgre;
+namespace Ntch\Pocoapoco\WebRestful\Models\Database\Postgres;
 
-use Ntch\Pocoapoco\WebRestful\Models\Database\Postgre\Base as PostgreBase;
+use Ntch\Pocoapoco\WebRestful\Models\Database\Postgres\Base as PostgresBase;
 use Ntch\Pocoapoco\WebRestful\Models\Database\DclInterface;
 
-class Dcl extends PostgreBase implements DclInterface
+class Dcl extends PostgresBase implements DclInterface
 {
 
     /**
@@ -26,12 +26,12 @@ class Dcl extends PostgreBase implements DclInterface
         if($modelType === 'server') {
             $serverName = $modelName;
         } else {
-            $serverName = self::$databaseList[$mvc]['postgre']['table'][$modelName]['server'];
+            $serverName = self::$databaseList[$mvc]['postgres']['table'][$modelName]['server'];
         }
 
-        $serverStatus = self::$databaseList[$mvc]['postgre']['server'][$serverName]['connect']['status'];
+        $serverStatus = self::$databaseList[$mvc]['postgres']['server'][$serverName]['connect']['status'];
         if ($serverStatus === 'success') {
-            $serverResult = self::$databaseList[$mvc]['postgre']['server'][$serverName]['connect']['result'];
+            $serverResult = self::$databaseList[$mvc]['postgres']['server'][$serverName]['connect']['result'];
             @pg_query($serverResult, "COMMIT;");
         }
     }
@@ -45,12 +45,12 @@ class Dcl extends PostgreBase implements DclInterface
         if($modelType === 'server') {
             $serverName = $modelName;
         } else {
-            $serverName = self::$databaseList[$mvc]['postgre']['table'][$modelName]['server'];
+            $serverName = self::$databaseList[$mvc]['postgres']['table'][$modelName]['server'];
         }
 
-        $serverStatus = self::$databaseList[$mvc]['postgre']['server'][$serverName]['connect']['status'];
+        $serverStatus = self::$databaseList[$mvc]['postgres']['server'][$serverName]['connect']['status'];
         if ($serverStatus === 'success') {
-            $serverResult = self::$databaseList[$mvc]['postgre']['server'][$serverName]['connect']['result'];
+            $serverResult = self::$databaseList[$mvc]['postgres']['server'][$serverName]['connect']['result'];
             @pg_query($serverResult, 'ROLLBACK;');
         }
     }

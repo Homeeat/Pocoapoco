@@ -16,6 +16,7 @@ use Ntch\Pocoapoco\Log\Base as LogBase;
 use Ntch\Pocoapoco\WebRestful\Controllers\Base as ControllerBase;
 use Ntch\Pocoapoco\WebRestful\Settings\Base as SettingsBase;
 use Ntch\Pocoapoco\WebRestful\Libraries\Base as LibrariesBase;
+use Ntch\Pocoapoco\WebRestful\Services\Base as ServicesBase;
 use Ntch\Pocoapoco\Mail\Base as MailBase;
 use Ntch\Pocoapoco\Mail\Mail;
 use Ntch\Pocoapoco\Aws\Base as AwsBase;
@@ -38,6 +39,7 @@ class Controller
         $controllerBase = new ControllerBase();
         $settingsBase = new SettingsBase();
         $librariesBase = new LibrariesBase();
+        $servicesBase = new ServicesBase();
         $mailBase = new MailBase();
         $awsBase = new AWSBase();
         $modelBase = new ModelBase();
@@ -69,9 +71,15 @@ class Controller
         $this->setting['log'] = $settingsBase->getSettingData('log');
 
         // libraries
-        $settingLibrary = $librariesBase->getLibrariesList();
-        if(!empty($settingLibrary)) {
-            $this->setting['libraries'] = $librariesBase->getLibrariesList();
+        $libraries = $settingsBase->getSettingData('libraries');
+        if (!is_null($libraries)) {
+            $this->setting['libraries'] = $libraries;
+        }
+
+        // services
+        $settingService = $servicesBase->getServicesList();
+        if(!empty($settingService)) {
+            $this->setting['services'] = $servicesBase->getServicesList();
         }
 
         // mail

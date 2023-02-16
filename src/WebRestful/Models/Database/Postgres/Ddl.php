@@ -9,12 +9,12 @@
  * @license       https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
  */
 
-namespace Ntch\Pocoapoco\WebRestful\Models\Database\Postgre;
+namespace Ntch\Pocoapoco\WebRestful\Models\Database\Postgres;
 
-use Ntch\Pocoapoco\WebRestful\Models\Database\Postgre\Base as PostgreBase;
+use Ntch\Pocoapoco\WebRestful\Models\Database\Postgres\Base as PostgresBase;
 use Ntch\Pocoapoco\WebRestful\Models\Database\DdlInterface;
 
-class Ddl extends PostgreBase implements DdlInterface
+class Ddl extends PostgresBase implements DdlInterface
 {
 
     /**
@@ -26,14 +26,14 @@ class Ddl extends PostgreBase implements DdlInterface
         if ($modelType === 'server') {
             $serverName = $modelName;
             $table = $tableName;
-            $schema = self::$databaseObject[$mvc]['postgre']->$modelType[$modelName]->$tableName->schema;
+            $schema = self::$databaseObject[$mvc]['postgres']->$modelType[$modelName]->$tableName->schema;
         } else {
-            $serverName = self::$databaseList[$mvc]['postgre']['table'][$modelName]['server'];
-            $table = self::$databaseList[$mvc]['postgre']['table'][$modelName]['table'];
-            $schema = self::$databaseObject[$mvc]['postgre']->$modelType[$modelName]->schema;
+            $serverName = self::$databaseList[$mvc]['postgres']['table'][$modelName]['server'];
+            $table = self::$databaseList[$mvc]['postgres']['table'][$modelName]['table'];
+            $schema = self::$databaseObject[$mvc]['postgres']->$modelType[$modelName]->schema;
         }
-        $permission = self::$databaseList[$mvc]['postgre']['server'][$serverName]['schema'];
-        $user = self::$databaseList[$mvc]['postgre']['server'][$serverName]['user'];
+        $permission = self::$databaseList[$mvc]['postgres']['server'][$serverName]['schema'];
+        $user = self::$databaseList[$mvc]['postgres']['server'][$serverName]['user'];
 
         $SQL = "CREATE TABLE $permission.$table (\n";
         $SQL_KEY = '';
@@ -119,14 +119,14 @@ class Ddl extends PostgreBase implements DdlInterface
         if ($modelType === 'server') {
             $serverName = $modelName;
             $table = $tableName;
-            $schema = self::$databaseObject[$mvc]['postgre']->$modelType[$modelName]->$tableName->schema;
+            $schema = self::$databaseObject[$mvc]['postgres']->$modelType[$modelName]->$tableName->schema;
         } else {
-            $serverName = self::$databaseList[$mvc]['postgre']['table'][$modelName]['server'];
-            $table = self::$databaseList[$mvc]['postgre']['table'][$modelName]['table'];
-            $schema = self::$databaseObject[$mvc]['postgre']->$modelType[$modelName]->schema;
+            $serverName = self::$databaseList[$mvc]['postgres']['table'][$modelName]['server'];
+            $table = self::$databaseList[$mvc]['postgres']['table'][$modelName]['table'];
+            $schema = self::$databaseObject[$mvc]['postgres']->$modelType[$modelName]->schema;
         }
-        $permission = self::$databaseList['postgre']['server'][$serverName]['schema'];
-        $user = self::$databaseList[$mvc]['postgre']['server'][$serverName]['user'];
+        $permission = self::$databaseList['postgres']['server'][$serverName]['schema'];
+        $user = self::$databaseList[$mvc]['postgres']['server'][$serverName]['user'];
 
         $SQL = '';
         foreach ($schema as $columnName => $info) {

@@ -51,9 +51,10 @@ class Base extends WebRestful
     {
         switch ($fileName) {
             case 'log':
-                $process_sections = false;
-                break;
             case 'libraries':
+            $process_sections = false;
+                break;
+            case 'services':
             case 'error':
             case 'mail':
             case 'aws':
@@ -61,7 +62,7 @@ class Base extends WebRestful
             case 'oracle':
             case 'mysql':
             case 'mssql':
-            case 'postgre':
+            case 'postgres':
                 $process_sections = true;
                 break;
             default:

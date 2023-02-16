@@ -9,12 +9,12 @@
  * @license       https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
  */
 
-namespace Ntch\Pocoapoco\WebRestful\Models\Database\Postgre;
+namespace Ntch\Pocoapoco\WebRestful\Models\Database\Postgres;
 
-use Ntch\Pocoapoco\WebRestful\Models\Database\Postgre\Base as PostgreBase;
+use Ntch\Pocoapoco\WebRestful\Models\Database\Postgres\Base as PostgresBase;
 use Ntch\Pocoapoco\WebRestful\Models\Database\DqlInterface;
 
-class Dql extends PostgreBase implements DqlInterface
+class Dql extends PostgresBase implements DqlInterface
 {
 
     /**
@@ -26,14 +26,14 @@ class Dql extends PostgreBase implements DqlInterface
         if ($modelType === 'server') {
             $serverName = $modelName;
             $table = $tableName;
-            $schema = self::$databaseObject[$mvc]['postgre']->$modelType[$modelName]->$tableName->schema;
+            $schema = self::$databaseObject[$mvc]['postgres']->$modelType[$modelName]->$tableName->schema;
         } else {
-            $serverName = self::$databaseList[$mvc]['postgre']['table'][$modelName]['server'];
-            $table = self::$databaseList[$mvc]['postgre']['table'][$modelName]['table'];
-            $schema = self::$databaseObject[$mvc]['postgre']->$modelType[$modelName]->schema;
+            $serverName = self::$databaseList[$mvc]['postgres']['table'][$modelName]['server'];
+            $table = self::$databaseList[$mvc]['postgres']['table'][$modelName]['table'];
+            $schema = self::$databaseObject[$mvc]['postgres']->$modelType[$modelName]->schema;
         }
-        $permission = self::$databaseList[$mvc]['postgre']['server'][$serverName]['schema'];
-        $user = self::$databaseList[$mvc]['postgre']['server'][$serverName]['user'];
+        $permission = self::$databaseList[$mvc]['postgres']['server'][$serverName]['schema'];
+        $user = self::$databaseList[$mvc]['postgres']['server'][$serverName]['user'];
 
         if (empty($data)) {
             $sql_search = '*';
@@ -89,10 +89,10 @@ class Dql extends PostgreBase implements DqlInterface
         // config
         if ($modelType === 'server') {
             $serverName = $modelName;
-            $schema = self::$databaseObject[$mvc]['postgre']->$modelType[$modelName]->$tableName->schema;
+            $schema = self::$databaseObject[$mvc]['postgres']->$modelType[$modelName]->$tableName->schema;
         } else {
-            $serverName = self::$databaseList[$mvc]['postgre']['table'][$modelName]['server'];
-            $schema = self::$databaseObject[$mvc]['postgre']->$modelType[$modelName]->schema;
+            $serverName = self::$databaseList[$mvc]['postgres']['table'][$modelName]['server'];
+            $schema = self::$databaseObject[$mvc]['postgres']->$modelType[$modelName]->schema;
         }
 
         $sql_where = '';

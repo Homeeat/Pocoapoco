@@ -9,7 +9,7 @@
  * @license     https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
  */
 
-namespace Ntch\Pocoapoco\WebRestful\Libraries;
+namespace Ntch\Pocoapoco\WebRestful\Services;
 
 use Ntch\Pocoapoco\Aws\Aws;
 use Ntch\Pocoapoco\Aws\Base as AwsBase;
@@ -21,7 +21,7 @@ use Ntch\Pocoapoco\WebRestful\Controllers\Base as ControllerBase;
 use Ntch\Pocoapoco\WebRestful\Models\Base as ModelBase;
 use Ntch\Pocoapoco\WebRestful\Settings\Base as SettingsBase;
 
-class Library
+class Service
 {
 
     use \Ntch\Pocoapoco\Tools\Uuid;
@@ -52,37 +52,42 @@ class Library
         // log
         $this->setting['log'] = $settingsBase->getSettingData('log');
 
+        // libraries
+        $libraries = $settingsBase->getSettingData('libraries');
+        if (!is_null($libraries)) {
+            $this->setting['libraries'] = $libraries;
+        }
+
         // mail
-        $settingMail = $mailBase->getMailList('library');
+        $settingMail = $mailBase->getMailList('service');
         if (!empty($settingMail)) {
             $this->setting['mail'] = $settingMail;
 
             foreach ($this->setting['mail'] as $server => $config) {
-                $this->mail[$server] = new Mail($server, 'library');
+                $this->mail[$server] = new Mail($server, 'service');
             }
         }
 
         // aws
-        $settingAws = $awsBase->getAwsList('library');
+        $settingAws = $awsBase->getAwsList('services');
         if (!empty($settingAws)) {
             $this->setting['aws'] = $settingAws;
 
             foreach ($this->setting['aws'] as $account => $config) {
-                $this->aws[$account] = new Aws($account, 'library');
+                $this->aws[$account] = new Aws($account, 'service');
             }
         }
 
         // model
-        $settingModels = $modelBase->getDatabaseList('library');
+        $settingModels = $modelBase->getDatabaseList('service');
         foreach ($settingModels as $key => $value) {
             $this->setting[$key] = $value;
         }
 
-        $models = $modelBase->getDatabaseObject('library');
+        $models = $modelBase->getDatabaseObject('service');
         if (!empty($models)) {
             $this->models = $models;
         }
-
     }
 
     /**

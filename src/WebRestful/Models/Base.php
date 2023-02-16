@@ -16,7 +16,7 @@ use Ntch\Pocoapoco\WebRestful\Settings\Base as SettingBase;
 use Ntch\Pocoapoco\WebRestful\Models\Database\Oracle\Base as OracleBase;
 use Ntch\Pocoapoco\WebRestful\Models\Database\Mysql\Base as MysqlBase;
 use Ntch\Pocoapoco\WebRestful\Models\Database\Mssql\Base as MssqlBase;
-use Ntch\Pocoapoco\WebRestful\Models\Database\Postgre\Base as PostgreBase;
+use Ntch\Pocoapoco\WebRestful\Models\Database\Postgres\Base as PostgresBase;
 
 class Base extends WebRestful
 {
@@ -65,9 +65,9 @@ class Base extends WebRestful
                 $mssql = new MssqlBase();
                 $mssql->execute($mvc);
                 break;
-            case 'postgre':
-                $postgre = new PostgreBase();
-                $postgre->execute($mvc);
+            case 'postgres':
+                $postgres = new PostgresBase();
+                $postgres->execute($mvc);
                 break;
         }
 
@@ -239,7 +239,7 @@ class Base extends WebRestful
      */
     public function getDatabaseList(string $mvc): array
     {
-        $driveList = ['oracle', 'mysql', 'mssql', 'postgre'];
+        $driveList = ['oracle', 'mysql', 'mssql', 'postgres'];
         $showData = isset(self::$databaseList[$mvc]) ? self::$databaseList[$mvc] : [];
 
         if (!empty($showData)) {

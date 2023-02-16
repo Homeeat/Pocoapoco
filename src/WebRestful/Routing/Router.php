@@ -18,6 +18,7 @@ use Ntch\Pocoapoco\WebRestful\View\Base as ViewBase;
 use Ntch\Pocoapoco\WebRestful\Settings\Base as SettingBase;
 use Ntch\Pocoapoco\WebRestful\Models\Base as ModelBase;
 use Ntch\Pocoapoco\WebRestful\Libraries\Base as LibraryBase;
+use Ntch\Pocoapoco\WebRestful\Services\Base as ServiceBase;
 use Ntch\Pocoapoco\Mail\Base as MailBase;
 use Ntch\Pocoapoco\Aws\Base as AwsBase;
 use PHPMailer\PHPMailer\Exception;
@@ -49,7 +50,7 @@ class Router
 
         if ($uriExist) {
             // model
-            $modelList = ['oracle' => [], 'mysql' => [], 'mssql' => [], 'postgre' => []];
+            $modelList = ['oracle' => [], 'mysql' => [], 'mssql' => [], 'postgres' => []];
             foreach ($mix as $key => $value) {
                 if (isset($modelList[$key])) {
                     $modelList[$key] = $value;
@@ -58,8 +59,11 @@ class Router
             self::$mixModelList = $modelList;
             $this->model($modelList, 'controller');
 
+            // service
+            isset($mix['services']) ? $this->service($mix['services']) : $this->service([]);
+
             // library
-            isset($mix['libraries']) ? $this->library($mix['libraries']) : $this->library([]);
+            isset($mix['libraries']) ? $this->library($mix['libraries']) : null;
 
             // mail
             isset($mix['mail']) ? $this->mail($mix['mail'], 'controller') : null;
@@ -71,6 +75,7 @@ class Router
             $path = $mix['controller'][0];
             $class = $mix['controller'][1];
             $method = isset($mix['controller'][2]) ? $mix['controller'][2] : 'index';
+//            print "<pre>";print_r($mix);exit;
             $this->controller($uri, $path, $class, $method);
         }
     }
@@ -152,6 +157,20 @@ class Router
                 $modelBase->modelBase($driver, $models, $mvc);
             }
         }
+    }
+
+    /**
+     * Include service.
+     *
+     * @param array $services
+     *
+     * @return void
+     */
+    private function service(array $services)
+    {
+        $serviceBase = new ServiceBase();
+        $this->setting('/', 'services');
+        $serviceBase->serviceBase($services);
     }
 
     /**

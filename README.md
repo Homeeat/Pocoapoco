@@ -71,6 +71,8 @@ pocoapoco（your projects）
 │    │
 │    │─── routes
 │    │
+│    │─── services
+│    │
 │    │─── settings
 │    │
 │    └─── view
@@ -131,7 +133,7 @@ $router->mix('/uri/:parameter',
         'oracle' => ['server_name', 'tb_name'],
         'mysql' => ['server_name', 'tb_name'],
         'mssql' => ['server_name', 'tb_name'],
-        'postgre' => ['server_name', 'tb_name'],
+        'postgres' => ['server_name', 'tb_name'],
     ]);
 ```
 
@@ -259,24 +261,29 @@ class xxx extends Controller
 檔案：xxx.ini<br>
 
   * 檔案讀取順序：先讀取 settings 根目錄，再依據 Nginx ENVIRONMENT 設定讀取，若名稱重複做覆蓋。
-  - library.ini：libraries 命名與載入層級設定，實際引入由 router 載入
+  - libraries.ini：libraries 命名與載入層級設定，實際引入由 router 載入
+  - services.ini：services 命名與載入層級設定，實際引入由 router 載入
   - mail.ini：郵件參數設定
   - aws.ini：aws iam 參數設定
   - error.ini：開發與正式上線參數設定
   - log.ini：log 參數設定
   - project.ini：專案共用參數設定
-  - model 檔名：oracle.ini、mysql.ini、mssql.ini、postgre.ini
+  - model 檔名：oracle.ini、mysql.ini、mssql.ini、postgres.ini
 
 < settings 起手式 >
 ```ini
-# 檔名：libraries.ini
+# libraries.ini
+[name]
+path      = /path（要載入至哪個路徑下的所有檔案）
+
+# 檔名：services.ini
 # path 為必填外，其餘依需求給予。
 [name]
 path      = /path（要載入至哪個路徑下的所有檔案）
 oracle    = server_name, tb_name (oracle.ini)
 mysql     = server_name, tb_name (mysql.ini)
 mssql     = server_name, tb_name (mssql.ini)
-postgre   = server_name, tb_name (postgre.ini)
+postgres   = server_name, tb_name (postgres.ini)
 mail      = server_name (mail.ini)
 aws       = user (aws.ini)
 
@@ -403,7 +410,7 @@ table   = tb
 path    = /path
 class   = class
 
-# 檔名：postgre.ini
+# 檔名：postgres.ini
 [server_name]
 type      = server
 ip        = xx.xx.xx.xx
@@ -435,13 +442,11 @@ class   = class
 # 依據 PSR-4 命名規則，給予路徑
 namespace la\lb\lc;
 
-use Ntch\Pocoapoco\WebRestful\Libraries\Library;
-
-class xxx extends Library
+class xxx
 {
     public function index()
     {
-        echo 'librarys import success！' . PHP_EOL;
+        echo 'library import success！' . PHP_EOL;
     }
 }
 ```
@@ -464,13 +469,67 @@ $router->mvc('/uri',
 < controller 使用 >
 ```php
 use Ntch\Pocoapoco\WebRestful\Controllers\Controller;
-use la\lb\lc\class;
+use la\lb\lc\xxx;
 
 class test extends Controller
 {
     public function index()
     {
-        $lib = new class();
+        $lib = new xxx();
+        $lib->index();
+    }
+}
+```
+
+<br><br>
+
+
+> ### **service**
+
+資料夾：services<br>
+檔案：xxx.php<br>
+
+< service 起手式 >
+```php
+# 依據 PSR-4 命名規則，給予路徑
+namespace sa\sb\sc;
+
+use Ntch\Pocoapoco\WebRestful\Services\Service;
+
+class xxx extends Service
+{
+    public function index()
+    {
+        echo 'service import success！' . PHP_EOL;
+    }
+}
+```
+
+< setting 定義別名 >
+```ini
+[ex]
+path = /sa
+```
+
+< router 檔案引入至 controller 使用 >
+```php
+$router->mvc('/uri',
+    [
+        'controller' => ['/path', 'class'],
+        'libraries' => ['ex']
+    ]);
+```
+
+< controller 使用 >
+```php
+use Ntch\Pocoapoco\WebRestful\Controllers\Controller;
+use sa\sb\sc\xxx;
+
+class test extends Controller
+{
+    public function index()
+    {
+        $lib = new xxx();
         $lib->index();
     }
 }
@@ -483,7 +542,7 @@ class test extends Controller
 資料夾：models<br>
 檔案：xxx.php<br>
 
-＊提供類型：Oracle、Mysql、Mssql、Postgre
+＊提供類型：Oracle、Mysql、Mssql、Postgres
 
 < model 起手式 >
 ```php
@@ -498,8 +557,8 @@ use Ntch\Pocoapoco\WebRestful\Models\MysqlModel;
 # Mssql
 use Ntch\Pocoapoco\WebRestful\Models\MssqlModel;
 
-# Postgre
-use Ntch\Pocoapoco\WebRestful\Models\PostgreModel;
+# Postgres
+use Ntch\Pocoapoco\WebRestful\Models\PostgresModel;
 
 
 class model_demo extends OracleModel # 依據使用的類型繼承
@@ -582,7 +641,7 @@ class model_demo extends OracleModel # 依據使用的類型繼承
    - datetime
    - date
 
- - Postgre 提供的 DATA_TYPE
+ - Postgres 提供的 DATA_TYPE
    - char
    - varchar
    - uuid
@@ -687,8 +746,8 @@ class test extends Controller
         $data = $mssql->select()->top(8)->query();
         $data = $mssql->select()->groupby()->offset(5)->fetch(8)->query();
         
-        # Postgre 範例 - 若兩個方法皆要使用 limit() offset() 順序可顛倒
-        $data = $postgre->select()->limit(8)->offset(5)->query();
+        # Postgres 範例 - 若兩個方法皆要使用 limit() offset() 順序可顛倒
+        $data = $postgres->select()->limit(8)->offset(5)->query();
     }
 }
 ```
@@ -707,7 +766,7 @@ class test extends Controller
    - orderby($orderby)
    - groupby($groupby)
    - query()
-   - query_pass()  // 有不包含 schema 的值 - Postgre 不適用
+   - query_pass()  // 有不包含 schema 的值 - Postgres 不適用
    - commit()
    - rollback()
    - keyName($keyName) (指定 key 欄位)

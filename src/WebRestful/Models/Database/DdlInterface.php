@@ -64,7 +64,7 @@ interface DdlInterface
 
     /**
      * Comment table.
-     * For Oracle、Mssql、Postgre
+     * For Oracle、Mssql、Postgres
      *
      * @param string $modelType
      * @param string $modelName

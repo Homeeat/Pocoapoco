@@ -9,12 +9,12 @@
  * @license       https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
  */
 
-namespace Ntch\Pocoapoco\WebRestful\Models\Database\Postgre;
+namespace Ntch\Pocoapoco\WebRestful\Models\Database\Postgres;
 
-use Ntch\Pocoapoco\WebRestful\Models\Database\Postgre\Base as PostgreBase;
+use Ntch\Pocoapoco\WebRestful\Models\Database\Postgres\Base as PostgresBase;
 use Ntch\Pocoapoco\WebRestful\Models\Database\DmlInterface;
 
-class Dml extends PostgreBase implements DmlInterface
+class Dml extends PostgresBase implements DmlInterface
 {
 
     /**
@@ -27,11 +27,11 @@ class Dml extends PostgreBase implements DmlInterface
             $serverName = $modelName;
             $table = $tableName;
         } else {
-            $serverName = self::$databaseList[$mvc]['postgre']['table'][$modelName]['server'];
-            $table = self::$databaseList[$mvc]['postgre']['table'][$modelName]['table'];
+            $serverName = self::$databaseList[$mvc]['postgres']['table'][$modelName]['server'];
+            $table = self::$databaseList[$mvc]['postgres']['table'][$modelName]['table'];
         }
-        $permission = self::$databaseList[$mvc]['postgre']['server'][$serverName]['schema'];
-        $user = self::$databaseList[$mvc]['postgre']['server'][$serverName]['user'];
+        $permission = self::$databaseList[$mvc]['postgres']['server'][$serverName]['schema'];
+        $user = self::$databaseList[$mvc]['postgres']['server'][$serverName]['user'];
 
         $sql = "\nINSERT INTO $permission.$table ";
         return $sql;
@@ -42,8 +42,8 @@ class Dml extends PostgreBase implements DmlInterface
      */
     public static function values(string $modelType, string $modelName, string $tableName, array $data, array $data_bind, string $mvc)
     {
-        $serverName = self::$databaseList[$mvc]['postgre']['table'][$modelName]['server'];
-        $schema = self::$databaseObject[$mvc]['postgre']->table[$modelName]->schema;
+        $serverName = self::$databaseList[$mvc]['postgres']['table'][$modelName]['server'];
+        $schema = self::$databaseObject[$mvc]['postgres']->table[$modelName]->schema;
 
         $data = PostgreBase::systemSet('INSERT', $schema, $data);
 
@@ -82,10 +82,10 @@ class Dml extends PostgreBase implements DmlInterface
             $serverName = $modelName;
             $table = $tableName;
         } else {
-            $serverName = self::$databaseList[$mvc]['postgre']['table'][$modelName]['server'];
-            $table = self::$databaseList[$mvc]['postgre']['table'][$modelName]['table'];
+            $serverName = self::$databaseList[$mvc]['postgres']['table'][$modelName]['server'];
+            $table = self::$databaseList[$mvc]['postgres']['table'][$modelName]['table'];
         }
-        $user = self::$databaseList[$mvc]['postgre']['server'][$serverName]['user'];
+        $user = self::$databaseList[$mvc]['postgres']['server'][$serverName]['user'];
 
         $sql = "\nDELETE FROM $table ";
         return $sql;
@@ -101,11 +101,11 @@ class Dml extends PostgreBase implements DmlInterface
             $serverName = $modelName;
             $table = $tableName;
         } else {
-            $serverName = self::$databaseList[$mvc]['postgre']['table'][$modelName]['server'];
-            $table = self::$databaseList[$mvc]['postgre']['table'][$modelName]['table'];
+            $serverName = self::$databaseList[$mvc]['postgres']['table'][$modelName]['server'];
+            $table = self::$databaseList[$mvc]['postgres']['table'][$modelName]['table'];
         }
-        $permission = self::$databaseList[$mvc]['postgre']['server'][$serverName]['schema'];
-        $user = self::$databaseList[$mvc]['postgre']['server'][$serverName]['user'];
+        $permission = self::$databaseList[$mvc]['postgres']['server'][$serverName]['schema'];
+        $user = self::$databaseList[$mvc]['postgres']['server'][$serverName]['user'];
 
         $sql = "\nUPDATE $permission.$table ";
         return $sql;
@@ -119,10 +119,10 @@ class Dml extends PostgreBase implements DmlInterface
         // config
         if($modelType === 'server') {
             $serverName = $modelName;
-            $schema = self::$databaseObject[$mvc]['postgre']->$modelType[$modelName]->$tableName->schema;
+            $schema = self::$databaseObject[$mvc]['postgres']->$modelType[$modelName]->$tableName->schema;
         } else {
-            $serverName = self::$databaseList[$mvc]['postgre']['table'][$modelName]['server'];
-            $schema = self::$databaseObject[$mvc]['postgre']->$modelType[$modelName]->schema;
+            $serverName = self::$databaseList[$mvc]['postgres']['table'][$modelName]['server'];
+            $schema = self::$databaseObject[$mvc]['postgres']->$modelType[$modelName]->schema;
         }
 
         $data = PostgreBase::systemSet('UPDATE', $schema, $data);

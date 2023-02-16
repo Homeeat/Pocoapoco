@@ -11,13 +11,13 @@
 
 namespace Ntch\Pocoapoco\WebRestful\Models;
 
-use Ntch\Pocoapoco\WebRestful\Models\Database\Postgre\Base as PostgreBase;
-use Ntch\Pocoapoco\WebRestful\Models\Database\Postgre\Ddl;
-use Ntch\Pocoapoco\WebRestful\Models\Database\Postgre\Dml;
-use Ntch\Pocoapoco\WebRestful\Models\Database\Postgre\Dql;
-use Ntch\Pocoapoco\WebRestful\Models\Database\Postgre\Dcl;
+use Ntch\Pocoapoco\WebRestful\Models\Database\Postgres\Base as PostgresBase;
+use Ntch\Pocoapoco\WebRestful\Models\Database\Postgres\Ddl;
+use Ntch\Pocoapoco\WebRestful\Models\Database\Postgres\Dml;
+use Ntch\Pocoapoco\WebRestful\Models\Database\Postgres\Dql;
+use Ntch\Pocoapoco\WebRestful\Models\Database\Postgres\Dcl;
 
-class PostgreModel
+class PostgresModel
 {
     /**
      * @var string
@@ -120,7 +120,7 @@ class PostgreModel
                     default:
                         die("【ERROR】Wrong parameters for \"$fun\".");
                 }
-                $result = PostgreBase::query($this->modelType, $this->modelName, $this->tableName, $this->sql, $this->data, $this->data_bind, $this->keyName, $this->offset, $this->limit, $this->mvc, $this->query_pass);
+                $result = PostgresBase::query($this->modelType, $this->modelName, $this->tableName, $this->sql, $this->data, $this->data_bind, $this->keyName, $this->offset, $this->limit, $this->mvc, $this->query_pass);
                 $this->clean();
                 return $result;
             default:
