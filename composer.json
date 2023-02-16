@@ -1,7 +1,7 @@
 {
     "name": "ntch/pocoapoco",
     "description": "Pocoapoco Framework.",
-    "type": "project",
+    "type": "library",
     "require": {
         "php": "^8.0",
         "psr/http-message": "^1.0",
