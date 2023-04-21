@@ -21,6 +21,7 @@ use Ntch\Pocoapoco\WebRestful\Libraries\Base as LibraryBase;
 use Ntch\Pocoapoco\WebRestful\Services\Base as ServiceBase;
 use Ntch\Pocoapoco\Mail\Base as MailBase;
 use Ntch\Pocoapoco\Aws\Base as AwsBase;
+use Ntch\Pocoapoco\Log\Base as LogBase;
 use PHPMailer\PHPMailer\Exception;
 
 class Router
@@ -71,11 +72,13 @@ class Router
             // aws
             isset($mix['aws']) ? $this->aws($mix['aws'], 'controller') : null;
 
+            // logs
+            isset($mix['log']) ? $this->log($mix['log']) : $this->log('');
+
             // controller
             $path = $mix['controller'][0];
             $class = $mix['controller'][1];
             $method = isset($mix['controller'][2]) ? $mix['controller'][2] : 'index';
-//            print "<pre>";print_r($mix);exit;
             $this->controller($uri, $path, $class, $method);
         }
     }
@@ -129,15 +132,14 @@ class Router
     /**
      * Router to setting.
      *
-     * @param string $path
      * @param string $class
      *
      * @return void
      */
-    public function setting(string $path, string $class)
+    public function setting(string $class)
     {
         $settingBase = new SettingBase();
-        $settingBase->settingBase($path, $class);
+        $settingBase->settingBase($class);
     }
 
     /**
@@ -153,7 +155,7 @@ class Router
         $modelBase = new ModelBase();
         foreach ($modelList as $driver => $models) {
             if (!empty($models)) {
-                $this->setting('/', $driver);
+                $this->setting($driver);
                 $modelBase->modelBase($driver, $models, $mvc);
             }
         }
@@ -169,7 +171,7 @@ class Router
     private function service(array $services)
     {
         $serviceBase = new ServiceBase();
-        $this->setting('/', 'services');
+        $this->setting('services');
         $serviceBase->serviceBase($services);
     }
 
@@ -183,7 +185,7 @@ class Router
     private function library(array $libraries)
     {
         $libraryBase = new LibraryBase();
-        $this->setting('/', 'libraries');
+        $this->setting('libraries');
         $libraryBase->libraryBase($libraries);
     }
 
@@ -199,7 +201,7 @@ class Router
     public function mail(array $mail, string $mvc)
     {
         $mailBase = new MailBase();
-        $this->setting('/', 'mail');
+        $this->setting('mail');
         $mailBase->mailBase($mail, $mvc);
     }
 
@@ -214,8 +216,21 @@ class Router
     public function aws(array $aws, string $mvc)
     {
         $awsBase = new AwsBase();
-        $this->setting('/', 'aws');
+        $this->setting('aws');
         $awsBase->awsBase($aws, $mvc);
+    }
+
+    /**
+     * Include log.
+     *
+     * @param string $log
+     * @return void
+     */
+    public function log(string $log)
+    {
+        $logBase = new LogBase();
+        $this->setting('log');
+        $logBase->logBase($log);
     }
 
 }

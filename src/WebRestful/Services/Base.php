@@ -39,8 +39,6 @@ class Base extends WebRestful
             foreach (self::$servicesList as $libName => $libConfig) {
                 $this->webRestfulCheckList('service', null, $libConfig['path'], null, null);
             }
-//            print "<pre>";print_r(self::$servicesList);exit;
-
             $this->autoloaderService();
         }
     }

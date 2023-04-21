@@ -29,12 +29,12 @@ class Base extends WebRestful
      *
      * @return void
      */
-    public function logBase()
+    public function logBase(string $log)
     {
         $this->webRestfulCheckList('log', null, null, null, null);
-        $this->setLogInfo();
+        $this->setLogInfo($log);
         $this->checkLogConfig();
-        $this->mkdirFolder();
+        $this->setFileName();
     }
 
     /**
@@ -42,11 +42,16 @@ class Base extends WebRestful
      *
      * @return void
      */
-    private function setLogInfo()
+    private function setLogInfo(string $log)
     {
-        $setting = new SettingsBase();
-        $setting->settingBase('/', 'log');
-        self::$log = $setting->getSettingData('log');
+        if(!empty($log)){
+            $setting = new SettingsBase();
+            self::$log = $setting->getSettingData('log')[$log];
+        }else{
+            self::$log = [
+                'folder' => DIRECTORY_SEPARATOR . 'pocoapoco'
+            ];
+        }
     }
 
     /**
@@ -56,64 +61,69 @@ class Base extends WebRestful
      */
     private function checkLogConfig()
     {
-        $logConfigList = ['cycle'];
-        $logCycleList = ['yearly', 'monthly', 'weekly', 'daily'];
-
-        foreach ($logConfigList as $key) {
-            isset(self::$log[$key]) ? null : die("【ERROR】Setting log.ini tag \"$key\" is not exist.");
+        //folder
+        if(isset(self::$log['folder'])){
+            if(substr(self::$log['folder'], -1) === DIRECTORY_SEPARATOR){
+                self::$log['folder'] = substr(self::$log['folder'],0,strlen(self::$log['folder'])-1);
+            }
+            if(substr(self::$log['folder'],0,1) !== DIRECTORY_SEPARATOR){
+                self::$log['folder'] = DIRECTORY_SEPARATOR . self::$log['folder'];
+            }
+        }else{
+            self::$log['folder'] = DIRECTORY_SEPARATOR;
         }
 
-        in_array(self::$log['cycle'], $logCycleList) ? null : die("【ERROR】Setting log.ini tag 'cycle' value is not support.");
+        //file
+        if(isset(self::$log['file'])){
+            if(strpos(self::$log['file'],DIRECTORY_SEPARATOR)){
+                ErrorBase::triggerError('Not allowed log file ：'.self::$log['file'], 4, 0);
+            }
+        }else{
+            self::$log['file'] = 'logFile';
+        }
     }
 
     /**
-     * Check folder is exist, if not create the folder.
+     * Check folder for exists, if not create the folder.
      * According to log.ini tag 'cycle'
      *
      * @return void
      */
-    private function mkdirFolder()
+    private function setFileName()
     {
-        $logPath = $this->basePath;
-
-        if (is_writable($logPath)) {
-            $year = date('Y');
-            $month = date('m');
-            $week = date('W');
-            $day = date('d');
-            $yearPath = $logPath . DIRECTORY_SEPARATOR . $year;
-            $monthPath = $logPath . DIRECTORY_SEPARATOR . $year . DIRECTORY_SEPARATOR . $month;
-
-            switch (self::$log['cycle']) {
-                case 'yearly':
-                    self::$log['fileName'] = $logPath . DIRECTORY_SEPARATOR . 'Y' . $year . '.log';
-                    break;
-                case 'monthly':
-                    self::$log['fileName'] = $yearPath . DIRECTORY_SEPARATOR . 'M' . $month . '.log';
-                    if (!is_dir($yearPath)) {
-                        mkdir($yearPath, 0777);
-                    }
-                    break;
-                case 'weekly':
-                    self::$log['fileName'] = $yearPath . DIRECTORY_SEPARATOR . 'W' . $week . '.log';
-                    if (!is_dir($yearPath)) {
-                        mkdir($yearPath, 0777);
-                    }
-                    break;
-                case 'daily':
-                    self::$log['fileName'] = $monthPath . DIRECTORY_SEPARATOR . 'D' . $day . '.log';
-                    if (!is_dir($yearPath)) {
-                        mkdir($yearPath, 0777);
-                        if (!is_dir($monthPath)) {
-                            mkdir($monthPath, 0777);
-                        }
-                    }
-                    break;
+        if (is_writable($this->basePath)) {
+            if(self::$log['folder'] !== DIRECTORY_SEPARATOR){
+                $logPath = $this->basePath.self::$log['folder'];
+            }else{
+                $logPath = $this->basePath;
             }
+            $this->mkdirFolder($logPath);
+            $logDate = date('Y-m-d');
+            self::$log['fileName'] = $logPath . DIRECTORY_SEPARATOR . self::$log['file'] . '_' . $logDate . '.log';
         } else {
-            ErrorBase::triggerError("Check permissions path：$logPath", 4, 0);
+            ErrorBase::triggerError("Check permissions path：$this->basePath", 4, 0);
         }
 
+    }
+
+    private function mkdirFolder($folder)
+    {
+        if (!is_dir($folder)) {
+            $pos = strrpos($folder, DIRECTORY_SEPARATOR);
+            $parentFolder = substr($folder, 0, $pos);
+            $this->mkdirFolder($parentFolder);
+            mkdir($folder, 0777);
+        }
+    }
+
+    /**
+     * Get log info.
+     *
+     * @return array
+     */
+    public function getLogInfo(): array
+    {
+        return ['fileName' => self::$log['fileName']];
     }
 
     /**
@@ -167,7 +177,6 @@ class Base extends WebRestful
                 $logger->log($level, $message, $context);
                 break;
         }
-
     }
 
 }

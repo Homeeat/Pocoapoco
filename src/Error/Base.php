@@ -60,7 +60,7 @@ class Base
     public function setErrorInfo()
     {
         $setting = new SettingsBase();
-        $setting->settingBase('/', 'error');
+        $setting->settingBase('error');
         self::$error = $setting->getSettingData('error');
     }
 

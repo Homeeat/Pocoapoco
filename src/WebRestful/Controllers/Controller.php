@@ -38,7 +38,7 @@ class Controller
         // config
         $controllerBase = new ControllerBase();
         $settingsBase = new SettingsBase();
-        $librariesBase = new LibrariesBase();
+        $logBase = new LogBase();
         $servicesBase = new ServicesBase();
         $mailBase = new MailBase();
         $awsBase = new AWSBase();
@@ -68,7 +68,7 @@ class Controller
         $this->setting['error'] = $settingsBase->getSettingData('error');
 
         // log
-        $this->setting['log'] = $settingsBase->getSettingData('log');
+        $this->setting['log'] = $logBase->getLogInfo();
 
         // libraries
         $libraries = $settingsBase->getSettingData('libraries');

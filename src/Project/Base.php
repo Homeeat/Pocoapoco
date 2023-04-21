@@ -37,7 +37,7 @@ class Base
     private function setProjectInfo()
     {
         $setting = new SettingsBase();
-        $setting->settingBase('/', 'project');
+        $setting->settingBase('project');
         self::$project = $setting->getSettingData('project');
     }
 

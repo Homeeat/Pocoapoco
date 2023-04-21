@@ -29,7 +29,7 @@ class Base extends WebRestful
      *
      * @return void
      */
-    public function settingBase(string $path, string $class)
+    public function settingBase(string $class)
     {
         $paths = ['/'];
         isset($_SERVER['ENVIRONMENT']) ? $paths[] = '/' . $_SERVER['ENVIRONMENT'] : null;
@@ -50,11 +50,11 @@ class Base extends WebRestful
     private function setSettingData(string $fileName, string $absoluteFile)
     {
         switch ($fileName) {
-            case 'log':
             case 'libraries':
             $process_sections = false;
                 break;
             case 'services':
+            case 'log':
             case 'error':
             case 'mail':
             case 'aws':

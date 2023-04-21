@@ -127,8 +127,6 @@ class Service
         $tempContext = $context;
         unset($context);
         $context['uuid'] = $this->request->uuid;
-        $context['date'] = date('Y-m-d');
-        $context['time'] = date('H:i:s');
         foreach ($tempContext as $key => $value) {
             $context[$key] = $value;
         }
