@@ -154,7 +154,13 @@ class Base extends ModelBase implements BaseInterface
 
             // prepared statement
             $pre_stat_pk = self::sqlId();
-            @pg_prepare($conn, "pocoapoco-$pre_stat_pk", $sqlCommand);
+            $res = @pg_prepare($conn, "pocoapoco-$pre_stat_pk", $sqlCommand);
+            if(!$res){
+                $dbRows['status'] = 'ERROR';
+                $dbRows['result'] = 'Sql Prepare Error';
+                $dbRows['sql'] = "\n$sqlCommand;";
+                return $dbRows;
+            }
 
             foreach ($sqlData_bind as $data_flag => $colName) {
                 // pass $0
@@ -184,7 +190,11 @@ class Base extends ModelBase implements BaseInterface
                     } else {
                         $result = @pg_query($conn, $sqlCommand);
                     }
-
+                    if(!$result){
+                        $dbRows['status'] = 'ERROR';
+                        $dbRows['result'] = 'SELECT Error';
+                        break;
+                    }
                     // parse result
                     empty($result) ? $result = null : null;
                     $rows = pg_fetch_all($result);
@@ -211,7 +221,11 @@ class Base extends ModelBase implements BaseInterface
                         @pg_query($conn, 'BEGIN');
                         $result = @pg_query($conn, $sqlCommand);
                     }
-
+                    if(!$result){
+                        $dbRows['status'] = 'ERROR';
+                        $dbRows['result'] = 'DML Error';
+                        break;
+                    }
                     // parse result
                     $rows = @pg_affected_rows($result);
                     if (substr(trim($action), -1) === 'E') {
