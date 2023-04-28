@@ -1,6 +1,7 @@
 <?php
 
 use Ntch\Pocoapoco\Error\Base as ErrorBase;
+use Ntch\Pocoapoco\Log\Base as LogBase;
 use Ntch\Pocoapoco\WebRestful\Routing\Base as RoutingBase;
 
 // Psr-4
@@ -8,6 +9,10 @@ require __DIR__ . '/../../../autoload.php';
 
 // Error
 new ErrorBase();
+
+// Log
+$log = new LogBase();
+$log->logBase('');
 
 // Routing
 $routerBase = new RoutingBase();

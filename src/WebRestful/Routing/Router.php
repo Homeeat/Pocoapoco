@@ -73,7 +73,7 @@ class Router
             isset($mix['aws']) ? $this->aws($mix['aws'], 'controller') : null;
 
             // logs
-            isset($mix['log']) ? $this->log($mix['log']) : $this->log('');
+            isset($mix['log']) ? $this->log($mix['log']) : null;
 
             // controller
             $path = $mix['controller'][0];

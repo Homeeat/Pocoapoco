@@ -12,6 +12,7 @@
 namespace Ntch\Pocoapoco\Error;
 
 use Ntch\Pocoapoco\WebRestful\Routing\Router;
+use Ntch\Pocoapoco\Log\Base as LogBase;
 use Ntch\Pocoapoco\WebRestful\Settings\Base as SettingsBase;
 use Ntch\Pocoapoco\Mail\Mail;
 
@@ -143,16 +144,15 @@ class Base
             exit();
 
         } else {
-
             $router = new Router();
+            LogBase::log($level, $message, debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 8), 'pocoapoco');
 
             // MAIL
             (boolean)$ignore = $this->ignoreLevel('MAIL', $level);
-
             if ($ignore && self::$sendmail) {
-                $router->mail([self::$error['MAIN']['mail_server']]);
+                $router->mail([self::$error['MAIN']['mail_server']], 'error');
                 $server = self::$error['MAIN']['mail_server'];
-                $mail = new Mail($server);
+                $mail = new Mail($server, 'error');
 
                 $fromInfo = explode(':', self::$error['MAIN']['mail_from']);
                 $address = trim($fromInfo[0]);

@@ -32,9 +32,14 @@ class Base extends WebRestful
     public function logBase(string $log)
     {
         $this->webRestfulCheckList('log', null, null, null, null);
-        $this->setLogInfo($log);
-        $this->checkLogConfig();
-        $this->setFileName();
+        if(empty($log)) {
+            $type = 'pocoapoco';
+        }else{
+            $type = 'project';
+        }
+        $this->setLogInfo($log, $type);
+        $this->checkLogConfig($type);
+        $this->setFileName($type);
     }
 
     /**
@@ -42,14 +47,15 @@ class Base extends WebRestful
      *
      * @return void
      */
-    private function setLogInfo(string $log)
+    private function setLogInfo(string $log, string $type)
     {
         if(!empty($log)){
             $setting = new SettingsBase();
-            self::$log = $setting->getSettingData('log')[$log];
+            self::$log[$type] = $setting->getSettingData('log')[$log];
         }else{
-            self::$log = [
-                'folder' => DIRECTORY_SEPARATOR . 'pocoapoco'
+            self::$log[$type] = [
+                'folder' => $this->basePath . DIRECTORY_SEPARATOR . 'pocoapoco',
+                'file' => 'logFile'
             ];
         }
     }
@@ -59,27 +65,27 @@ class Base extends WebRestful
      *
      * @return void
      */
-    private function checkLogConfig()
+    private function checkLogConfig(string $type)
     {
         //folder
-        if(isset(self::$log['folder'])){
-            if(substr(self::$log['folder'], -1) === DIRECTORY_SEPARATOR){
-                self::$log['folder'] = substr(self::$log['folder'],0,strlen(self::$log['folder'])-1);
+        if(isset(self::$log[$type]['folder'])){
+            if(substr(self::$log[$type]['folder'],0,1) !== DIRECTORY_SEPARATOR){
+                die("【ERROR】Setting log.ini tag 'folder' use realpath.");
             }
-            if(substr(self::$log['folder'],0,1) !== DIRECTORY_SEPARATOR){
-                self::$log['folder'] = DIRECTORY_SEPARATOR . self::$log['folder'];
+            if(substr(self::$log[$type]['folder'], -1) === DIRECTORY_SEPARATOR){
+                self::$log[$type]['folder'] = substr(self::$log[$type]['folder'],0,strlen(self::$log[$type]['folder'])-1);
             }
         }else{
-            self::$log['folder'] = DIRECTORY_SEPARATOR;
+            die("【ERROR】Setting log.ini tag 'folder' not found.");
         }
 
         //file
-        if(isset(self::$log['file'])){
-            if(strpos(self::$log['file'],DIRECTORY_SEPARATOR)){
-                ErrorBase::triggerError('Not allowed log file ：'.self::$log['file'], 4, 0);
+        if(isset(self::$log[$type]['file'])){
+            if(strpos(self::$log[$type]['file'],DIRECTORY_SEPARATOR)){
+                ErrorBase::triggerError('Not allowed log file ：'.self::$log[$type]['file'], 4, 0);
             }
         }else{
-            self::$log['file'] = 'logFile';
+            die("【ERROR】Setting log.ini tag 'file' not found.");
         }
     }
 
@@ -89,30 +95,24 @@ class Base extends WebRestful
      *
      * @return void
      */
-    private function setFileName()
+    private function setFileName(string $type)
     {
-        if (is_writable($this->basePath)) {
-            if(self::$log['folder'] !== DIRECTORY_SEPARATOR){
-                $logPath = $this->basePath.self::$log['folder'];
-            }else{
-                $logPath = $this->basePath;
-            }
-            $this->mkdirFolder($logPath);
-            $logDate = date('Y-m-d');
-            self::$log['fileName'] = $logPath . DIRECTORY_SEPARATOR . self::$log['file'] . '_' . $logDate . '.log';
-        } else {
-            ErrorBase::triggerError("Check permissions path：$this->basePath", 4, 0);
-        }
-
+        $this->mkdirFolder(self::$log[$type]['folder']);
+        $logDate = date('Y-m-d');
+        self::$log[$type]['fileName'] = self::$log[$type]['folder'] . DIRECTORY_SEPARATOR . self::$log[$type]['file'] . '_' . $logDate . '.log';
     }
 
-    private function mkdirFolder($folder)
+    private function mkdirFolder($folder, string $type = 'project')
     {
         if (!is_dir($folder)) {
             $pos = strrpos($folder, DIRECTORY_SEPARATOR);
             $parentFolder = substr($folder, 0, $pos);
             $this->mkdirFolder($parentFolder);
-            mkdir($folder, 0777);
+            if (is_writable($parentFolder)) {
+                mkdir($folder, 0755);
+            }else{
+                ErrorBase::triggerError("Check permissions path：$parentFolder", 4, 0);
+            }
         }
     }
 
@@ -121,9 +121,14 @@ class Base extends WebRestful
      *
      * @return array
      */
-    public function getLogInfo(): array
+    public function getLogInfo(string $type = 'project'): array
     {
-        return ['fileName' => self::$log['fileName']];
+        if(isset(self::$log[$type])){
+            $log['fileName'] = self::$log[$type]['fileName'];
+        }else{
+            $log['fileName'] = null;
+        }
+        return $log;
     }
 
     /**
@@ -141,12 +146,12 @@ class Base extends WebRestful
      * @param string $level
      * @param string $message
      * @param array $context
-     *
+     * @param string $type
      * @return void
      */
-    public static function log(string $level, string $message, array $context)
+    public static function log(string $level, string $message, array $context, string $type = 'project')
     {
-        $logger = new Logger(self::$log);
+        $logger = new Logger(self::$log[$type]);
 
         switch (strtoupper($level)) {
             case 'EMERGENCY':
