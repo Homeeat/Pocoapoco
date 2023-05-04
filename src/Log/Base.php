@@ -102,11 +102,15 @@ class Base extends WebRestful
         self::$log[$type]['fileName'] = self::$log[$type]['folder'] . DIRECTORY_SEPARATOR . self::$log[$type]['file'] . '_' . $logDate . '.log';
     }
 
-    private function mkdirFolder($folder, string $type = 'project')
+    private function mkdirFolder($folder)
     {
         if (!is_dir($folder)) {
             $pos = strrpos($folder, DIRECTORY_SEPARATOR);
-            $parentFolder = substr($folder, 0, $pos);
+            if(empty($pos)){
+                $parentFolder = DIRECTORY_SEPARATOR;
+            }else{
+                $parentFolder = substr($folder, 0, $pos);
+            }
             $this->mkdirFolder($parentFolder);
             if (is_writable($parentFolder)) {
                 mkdir($folder, 0755);
@@ -119,6 +123,7 @@ class Base extends WebRestful
     /**
      * Get log info.
      *
+     * @param string $type
      * @return array
      */
     public function getLogInfo(string $type = 'project'): array
