@@ -156,6 +156,9 @@ class Base extends WebRestful
      */
     public static function log(string $level, string $message, array $context, string $type = 'project')
     {
+        if(empty(self::$log[$type])){
+            return;
+        }
         $logger = new Logger(self::$log[$type]);
 
         switch (strtoupper($level)) {

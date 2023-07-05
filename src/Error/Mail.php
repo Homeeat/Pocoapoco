@@ -21,7 +21,7 @@
     </tr>
     <tr>
         <th style="text-align: left;">
-            <? echo $this->data['error'] ?>
+            <?php echo $this->data['error']; ?>
         </th>
     </tr>
     </thead>
