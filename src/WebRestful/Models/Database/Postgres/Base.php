@@ -269,10 +269,12 @@ class Base extends ModelBase implements BaseInterface
                 switch ($value['SYSTEM_SET']) {
                     case 'PRIMARY_KEY':
                         if ($action == 'INSERT') {
-                            if ($value['DATA_TYPE'] == 'uuid') {
-                                $data[$key] = self::uuid();
-                            } else {
-                                $data[$key] = self::sqlId();
+                            if (empty($data[$key])) {
+                                if ($value['DATA_TYPE'] == 'uuid') {
+                                    $data[$key] = self::uuid();
+                                } else {
+                                    $data[$key] = self::sqlId();
+                                }
                             }
                         }
                         break;

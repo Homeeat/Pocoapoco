@@ -45,7 +45,7 @@ class Dml extends PostgresBase implements DmlInterface
         $serverName = self::$databaseList[$mvc]['postgres']['table'][$modelName]['server'];
         $schema = self::$databaseObject[$mvc]['postgres']->table[$modelName]->schema;
 
-        $data = PostgreBase::systemSet('INSERT', $schema, $data);
+        $data = PostgresBase::systemSet('INSERT', $schema, $data);
 
         $sql_key = '(';
         $sql_value = '(';
@@ -125,7 +125,7 @@ class Dml extends PostgresBase implements DmlInterface
             $schema = self::$databaseObject[$mvc]['postgres']->$modelType[$modelName]->schema;
         }
 
-        $data = PostgreBase::systemSet('UPDATE', $schema, $data);
+        $data = PostgresBase::systemSet('UPDATE', $schema, $data);
 
         $sql_set = '';
         foreach ($data as $key => $value) {

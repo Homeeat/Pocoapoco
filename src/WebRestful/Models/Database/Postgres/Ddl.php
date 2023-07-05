@@ -48,7 +48,7 @@ class Ddl extends PostgresBase implements DdlInterface
             switch ($dataType) {
                 case 'char':
                 case 'varchar':
-                    $dataDefault = isset($info['DATA_DEFAULT']) ? empty($info['DATA_DEFAULT']) ? null : ' DEFAULT \'' . $info['DATA_DEFAULT'] . '\'' : null;
+                    $dataDefault = isset($info['DATA_DEFAULT']) ? ' DEFAULT \'' . $info['DATA_DEFAULT'] . '\'' : null;
                     break;
                 case 'uuid':
                 case 'bool':
@@ -63,7 +63,7 @@ class Ddl extends PostgresBase implements DdlInterface
                 case 'timestamp':
                 case 'timestamptz':
                 case 'xml':
-                    $dataDefault = isset($info['DATA_DEFAULT']) ? empty($info['DATA_DEFAULT']) ? null : ' DEFAULT ' . $info['DATA_DEFAULT'] : null;
+                    $dataDefault = isset($info['DATA_DEFAULT']) ? ' DEFAULT ' . $info['DATA_DEFAULT'] : null;
                     break;
                 default:
                     die("【ERROR】Not support data Type： $dataType");
