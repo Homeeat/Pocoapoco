@@ -51,7 +51,7 @@ class Base extends WebRestful
             if (isset($librarySetting[$value])) {
                 $prefix = str_replace('/', '\\', substr($librarySetting[$value], 1));
                 $base_dir = $this->basePath . $librarySetting[$value];
-                $this->autoloaderFile($prefix, $base_dir);
+                $this->autoloaderFile("libraries\\$prefix", $base_dir);
             }
         }
     }

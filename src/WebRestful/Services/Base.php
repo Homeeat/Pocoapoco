@@ -36,8 +36,8 @@ class Base extends WebRestful
             $this->setServicesList($services);
             $this->checkServiceConfig();
 
-            foreach (self::$servicesList as $libName => $libConfig) {
-                $this->webRestfulCheckList('service', null, $libConfig['path'], null, null);
+            foreach (self::$servicesList as $serviceName => $serviceConfig) {
+                $this->webRestfulCheckList('service', null, $serviceConfig['path'], null, null);
             }
             $this->autoloaderService();
         }
@@ -54,8 +54,8 @@ class Base extends WebRestful
     {
         $settingBase = new SettingBase();
         $settingList = $settingBase->getSettingData('services');
-        foreach ($services as $libName) {
-            self::$servicesList[$libName] = $settingList[$libName];
+        foreach ($services as $serviceName) {
+            self::$servicesList[$serviceName] = $settingList[$serviceName];
         }
     }
 
@@ -72,13 +72,13 @@ class Base extends WebRestful
         $model = [];
         $mail = [];
         $aws = [];
-        foreach (self::$servicesList as $libName => $libConfig) {
+        foreach (self::$servicesList as $serviceName => $serviceConfig) {
             foreach ($serviceConfigList as $key) {
                 if ($key == 'path') {
-                    isset(self::$servicesList[$libName][$key]) ? null : die("【ERROR】Setting services.ini [$libName] tag \"$key\" is not exist.");
+                    isset(self::$servicesList[$serviceName][$key]) ? null : die("【ERROR】Setting services.ini [$serviceName] tag \"$key\" is not exist.");
                 } else {
-                    if (isset(self::$servicesList[$libName][$key])) {
-                        $lists = explode(',', self::$servicesList[$libName][$key]);
+                    if (isset(self::$servicesList[$serviceName][$key])) {
+                        $lists = explode(',', self::$servicesList[$serviceName][$key]);
                         switch ($key) {
                             case 'oracle':
                                 foreach ($lists as $key) {
@@ -133,10 +133,10 @@ class Base extends WebRestful
      */
     private function autoloaderService()
     {
-        foreach (self::$servicesList as $libName => $libConfig) {
-            $prefix = str_replace('/', '\\', substr($libConfig['path'], 1));
-            $base_dir = $this->basePath . $libConfig['path'];
-            $this->autoloaderFile($prefix, $base_dir);
+        foreach (self::$servicesList as $serviceName => $serviceConfig) {
+            $prefix = str_replace('/', '\\', substr($serviceConfig['path'], 1));
+            $base_dir = $this->basePath . $serviceConfig['path'];
+            $this->autoloaderFile("services\\$prefix", $base_dir);
         }
     }
 

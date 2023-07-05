@@ -17,6 +17,7 @@ use Ntch\Pocoapoco\Error\Base as ErrorBase;
 use Ntch\Pocoapoco\Log\Base as LogBase;
 use Ntch\Pocoapoco\Mail\Base as MailBase;
 use Ntch\Pocoapoco\Mail\Mail;
+use Ntch\Pocoapoco\Project\Base as ProjectBase;
 use Ntch\Pocoapoco\WebRestful\Controllers\Base as ControllerBase;
 use Ntch\Pocoapoco\WebRestful\Models\Base as ModelBase;
 use Ntch\Pocoapoco\WebRestful\Settings\Base as SettingsBase;
@@ -76,6 +77,13 @@ class Service
             foreach ($this->setting['aws'] as $account => $config) {
                 $this->aws[$account] = new Aws($account, 'service');
             }
+        }
+
+        // project
+        $projectBase = new ProjectBase();
+        $settingProject = $projectBase->getProjectList();
+        if (!is_null($settingProject)) {
+            $this->setting['project'] = $settingProject;
         }
 
         // model

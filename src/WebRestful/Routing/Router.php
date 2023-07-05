@@ -50,6 +50,9 @@ class Router
         $uriExist = $webRestful->checkUriMatch();
 
         if ($uriExist) {
+            // library
+            isset($mix['libraries']) ? $this->library($mix['libraries']) : null;
+
             // model
             $modelList = ['oracle' => [], 'mysql' => [], 'mssql' => [], 'postgres' => []];
             foreach ($mix as $key => $value) {
@@ -61,10 +64,7 @@ class Router
             $this->model($modelList, 'controller');
 
             // service
-            isset($mix['services']) ? $this->service($mix['services']) : $this->service([]);
-
-            // library
-            isset($mix['libraries']) ? $this->library($mix['libraries']) : null;
+            isset($mix['services']) ? $this->service($mix['services']) : null;
 
             // mail
             isset($mix['mail']) ? $this->mail($mix['mail'], 'controller') : null;

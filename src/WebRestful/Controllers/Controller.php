@@ -161,8 +161,6 @@ class Controller
         $tempContext = $context;
         unset($context);
         $context['uuid'] = $this->request->uuid;
-        $context['date'] = $this->request->time['date'];
-        $context['time'] = $this->request->time['time'];
         $context['ip'] = $this->request->client['ip'];
         $context['port'] = $this->request->client['port'];
         $context['url'] = $this->request->url;
