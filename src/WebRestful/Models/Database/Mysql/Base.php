@@ -153,11 +153,10 @@ class Base extends ModelBase implements BaseInterface
             $sql_type = '';
             $sql_data = [];
             foreach ($sqlData as $key => $value) {
-                $sql_type .= $sqlBind[$key]['SQL_TYPE'];
-                $$key = $value;
-                $sql_data[] = &$$key;
+                $sql_type .= $sqlBind[$value]['SQL_TYPE'];
+                $sql_data[] = &$sqlData_bind[$key];
 
-                $sqlCommand = preg_replace('/\?/', "'$value'", $sqlCommand, 1);
+                $sqlCommand = preg_replace('/\?/', "'$sqlData_bind[$key]'", $sqlCommand, 1);
             }
 
             if (count($sqlData) > 1) {
@@ -271,9 +270,9 @@ class Base extends ModelBase implements BaseInterface
             $schema = self::$databaseObject[$mvc]['mysql']->$modelType[$modelName]->schema;
         }
 
-        foreach ($sqlData as $key => $value) {
-            if (isset($schema[$key])) {
-                switch (@$schema[$key]['DATA_TYPE']) {
+        foreach ($sqlData as $value) {
+            if (isset($schema[$value])) {
+                switch (@$schema[$value]['DATA_TYPE']) {
                     case 'char':
                     case 'varchar':
                     case 'timestamp':
@@ -299,10 +298,10 @@ class Base extends ModelBase implements BaseInterface
                 if ($query_pass) {
                     $sql_type = 's';
                 } else {
-                    ErrorBase::triggerError("Column name \"$key\" can't find in model schema", 4, 0);
+                    ErrorBase::triggerError("Column name \"$value\" can't find in model schema", 4, 0);
                 }
             }
-            @$sqlBind[$key]['SQL_TYPE'] = $sql_type;
+            @$sqlBind[$value]['SQL_TYPE'] = $sql_type;
         }
         return $sqlBind;
     }

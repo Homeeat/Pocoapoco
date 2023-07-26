@@ -97,12 +97,8 @@ class Dql extends PostgresBase implements DqlInterface
 
         $sql_where = '';
         $data_where = [];
+        $data_flag = count($data_bind) + 1;
         foreach ($data as $colName => $value) {
-            // data_bind
-            empty($data_bind) ? $data_bind[0] = null : null;
-            in_array($colName, $data_bind) ? null : array_push($data_bind, $colName);
-            $data_flag = array_search($colName, $data_bind);
-
             $sql_where .= "$colName ";
             if(is_array($value)) {
                 if (is_null($value[0])) {
@@ -114,7 +110,8 @@ class Dql extends PostgresBase implements DqlInterface
                     } else {
                         $sql_where .= "$value[1] $$data_flag AND ";
                     }
-                    $data_where[$colName] = $value[0];
+                    $data_where[$data_flag] = $colName;
+                    $data_bind[$data_flag] = $value[0];
                 }
             } else {
                 if (is_null($value)) {
@@ -126,9 +123,11 @@ class Dql extends PostgresBase implements DqlInterface
                     } else {
                         $sql_where .= "= $$data_flag AND ";
                     }
-                    $data_where[$colName] = $value;
+                    $data_where[$data_flag] = $colName;
+                    $data_bind[$data_flag] = $value;
                 }
             }
+            $data_flag++;
         }
         $sql_where = substr(trim($sql_where), 0, -4);
 

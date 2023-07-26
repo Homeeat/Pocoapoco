@@ -161,8 +161,13 @@ class MssqlModel
      */
     private function sqlDataBind(string $sql, array $data)
     {
+        $bind_flag = 0;
+        $this->data = array();
         foreach ($data as $key => $value) {
             $sql = str_replace(":$key", "?", $sql);
+            $this->data[$bind_flag] = $key;
+            $this->data_bind[$bind_flag] = $value;
+            $bind_flag++;
         }
         $this->sql = $sql;
     }
@@ -177,6 +182,7 @@ class MssqlModel
         $this->action = '';
         $this->sql = '';
         $this->data = [];
+        $this->data_bind = [];
         $this->keyName = null;
         $this->offset = 0;
         $this->limit = -1;
@@ -281,9 +287,10 @@ class MssqlModel
      */
     public function values(array $data = []): object
     {
-        $res = Dml::values($this->modelType, $this->modelName, $this->tableName, $data, [], $this->mvc);
+        $res = Dml::values($this->modelType, $this->modelName, $this->tableName, $data, $this->data_bind, $this->mvc);
         $this->sql .= $res['command'];
         $this->data = array_merge($this->data, $res['data']);
+        $this->data_bind = $res['data_bind'];
 
         return $this;
     }
@@ -323,9 +330,10 @@ class MssqlModel
      */
     public function set(array $data = []): object
     {
-        $res = Dml::set($this->modelType, $this->modelName, $this->tableName, $data, [], $this->mvc);
+        $res = Dml::set($this->modelType, $this->modelName, $this->tableName, $data, $this->data_bind, $this->mvc);
         $this->sql .= $res['command'];
         $this->data = array_merge($this->data, $res['data']);
+        $this->data_bind = $res['data_bind'];
 
         return $this;
     }
@@ -371,9 +379,11 @@ class MssqlModel
      */
     public function where(array $data): object
     {
-        $res = Dql::where($this->modelType, $this->modelName, $this->tableName, $data, [], $this->mvc);
+        $res = Dql::where($this->modelType, $this->modelName, $this->tableName, $data, $this->data_bind, $this->mvc);
         $this->sql .= $res['command'];
         $this->data = array_merge($this->data, $res['data']);
+        $this->data_bind = $res['data_bind'];
+
         return $this;
     }
 

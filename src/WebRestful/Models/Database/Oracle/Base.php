@@ -174,9 +174,8 @@ class Base extends ModelBase implements BaseInterface
         if (!is_null($sqlData)) {
             $sqlBind = self::dataBind($modelType, $modelName, $tableName, $sqlData, $mvc, $query_pass);
             foreach ($sqlData as $key => $value) {
-                $$key = $value;
-                @oci_bind_by_name($stid, ":$key", $$key, $sqlBind[$key]['DATA_SIZE'], $sqlBind[$key]['SQL_TYPE']);
-                $sqlCommand = str_replace(":$key", "'$value'", $sqlCommand);
+                @oci_bind_by_name($stid, ":$value$key", $sqlData_bind[$key], $sqlBind[$value]['DATA_SIZE'], $sqlBind[$value]['SQL_TYPE']);
+                $sqlCommand = str_replace(":$value$key", "'$sqlData_bind[$key]'", $sqlCommand);
             }
         }
 
@@ -270,17 +269,17 @@ class Base extends ModelBase implements BaseInterface
             $schema = self::$databaseObject[$mvc]['oracle']->$modelType[$modelName]->schema;
         }
 
-        foreach ($sqlData as $key => $value) {
-            if (isset($schema[$key])) {
-                switch ($schema[$key]['DATA_TYPE']) {
+        foreach ($sqlData as $value) {
+            if (isset($schema[$value])) {
+                switch ($schema[$value]['DATA_TYPE']) {
                     case 'CHAR':
                     case 'NCHAR':
-                        $data_size = $schema[$key]['DATA_SIZE'];
+                        $data_size = $schema[$value]['DATA_SIZE'];
                         $sql_type = SQLT_AFC;
                         break;
                     case 'VARCHAR2':
                     case 'NVARCHAR2':
-                        $data_size = $schema[$key]['DATA_SIZE'];
+                        $data_size = $schema[$value]['DATA_SIZE'];
                         $sql_type = SQLT_CHR;
                         break;
                     case 'NUMBER':
@@ -302,12 +301,12 @@ class Base extends ModelBase implements BaseInterface
                     $data_size = -1;
                     $sql_type = 0;
                 } else {
-                    ErrorBase::triggerError("Column name \"$key\" can't find in model schema", 4, 0);
+                    ErrorBase::triggerError("Column name \"$value\" can't find in model schema", 4, 0);
                 }
             }
 
-            $sqlBind[$key]['DATA_SIZE'] = $data_size;
-            $sqlBind[$key]['SQL_TYPE'] = $sql_type;
+            $sqlBind[$value]['DATA_SIZE'] = $data_size;
+            $sqlBind[$value]['SQL_TYPE'] = $sql_type;
         }
         return $sqlBind;
     }

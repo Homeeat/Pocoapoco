@@ -48,7 +48,11 @@ class Dml extends MysqlBase implements DmlInterface
 
         $sql_key = '(';
         $sql_value = '(';
+        $data_key = array();
+        $data_flag = count($data_bind);
         foreach ($data as $key => $value) {
+            $data_key[$data_flag] = $key;
+            $data_bind[$data_flag] = $value;
             $sql_key .= "`$key`, ";
             if (@$schema[$key]['DATA_TYPE'] === 'DATE') {
                 $data_size = $schema[$key]['DATA_SIZE'];
@@ -56,6 +60,7 @@ class Dml extends MysqlBase implements DmlInterface
             } else {
                 $sql_value .= "?, ";
             }
+            $data_flag++;
         }
         $sql_key = substr(trim($sql_key), 0, -1);
         $sql_value = substr(trim($sql_value), 0, -1);
@@ -63,7 +68,7 @@ class Dml extends MysqlBase implements DmlInterface
         $sql_value .= ')';
 
         $sqlCommand = "$sql_key \nVALUES $sql_value\n";
-        return $sql = ['command' => $sqlCommand, 'data' => $data];
+        return $sql = ['command' => $sqlCommand, 'data' => $data_key, 'data_bind' => $data_bind];
     }
 
     /**
@@ -121,7 +126,12 @@ class Dml extends MysqlBase implements DmlInterface
         $data = MysqlBase::systemSet('UPDATE', $schema, $data);
 
         $sql_set = '';
+        $data_key = array();
+        $data_flag = count($data_bind);
         foreach ($data as $key => $value) {
+            $data_key[$data_flag] = $key;
+            $data_bind[$data_flag] = $value;
+
             $sql_set .= "`$key` = ";
             if (is_null($value)) {
                 $sql_set .= "?, ";
@@ -133,11 +143,12 @@ class Dml extends MysqlBase implements DmlInterface
                     $sql_set .= "?, ";
                 }
             }
+            $data_flag++;
         }
         $sql_set = substr(trim($sql_set), 0, -1);
 
         $sqlCommand = "\nSET $sql_set";
-        return $sql = ['command' => $sqlCommand, 'data' => $data];
+        return $sql = ['command' => $sqlCommand, 'data' => $data_key, 'data_bind' => $data_bind];
     }
 
 }

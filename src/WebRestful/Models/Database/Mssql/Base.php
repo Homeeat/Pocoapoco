@@ -215,9 +215,8 @@ class Base extends ModelBase implements BaseInterface
         if (!is_null($sqlData)) {
 
             foreach ($sqlData as $key => $value) {
-                $$key = $value;
-                $sql_data[] = &$$key;
-                $sqlCommand = preg_replace('/\?/', "'$value'", $sqlCommand, 1);
+                $sql_data[] = &$sqlData_bind[$key];
+                $sqlCommand = preg_replace('/\?/', "'$sqlData_bind[$key]'", $sqlCommand, 1);
             }
 
             // parse

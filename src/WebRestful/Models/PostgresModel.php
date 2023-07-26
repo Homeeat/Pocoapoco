@@ -157,9 +157,11 @@ class PostgresModel
     private function sqlDataBind(string $sql, array $data)
     {
         $bind_flag = 1;
+        $this->data = array();
         foreach ($data as $key => $value) {
             $sql = str_replace(":$key", "$$bind_flag", $sql);
-            $this->data_bind[$bind_flag] = $key;
+            $this->data[$bind_flag] = $key;
+            $this->data_bind[$bind_flag] = $value;
             $bind_flag++;
         }
         $this->sql = $sql;
@@ -269,7 +271,7 @@ class PostgresModel
     {
         $res = Dml::values($this->modelType, $this->modelName, $this->tableName, $data, $this->data_bind, $this->mvc);
         $this->sql .= $res['command'];
-        $this->data = array_merge($this->data, $res['data']);
+        $this->data = $this->data + $res['data'];
         $this->data_bind = $res['data_bind'];
 
         return $this;
@@ -312,7 +314,7 @@ class PostgresModel
     {
         $res = Dml::set($this->modelType, $this->modelName, $this->tableName, $data, $this->data_bind, $this->mvc);
         $this->sql .= $res['command'];
-        $this->data = array_merge($this->data, $res['data']);
+        $this->data = $this->data + $res['data'];
         $this->data_bind = $res['data_bind'];
 
         return $this;
@@ -361,7 +363,7 @@ class PostgresModel
     {
         $res = Dql::where($this->modelType, $this->modelName, $this->tableName, $data, $this->data_bind, $this->mvc);
         $this->sql .= $res['command'];
-        $this->data = array_merge($this->data, $res['data']);
+        $this->data = $this->data + $res['data'];
         $this->data_bind = $res['data_bind'];
 
         return $this;

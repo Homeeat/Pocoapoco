@@ -54,17 +54,23 @@ class Dml extends OracleBase implements DmlInterface
 
         $sql_key = '(';
         $sql_value = '(';
+        $data_key = array();
+        $data_flag = count($data_bind);
         foreach ($data as $key => $value) {
+            $data_key[$data_flag] = $key;
+            $data_bind[$data_flag] = $value;
+
             $sql_key .= "$key, ";
             if ($schema[$key]['DATA_TYPE'] === 'DATE' || $schema[$key]['DATA_TYPE'] === 'TIMESTAMP') {
                 $data_size = isset($schema[$key]['DATA_SIZE']) ? empty($schema[$key]['DATA_SIZE']) ? 'YYYY-MM-DD HH24:MI:SS' : $schema[$key]['DATA_SIZE'] : 'YYYY-MM-DD HH24:MI:SS';
-                $sql_value .= "TO_DATE(:$key, '$data_size'), ";
+                $sql_value .= "TO_DATE(:$key$data_flag, '$data_size'), ";
             } elseif ($schema[$key]['DATA_TYPE'] === 'TIMESTAMP WITH TIME ZONE' || $schema[$key]['DATA_TYPE'] === 'TIMESTAMP WITH LOCAL TIME ZONE') {
                 $data_size = isset($schema[$key]['DATA_SIZE']) ? empty($schema[$key]['DATA_SIZE']) ? 'YYYY-MM-DD HH24:MI:SS' : $schema[$key]['DATA_SIZE'] : 'YYYY-MM-DD HH24:MI:SS';
-                $sql_value .= "TO_TIMESTAMP(:$key, '$data_size'), ";
+                $sql_value .= "TO_TIMESTAMP(:$key$data_flag, '$data_size'), ";
             } else {
-                $sql_value .= ":$key, ";
+                $sql_value .= ":$key$data_flag, ";
             }
+            $data_flag++;
         }
         $sql_key = substr(trim($sql_key), 0, -1);
         $sql_value = substr(trim($sql_value), 0, -1);
@@ -72,7 +78,7 @@ class Dml extends OracleBase implements DmlInterface
         $sql_value .= ')';
 
         $sqlCommand = "$sql_key \nVALUES $sql_value\n";
-        return $sql = ['command' => $sqlCommand, 'data' => $data];
+        return $sql = ['command' => $sqlCommand, 'data' => $data_key, 'data_bind' => $data_bind];
     }
 
     /**
@@ -130,26 +136,32 @@ class Dml extends OracleBase implements DmlInterface
         $data = OracleBase::systemSet('UPDATE', $schema, $data);
 
         $sql_set = '';
+        $data_key = array();
+        $data_flag = count($data_bind);
         foreach ($data as $key => $value) {
+            $data_key[$data_flag] = $key;
+            $data_bind[$data_flag] = $value;
+
             $sql_set .= "$key = ";
             if (is_null($value)) {
                 $sql_set .= " null, ";
             } else {
                 if ($schema[$key]['DATA_TYPE'] === 'DATE') {
                     $data_size = isset($schema[$key]['DATA_SIZE']) ? empty($schema[$key]['DATA_SIZE']) ? 'YYYY-MM-DD HH24:MI:SS' : $schema[$key]['DATA_SIZE'] : 'YYYY-MM-DD HH24:MI:SS';
-                    $sql_set .= "TO_DATE(:$key, '$data_size'), ";
+                    $sql_set .= "TO_DATE(:$key$data_flag, '$data_size'), ";
                 } elseif ($schema[$key]['DATA_TYPE'] === 'TIMESTAMP WITH TIME ZONE' || $schema[$key]['DATA_TYPE'] === 'TIMESTAMP WITH LOCAL TIME ZONE') {
                     $data_size = isset($schema[$key]['DATA_SIZE']) ? empty($schema[$key]['DATA_SIZE']) ? 'YYYY-MM-DD HH24:MI:SS' : $schema[$key]['DATA_SIZE'] : 'YYYY-MM-DD HH24:MI:SS';
-                    $sql_set .= "TO_TIMESTAMP(:$key, '$data_size'), ";
+                    $sql_set .= "TO_TIMESTAMP(:$key$data_flag, '$data_size'), ";
                 } else {
-                    $sql_set .= ":$key, ";
+                    $sql_set .= ":$key$data_flag, ";
                 }
             }
+            $data_flag++;
         }
         $sql_set = substr(trim($sql_set), 0, -1);
 
         $sqlCommand = "\nSET $sql_set";
-        return $sql = ['command' => $sqlCommand, 'data' => $data];
+        return $sql = ['command' => $sqlCommand, 'data' => $data_key, 'data_bind' => $data_bind];
     }
 
     /**

@@ -97,6 +97,7 @@ class Dql extends MysqlBase implements DqlInterface
 
         $sql_where = '';
         $data_where = [];
+        $data_flag = count($data_bind);
         foreach ($data as $colName => $value) {
             $sql_where .= "`$colName` ";
             if(is_array($value)) {
@@ -109,7 +110,8 @@ class Dql extends MysqlBase implements DqlInterface
                     } else {
                         $sql_where .= "$value[1] ? AND ";
                     }
-                    $data_where[$colName] = $value[0];
+                    $data_where[$data_flag] = $colName;
+                    $data_bind[$data_flag] = $value[0];
                 }
             } else {
                 if (is_null($value)) {
@@ -121,14 +123,16 @@ class Dql extends MysqlBase implements DqlInterface
                     } else {
                         $sql_where .= "= ? AND ";
                     }
-                    $data_where[$colName] = $value;
+                    $data_where[$data_flag] = $colName;
+                    $data_bind[$data_flag] = $value;
                 }
             }
+            $data_flag++;
         }
         $sql_where = substr(trim($sql_where), 0, -4);
 
         $sqlCommand = "\nWHERE $sql_where";
-        return $sql = ['command' => $sqlCommand, 'data' => $data_where];
+        return $sql = ['command' => $sqlCommand, 'data' => $data_where, 'data_bind' => $data_bind];
     }
 
     /**

@@ -96,6 +96,7 @@ class Dql extends OracleBase implements DqlInterface
 
         $sql_where = '';
         $data_where = [];
+        $data_flag = count($data_bind);
         foreach ($data as $colName => $value) {
             $sql_where .= "$colName ";
             if (is_array($value)) {
@@ -104,14 +105,15 @@ class Dql extends OracleBase implements DqlInterface
                 } else {
                     if ($schema[$colName]['DATA_TYPE'] === 'DATE') {
                         $data_size = isset($schema[$colName]['DATA_SIZE']) ? empty($schema[$colName]['DATA_SIZE']) ? 'YYYY-MM-DD HH24:MI:SS' : $schema[$colName]['DATA_SIZE'] : 'YYYY-MM-DD HH24:MI:SS';
-                        $sql_where .= "= TO_DATE(:$colName, '$data_size') AND ";
+                        $sql_where .= "= TO_DATE(:$colName$data_flag, '$data_size') AND ";
                     } elseif ($schema[$colName]['DATA_TYPE'] === 'TIMESTAMP WITH TIME ZONE' || $schema[$colName]['DATA_TYPE'] === 'TIMESTAMP WITH LOCAL TIME ZONE') {
                         $data_size = isset($schema[$colName]['DATA_SIZE']) ? empty($schema[$colName]['DATA_SIZE']) ? 'YYYY-MM-DD HH24:MI:SS' : $schema[$colName]['DATA_SIZE'] : 'YYYY-MM-DD HH24:MI:SS';
-                        $sql_where .= "= TO_TIMESTAMP(:$colName, '$data_size') AND ";
+                        $sql_where .= "= TO_TIMESTAMP(:$colName$data_flag, '$data_size') AND ";
                     } else {
-                        $sql_where .= "$value[1] :$colName AND ";
+                        $sql_where .= "$value[1] :$colName$data_flag AND ";
                     }
-                    $data_where[$colName] = $value[0];
+                    $data_where[$data_flag] = $colName;
+                    $data_bind[$data_flag] = $value[0];
                 }
             } else {
                 if (is_null($value)) {
@@ -119,21 +121,23 @@ class Dql extends OracleBase implements DqlInterface
                 } else {
                     if ($schema[$colName]['DATA_TYPE'] === 'DATE') {
                         $data_size = isset($schema[$colName]['DATA_SIZE']) ? empty($schema[$colName]['DATA_SIZE']) ? 'YYYY-MM-DD HH24:MI:SS' : $schema[$colName]['DATA_SIZE'] : 'YYYY-MM-DD HH24:MI:SS';
-                        $sql_where .= "= TO_DATE(:$colName, '$data_size') AND ";
+                        $sql_where .= "= TO_DATE(:$colName$data_flag, '$data_size') AND ";
                     } elseif ($schema[$colName]['DATA_TYPE'] === 'TIMESTAMP WITH TIME ZONE' || $schema[$colName]['DATA_TYPE'] === 'TIMESTAMP WITH LOCAL TIME ZONE') {
                         $data_size = isset($schema[$colName]['DATA_SIZE']) ? empty($schema[$colName]['DATA_SIZE']) ? 'YYYY-MM-DD HH24:MI:SS' : $schema[$colName]['DATA_SIZE'] : 'YYYY-MM-DD HH24:MI:SS';
-                        $sql_where .= "= TO_TIMESTAMP(:$colName, '$data_size') AND ";
+                        $sql_where .= "= TO_TIMESTAMP(:$colName$data_flag, '$data_size') AND ";
                     } else {
-                        $sql_where .= "= :$colName AND ";
+                        $sql_where .= "= :$colName$data_flag AND ";
                     }
-                    $data_where[$colName] = $value;
+                    $data_where[$data_flag] = $colName;
+                    $data_bind[$data_flag] = $value;
                 }
             }
+            $data_flag++;
         }
         $sql_where = substr(trim($sql_where), 0, -4);
 
         $sqlCommand = "\nWHERE $sql_where";
-        return $sql = ['command' => $sqlCommand, 'data' => $data_where];
+        return $sql = ['command' => $sqlCommand, 'data' => $data_where, 'data_bind' => $data_bind];
     }
 
     /**

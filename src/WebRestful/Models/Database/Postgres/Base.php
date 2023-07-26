@@ -146,47 +146,18 @@ class Base extends ModelBase implements BaseInterface
 
         // avoid sql injection
         empty($sqlData) ? $sqlData = null : null;
-        $isLegal = true;
-        $stat_data = [];
-        if (!is_null($sqlData) && !$query_pass) {
-            $schema = self::$databaseList['postgres']['server'][$serverName]['schema'];
-            $tableName = "$schema.$tableName";
-
-            // prepared statement
-            $pre_stat_pk = self::sqlId();
-            $res = @pg_prepare($conn, "pocoapoco-$pre_stat_pk", $sqlCommand);
-            if(!$res){
-                $dbRows['status'] = 'ERROR';
-                $dbRows['result'] = 'Sql Prepare Error';
-                $dbRows['sql'] = "\n$sqlCommand;";
-                return $dbRows;
-            }
-
-            foreach ($sqlData_bind as $data_flag => $colName) {
-                // pass $0
-                if ($data_flag == '0') {
-                    continue;
-                }
-
-                if ($isLegal) {
-                    $covert = @pg_convert($conn, $tableName, [$colName => $sqlData[$colName]]);
-                }
-                if (!$covert) {
-                    $isLegal = false;
-                }
-                array_push($stat_data, $sqlData[$colName]);
-                $sqlCommand = str_replace("$$data_flag", "'$sqlData[$colName]'", $sqlCommand);
-            }
-        }
 
         // result
         $error = pg_last_error($conn);
-        if (!$error && $isLegal) {
+        if (!$error) {
             $dbRows['status'] = 'SUCCESS';
             switch ($action) {
                 case 'SELECT':
                     if (!is_null($sqlData)) {
-                        $result = pg_execute($conn, "pocoapoco-$pre_stat_pk", $stat_data);
+                        $result = pg_query_params($conn, $sqlCommand, $sqlData_bind);
+                        foreach ($sqlData_bind as $data_flag => $value) {
+                            $sqlCommand = str_replace("$$data_flag", "'$value'", $sqlCommand);
+                        }
                     } else {
                         $result = @pg_query($conn, $sqlCommand);
                     }
@@ -216,7 +187,10 @@ class Base extends ModelBase implements BaseInterface
                 case 'DELETE':
                 case 'MERGE':
                     if (!is_null($sqlData)) {
-                        $result = pg_execute($conn, "pocoapoco-$pre_stat_pk", $stat_data);
+                        $result = pg_query_params($conn, $sqlCommand, $sqlData_bind);
+                        foreach ($sqlData_bind as $data_flag => $value) {
+                            $sqlCommand = str_replace("$$data_flag", "'$value'", $sqlCommand);
+                        }
                     } else {
                         @pg_query($conn, 'BEGIN');
                         $result = @pg_query($conn, $sqlCommand);
@@ -238,8 +212,10 @@ class Base extends ModelBase implements BaseInterface
                     break;
                 case 'CREATE':
                     if (!is_null($sqlData)) {
-                        pg_execute($conn, "pocoapoco-$pre_stat_pk", $stat_data);
-                    } else {
+                        $result = pg_query_params($conn, $sqlCommand, $sqlData_bind);
+                        foreach ($sqlData_bind as $data_flag => $value) {
+                            $sqlCommand = str_replace("$$data_flag", "'$value'", $sqlCommand);
+                        }                    } else {
                         @pg_query($conn, $sqlCommand);
                     }
                     unset($dbRows['result']);
@@ -248,9 +224,6 @@ class Base extends ModelBase implements BaseInterface
                     die("【ERROR】Model is not support \"$action\".");
             }
         } else {
-            if (!$isLegal) {
-                $error = 'Invalid Parameter';
-            }
             $dbRows['status'] = 'ERROR';
             $dbRows['result'] = $error;
         }

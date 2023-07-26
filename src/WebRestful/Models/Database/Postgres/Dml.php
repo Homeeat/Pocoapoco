@@ -49,12 +49,11 @@ class Dml extends PostgresBase implements DmlInterface
 
         $sql_key = '(';
         $sql_value = '(';
+        $data_key = array();
+        $data_flag = count($data_bind) + 1;
         foreach ($data as $key => $value) {
-            // data_bind
-            empty($data_bind) ? $data_bind[0] = null : null;
-            in_array($key, $data_bind) ? null : array_push($data_bind, $key);
-            $data_flag = array_search($key, $data_bind);
-
+            $data_key[$data_flag] = $key;
+            $data_bind[$data_flag] = $value;
             $sql_key .= "$key, ";
             if (@$schema[$key]['DATA_TYPE'] === 'DATE') {
                 $data_size = $schema[$key]['DATA_SIZE'];
@@ -62,6 +61,7 @@ class Dml extends PostgresBase implements DmlInterface
             } else {
                 $sql_value .= "$$data_flag, ";
             }
+            $data_flag++;
         }
         $sql_key = substr(trim($sql_key), 0, -1);
         $sql_value = substr(trim($sql_value), 0, -1);
@@ -69,7 +69,7 @@ class Dml extends PostgresBase implements DmlInterface
         $sql_value .= ')';
 
         $sqlCommand = "$sql_key \nVALUES $sql_value\n";
-        return $sql = ['command' => $sqlCommand, 'data' => $data, 'data_bind' => $data_bind];
+        return $sql = ['command' => $sqlCommand, 'data' => $data_key, 'data_bind' => $data_bind];
     }
 
     /**
@@ -128,11 +128,11 @@ class Dml extends PostgresBase implements DmlInterface
         $data = PostgresBase::systemSet('UPDATE', $schema, $data);
 
         $sql_set = '';
+        $data_flag = count($data_bind) + 1;
+        $data_key = array();
         foreach ($data as $key => $value) {
-            // data_bind
-            empty($data_bind) ? $data_bind[0] = null : null;
-            in_array($key, $data_bind) ? null : array_push($data_bind, $key);
-            $data_flag = array_search($key, $data_bind);
+            $data_key[$data_flag] = $key;
+            $data_bind[$data_flag] = $value;
 
             $sql_set .= "$key = ";
             if (is_null($value)) {
@@ -147,10 +147,11 @@ class Dml extends PostgresBase implements DmlInterface
             }
             $data_flag++;
         }
+
         $sql_set = substr(trim($sql_set), 0, -1);
 
         $sqlCommand = "\nSET $sql_set";
-        return $sql = ['command' => $sqlCommand, 'data' => $data, 'data_bind' => $data_bind];
+        return $sql = ['command' => $sqlCommand, 'data' => $data_key, 'data_bind' => $data_bind];
     }
 
 }
