@@ -9,7 +9,7 @@
  * @license     https://github.com/Homeeat/Pocoapoco/blob/main/LICENSE  - MIT LICENSE
  */
 
-namespace Ntch\Pocoapoco\WebRestful\Services;
+namespace Ntch\Pocoapoco\WebRestful\Libraries;
 
 use Ntch\Pocoapoco\Aws\Aws;
 use Ntch\Pocoapoco\Aws\Base as AwsBase;
@@ -22,7 +22,7 @@ use Ntch\Pocoapoco\WebRestful\Controllers\Base as ControllerBase;
 use Ntch\Pocoapoco\WebRestful\Models\Base as ModelBase;
 use Ntch\Pocoapoco\WebRestful\Settings\Base as SettingsBase;
 
-class Service
+class Library
 {
 
     use \Ntch\Pocoapoco\Tools\Uuid;
@@ -36,6 +36,7 @@ class Service
         // config
         $controllerBase = new ControllerBase();
         $settingsBase = new SettingsBase();
+        $logBase = new LogBase();
         $mailBase = new MailBase();
         $awsBase = new AWSBase();
         $modelBase = new ModelBase();
@@ -51,7 +52,7 @@ class Service
         $this->setting['error'] = $settingsBase->getSettingData('error');
 
         // log
-        $this->setting['log'] = $settingsBase->getSettingData('log');
+        $this->setting['log'] = $logBase->getLogInfo();
 
         // libraries
         $libraries = $settingsBase->getSettingData('libraries');
@@ -60,22 +61,22 @@ class Service
         }
 
         // mail
-        $settingMail = $mailBase->getMailList('service');
+        $settingMail = $mailBase->getMailList('library');
         if (!empty($settingMail)) {
             $this->setting['mail'] = $settingMail;
 
             foreach ($this->setting['mail'] as $server => $config) {
-                $this->mail[$server] = new Mail($server, 'service');
+                $this->mail[$server] = new Mail($server, 'library');
             }
         }
 
         // aws
-        $settingAws = $awsBase->getAwsList('services');
+        $settingAws = $awsBase->getAwsList('library');
         if (!empty($settingAws)) {
             $this->setting['aws'] = $settingAws;
 
             foreach ($this->setting['aws'] as $account => $config) {
-                $this->aws[$account] = new Aws($account, 'service');
+                $this->aws[$account] = new Aws($account, 'library');
             }
         }
 
@@ -87,12 +88,11 @@ class Service
         }
 
         // model
-        $settingModels = $modelBase->getDatabaseList('service');
+        $settingModels = $modelBase->getDatabaseList('library');
         foreach ($settingModels as $key => $value) {
             $this->setting[$key] = $value;
         }
-
-        $models = $modelBase->getDatabaseObject('service');
+        $models = $modelBase->getDatabaseObject('library');
         if (!empty($models)) {
             $this->models = $models;
         }

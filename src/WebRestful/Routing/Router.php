@@ -18,7 +18,6 @@ use Ntch\Pocoapoco\WebRestful\View\Base as ViewBase;
 use Ntch\Pocoapoco\WebRestful\Settings\Base as SettingBase;
 use Ntch\Pocoapoco\WebRestful\Models\Base as ModelBase;
 use Ntch\Pocoapoco\WebRestful\Libraries\Base as LibraryBase;
-use Ntch\Pocoapoco\WebRestful\Services\Base as ServiceBase;
 use Ntch\Pocoapoco\Mail\Base as MailBase;
 use Ntch\Pocoapoco\Aws\Base as AwsBase;
 use Ntch\Pocoapoco\Log\Base as LogBase;
@@ -62,9 +61,6 @@ class Router
             }
             self::$mixModelList = $modelList;
             $this->model($modelList, 'controller');
-
-            // service
-            isset($mix['services']) ? $this->service($mix['services']) : null;
 
             // mail
             isset($mix['mail']) ? $this->mail($mix['mail'], 'controller') : null;
@@ -162,27 +158,13 @@ class Router
     }
 
     /**
-     * Include service.
-     *
-     * @param array $services
-     *
-     * @return void
-     */
-    private function service(array $services)
-    {
-        $serviceBase = new ServiceBase();
-        $this->setting('services');
-        $serviceBase->serviceBase($services);
-    }
-
-    /**
      * Include library.
      *
      * @param array $libraries
      *
      * @return void
      */
-    private function library(array $libraries)
+    public function library(array $libraries)
     {
         $libraryBase = new LibraryBase();
         $this->setting('libraries');

@@ -427,12 +427,6 @@ class WebRestful
 
                 $this->setBasePath($folder_name);
                 $this->checkPathExist($this->basePath);
-                break;
-            case 'service':
-                $folder_name = 'services';
-
-                $this->setBasePath($folder_name);
-                $this->checkPathExist($this->basePath);
 
                 $this->setAbsolutePath($folder_name, $path);
                 $this->checkPathExist($this->absolutePath);

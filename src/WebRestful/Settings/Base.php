@@ -51,9 +51,6 @@ class Base extends WebRestful
     {
         switch ($fileName) {
             case 'libraries':
-            $process_sections = false;
-                break;
-            case 'services':
             case 'log':
             case 'error':
             case 'mail':
