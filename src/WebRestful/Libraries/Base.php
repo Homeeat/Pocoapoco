@@ -35,37 +35,18 @@ class Base extends WebRestful
         if (empty($libraries)) {
             return;
         }
-        foreach ($libraries as $libraryName) {
-            if (empty(self::$librariesList[$libraryName])) {
-                $librariesList[] = $libraryName;
-            }
-        }
 
-        if (empty($librariesList)) {
-            return;
-        }
-        $this->setLibrariesList($librariesList);
-        $this->checkLibraryConfig($librariesList);
-
-        foreach (self::$librariesList as $libraryName => $libraryConfig) {
-            $this->webRestfulCheckList('library', null, $libraryConfig['path'], null, null);
-        }
-        $this->autoloaderLibrary();
-    }
-
-    /**
-     * Set library list.
-     *
-     * @param array $libraries
-     *
-     * @return void
-     */
-    private function setLibrariesList(array $libraries)
-    {
         $settingBase = new SettingBase();
         $settingList = $settingBase->getSettingData('libraries');
         foreach ($libraries as $libraryName) {
+            if (!empty(self::$librariesList[$libraryName])) {
+                continue;
+            }
+            // Set library list.
             self::$librariesList[$libraryName] = $settingList[$libraryName];
+            $this->checkLibraryConfig($libraryName, self::$librariesList[$libraryName]);
+            $this->webRestfulCheckList('library', null, self::$librariesList[$libraryName]['path'], null, null);
+            $this->autoloaderLibrary();
         }
     }
 
@@ -74,7 +55,7 @@ class Base extends WebRestful
      *
      * @return void
      */
-    public function checkLibraryConfig(array $librariesList)
+    public function checkLibraryConfig(string $libraryName, array $libraryConfig)
     {
         $router = new Router();
         $libraryConfigList = ['path', 'oracle', 'mysql', 'mssql', 'postgres', 'mail', 'aws', 'libraries'];
@@ -82,54 +63,52 @@ class Base extends WebRestful
         $model = [];
         $mail = [];
         $aws = [];
-        foreach ($librariesList as $libraryName) {
-            foreach ($libraryConfigList as $key) {
-                if ($key == 'path') {
-                    isset(self::$librariesList[$libraryName][$key]) ? null : die("【ERROR】Setting libraries.ini [$libraryName] tag \"$key\" is not exist.");
-                } else {
-                    if (isset(self::$librariesList[$libraryName][$key])) {
-                        $lists = explode(',', self::$librariesList[$libraryName][$key]);
-                        switch ($key) {
-                            case 'oracle':
-                                foreach ($lists as $key) {
-                                    $model['oracle'][] = trim($key);
-                                }
-                                break;
-                            case 'mysql':
-                                foreach ($lists as $key) {
-                                    $model['mysql'][] = trim($key);
-                                }
-                                break;
-                            case 'mssql':
-                                foreach ($lists as $key) {
-                                    $model['mssql'][] = trim($key);
-                                }
-                                break;
-                            case 'postgres':
-                                foreach ($lists as $key) {
-                                    $model['postgres'][] = trim($key);
-                                }
-                                break;
-                            case 'mail':
-                                foreach ($lists as $key) {
-                                    $mail[] = trim($key);
-                                }
-                                break;
-                            case 'aws':
-                                foreach ($lists as $key) {
-                                    $aws[] = trim($key);
-                                }
-                                break;
-                            case 'libraries':
-                                foreach ($lists as $key) {
-                                    $libraries[] = trim($key);
-                                }
-                                break;
-                        }
-
+        foreach ($libraryConfigList as $key) {
+            if ($key == 'path') {
+                isset($libraryConfig[$key]) ? null : die("【ERROR】Setting libraries.ini [$libraryName] tag \"$key\" is not exist.");
+            } else {
+                if (isset($libraryConfig[$key])) {
+                    $lists = explode(',', $libraryConfig[$key]);
+                    switch ($key) {
+                        case 'oracle':
+                            foreach ($lists as $key) {
+                                $model['oracle'][] = trim($key);
+                            }
+                            break;
+                        case 'mysql':
+                            foreach ($lists as $key) {
+                                $model['mysql'][] = trim($key);
+                            }
+                            break;
+                        case 'mssql':
+                            foreach ($lists as $key) {
+                                $model['mssql'][] = trim($key);
+                            }
+                            break;
+                        case 'postgres':
+                            foreach ($lists as $key) {
+                                $model['postgres'][] = trim($key);
+                            }
+                            break;
+                        case 'mail':
+                            foreach ($lists as $key) {
+                                $mail[] = trim($key);
+                            }
+                            break;
+                        case 'aws':
+                            foreach ($lists as $key) {
+                                $aws[] = trim($key);
+                            }
+                            break;
+                        case 'libraries':
+                            foreach ($lists as $key) {
+                                $libraries[] = trim($key);
+                            }
+                            break;
                     }
 
                 }
+
             }
         }
 
@@ -151,12 +130,9 @@ class Base extends WebRestful
     private function autoloaderLibrary()
     {
         foreach (self::$librariesList as $libraryName => $libraryConfig) {
-            $prefix = 'Libraries';
-            foreach (explode('/',substr( $libraryConfig['path'], 1)) as $value) {
-                $prefix .= "\\". ucfirst($value);
-            }
+            $prefix = str_replace('/', '\\', substr($libraryConfig['path'], 1));
             $base_dir = $this->basePath . $libraryConfig['path'];
-            $this->autoloaderFile($prefix, $base_dir);
+            $this->autoloaderFile("libraries\\$prefix", $base_dir);
         }
     }
 
