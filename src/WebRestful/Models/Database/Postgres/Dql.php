@@ -20,7 +20,7 @@ class Dql extends PostgresBase implements DqlInterface
     /**
      * @inheritDoc
      */
-    public static function select(string $modelType, string $modelName, string $tableName, array $data, bool $distinct, string $mvc)
+    public static function select(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, array $data, bool $distinct, string $mvc)
     {
         // config
         if ($modelType === 'server') {
@@ -32,8 +32,8 @@ class Dql extends PostgresBase implements DqlInterface
             $table = self::$databaseList[$mvc]['postgres']['table'][$modelName]['table'];
             $schema = self::$databaseObject[$mvc]['postgres']->$modelType[$modelName]->schema;
         }
-        $permission = self::$databaseList[$mvc]['postgres']['server'][$serverName]['schema'];
-        $user = self::$databaseList[$mvc]['postgres']['server'][$serverName]['user'];
+        $permission = $schemaName;
+        $user = $userName;
 
         if (empty($data)) {
             $sql_search = '*';

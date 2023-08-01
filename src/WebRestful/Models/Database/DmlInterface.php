@@ -17,6 +17,8 @@ interface DmlInterface
     /**
      * Insert data.
      *
+     * @param string|null $schemaName
+     * @param string $userName
      * @param string $modelType
      * @param string $modelName
      * @param string $tableName
@@ -24,7 +26,7 @@ interface DmlInterface
      *
      * @return string
      */
-    public static function insert(string $modelType, string $modelName, string $tableName, string $mvc);
+    public static function insert(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc);
 
     /**
      * Insert values.
@@ -43,6 +45,8 @@ interface DmlInterface
     /**
      * Delete data.
      *
+     * @param string|null $schemaName
+     * @param string $userName
      * @param string $modelType
      * @param string $modelName
      * @param string $tableName
@@ -50,11 +54,13 @@ interface DmlInterface
      *
      * @return string
      */
-    public static function delete(string $modelType, string $modelName, string $tableName, string $mvc);
+    public static function delete(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc);
 
     /**
      * Update data.
      *
+     * @param string|null $schemaName
+     * @param string $userName
      * @param string $modelType
      * @param string $modelName
      * @param string $tableName
@@ -62,7 +68,7 @@ interface DmlInterface
      *
      * @return string
      */
-    public static function update(string $modelType, string $modelName, string $tableName, string $mvc);
+    public static function update(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc);
 
     /**
      * Update set.

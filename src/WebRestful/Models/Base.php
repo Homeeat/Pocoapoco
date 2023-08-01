@@ -206,6 +206,10 @@ class Base extends WebRestful
                 $classCreate->mvc = $mvc;
 
                 self::$databaseObject[$mvc][$driver]->table[$tableName] = $classCreate;
+                if (isset(self::$databaseList[$mvc][$driver]['server'][self::$databaseList[$mvc][$driver]['table'][$tableName]['server']]['schema'])) {
+                    self::$databaseObject[$mvc][$driver]->table[$tableName]->schemaName = self::$databaseList[$mvc][$driver]['server'][self::$databaseList[$mvc][$driver]['table'][$tableName]['server']]['schema'];
+                }
+                self::$databaseObject[$mvc][$driver]->table[$tableName]->userName = self::$databaseList[$mvc][$driver]['server'][self::$databaseList[$mvc][$driver]['table'][$tableName]['server']]['user'];
                 self::$databaseObject[$mvc][$driver]->table[$tableName]->tableName = self::$databaseList[$mvc][$driver]['table'][$tableName]['table'];
             }
         }

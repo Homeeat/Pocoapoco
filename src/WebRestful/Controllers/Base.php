@@ -29,6 +29,7 @@ class Base extends WebRestful
      * @param string $path
      * @param string $class
      * @param string $method
+     * @param string $uuid
      *
      * @return void
      */

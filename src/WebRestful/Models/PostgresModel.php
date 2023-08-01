@@ -22,6 +22,16 @@ class PostgresModel
     /**
      * @var string
      */
+    public string $schemaName = '';
+
+    /**
+     * @var string
+     */
+    public string $userName = '';
+
+    /**
+     * @var string
+     */
     public string $modelType = '';
 
     /**
@@ -232,7 +242,7 @@ class PostgresModel
      */
     public function createTable(): string
     {
-        return Ddl::createTable($this->modelType, $this->modelName, $this->tableName, $this->mvc);
+        return Ddl::createTable($this->schemaName, $this->userName, $this->modelType, $this->modelName, $this->tableName, $this->mvc);
     }
 
     /**
@@ -242,7 +252,7 @@ class PostgresModel
      */
     public function commentTable(): string
     {
-        return Ddl::commentTable($this->modelType, $this->modelName, $this->tableName, $this->mvc);
+        return Ddl::commentTable($this->schemaName, $this->userName, $this->modelType, $this->modelName, $this->tableName, $this->mvc);
     }
 
     // Dml
@@ -255,7 +265,7 @@ class PostgresModel
     public function insert(): object
     {
         empty($this->action) ? $this->action = 'INSERT' : null;
-        $this->sql = Dml::insert($this->modelType, $this->modelName, $this->tableName, $this->mvc);
+        $this->sql = Dml::insert($this->schemaName, $this->userName, $this->modelType, $this->modelName, $this->tableName, $this->mvc);
 
         return $this;
     }
@@ -285,7 +295,7 @@ class PostgresModel
     public function delete(): object
     {
         empty($this->action) ? $this->action = 'DELETE' : null;
-        $this->sql = Dml::delete($this->modelType, $this->modelName, $this->tableName, $this->mvc);
+        $this->sql = Dml::delete($this->schemaName, $this->userName, $this->modelType, $this->modelName, $this->tableName, $this->mvc);
 
         return $this;
     }
@@ -298,7 +308,7 @@ class PostgresModel
     public function update(): object
     {
         empty($this->action) ? $this->action = 'UPDATE' : null;
-        $this->sql = Dml::update($this->modelType, $this->modelName, $this->tableName, $this->mvc);
+        $this->sql = Dml::update($this->schemaName, $this->userName, $this->modelType, $this->modelName, $this->tableName, $this->mvc);
 
         return $this;
     }
@@ -332,7 +342,7 @@ class PostgresModel
     public function select(array $data = []): object
     {
         empty($this->action) ? $this->action = 'SELECT' : null;
-        $this->sql = Dql::select($this->modelType, $this->modelName, $this->tableName, $data, 0, $this->mvc);
+        $this->sql = Dql::select($this->schemaName, $this->userName, $this->modelType, $this->modelName, $this->tableName, $data, 0, $this->mvc);
 
         return $this;
     }
@@ -347,7 +357,7 @@ class PostgresModel
     public function select_distinct(array $data = []): object
     {
         empty($this->action) ? $this->action = 'SELECT' : null;
-        $this->sql = Dql::select($this->modelType, $this->modelName, $this->tableName, $data, 1, $this->mvc);
+        $this->sql = Dql::select($this->schemaName, $this->userName, $this->modelType, $this->modelName, $this->tableName, $data, 1, $this->mvc);
 
         return $this;
     }

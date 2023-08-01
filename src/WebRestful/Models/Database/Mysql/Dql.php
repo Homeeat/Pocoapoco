@@ -21,7 +21,7 @@ class Dql extends MysqlBase implements DqlInterface
     /**
      * @inheritDoc
      */
-    public static function select(string $modelType, string $modelName, string $tableName, array $data, bool $distinct, string $mvc)
+    public static function select(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, array $data, bool $distinct, string $mvc)
     {
         // config
         if($modelType === 'server') {
@@ -33,7 +33,7 @@ class Dql extends MysqlBase implements DqlInterface
             $table = self::$databaseList[$mvc]['mysql']['table'][$modelName]['table'];
             $schema = self::$databaseObject[$mvc]['mysql']->$modelType[$modelName]->schema;
         }
-        $user = self::$databaseList[$mvc]['mysql']['server'][$serverName]['user'];
+        $user = $userName;
 
         if (empty($data)) {
             $sql_search = '*';

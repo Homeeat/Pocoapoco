@@ -20,7 +20,7 @@ class Dml extends MysqlBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function insert(string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function insert(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if($modelType === 'server') {
@@ -30,7 +30,7 @@ class Dml extends MysqlBase implements DmlInterface
             $serverName = self::$databaseList[$mvc]['mysql']['table'][$modelName]['server'];
             $table = self::$databaseList[$mvc]['mysql']['table'][$modelName]['table'];
         }
-        $user = self::$databaseList[$mvc]['mysql']['server'][$serverName]['user'];
+        $user = $userName;
 
         $sql = "\nINSERT INTO `$user`.`$table` ";
         return $sql;
@@ -74,7 +74,7 @@ class Dml extends MysqlBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function delete(string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function delete(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if($modelType === 'server') {
@@ -84,7 +84,7 @@ class Dml extends MysqlBase implements DmlInterface
             $serverName = self::$databaseList[$mvc]['mysql']['table'][$modelName]['server'];
             $table = self::$databaseList[$mvc]['mysql']['table'][$modelName]['table'];
         }
-        $user = self::$databaseList[$mvc]['mysql']['server'][$serverName]['user'];
+        $user = $userName;
 
         $sql = "\nDELETE FROM `$user`.`$table` ";
         return $sql;
@@ -93,7 +93,7 @@ class Dml extends MysqlBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function update(string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function update(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if($modelType === 'server') {
@@ -103,7 +103,7 @@ class Dml extends MysqlBase implements DmlInterface
             $serverName = self::$databaseList[$mvc]['mysql']['table'][$modelName]['server'];
             $table = self::$databaseList[$mvc]['mysql']['table'][$modelName]['table'];
         }
-        $user = self::$databaseList[$mvc]['mysql']['server'][$serverName]['user'];
+        $user = $userName;
 
         $sql = "\nUPDATE `$user`.`$table` ";
         return $sql;

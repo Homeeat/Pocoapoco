@@ -21,7 +21,7 @@ class Dql extends MssqlBase implements DqlInterface
     /**
      * @inheritDoc
      */
-    public static function select(string $modelType, string $modelName, string $tableName, array $data, bool $distinct, string $mvc)
+    public static function select(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, array $data, bool $distinct, string $mvc)
     {
         // config
         if($modelType === 'server') {
@@ -33,6 +33,8 @@ class Dql extends MssqlBase implements DqlInterface
             $table = self::$databaseList[$mvc]['mssql']['table'][$modelName]['table'];
             $schema = self::$databaseObject[$mvc]['mssql']->$modelType[$modelName]->schema;
         }
+        $permission = $schemaName;
+        $user = $userName;
 
         if (empty($data)) {
             $sql_search = '*';

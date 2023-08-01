@@ -20,7 +20,7 @@ class Ddl extends OracleBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function createTable(string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function createTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if ($modelType === 'server') {
@@ -32,7 +32,7 @@ class Ddl extends OracleBase implements DdlInterface
             $table = self::$databaseList[$mvc]['oracle']['table'][$modelName]['table'];
             $schema = self::$databaseObject[$mvc]['oracle']->$modelType[$modelName]->schema;
         }
-        $user = self::$databaseList[$mvc]['oracle']['server'][$serverName]['user'];
+        $user = $userName;
 
         $SQL = "CREATE TABLE $user.$table (\n";
         $SQL_KEY = '';
@@ -84,7 +84,7 @@ class Ddl extends OracleBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function dropTable(string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function dropTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
     {
 
     }
@@ -92,7 +92,7 @@ class Ddl extends OracleBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function alterTable(string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function alterTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
     {
 
     }
@@ -100,7 +100,7 @@ class Ddl extends OracleBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function truncateTable(string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function truncateTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
     {
 
     }
@@ -108,7 +108,7 @@ class Ddl extends OracleBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function commentTable(string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function commentTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if ($modelType === 'server') {
@@ -120,7 +120,7 @@ class Ddl extends OracleBase implements DdlInterface
             $table = self::$databaseList[$mvc]['oracle']['table'][$modelName]['table'];
             $schema = self::$databaseObject[$mvc]['oracle']->$modelType[$modelName]->schema;
         }
-        $user = self::$databaseList[$mvc]['oracle']['server'][$serverName]['user'];
+        $user = $userName;
 
         $SQL = '';
         foreach ($schema as $columnName => $info) {
@@ -133,7 +133,7 @@ class Ddl extends OracleBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function renameTable(string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function renameTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
     {
 
     }

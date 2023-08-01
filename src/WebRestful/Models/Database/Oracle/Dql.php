@@ -20,7 +20,7 @@ class Dql extends OracleBase implements DqlInterface
     /**
      * @inheritDoc
      */
-    public static function select(string $modelType, string $modelName, string $tableName, array $data, bool $distinct, string $mvc)
+    public static function select(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, array $data, bool $distinct, string $mvc)
     {
         // config
         if ($modelType === 'server') {
@@ -32,7 +32,7 @@ class Dql extends OracleBase implements DqlInterface
             $table = self::$databaseList[$mvc]['oracle']['table'][$modelName]['table'];
             $schema = self::$databaseObject[$mvc]['oracle']->$modelType[$modelName]->schema;
         }
-        $user = self::$databaseList[$mvc]['oracle']['server'][$serverName]['user'];
+        $user = $userName;
 
         if (empty($data)) {
             $sql_search = '*';

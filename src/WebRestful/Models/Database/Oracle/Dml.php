@@ -20,7 +20,7 @@ class Dml extends OracleBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function insert(string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function insert(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if ($modelType === 'server') {
@@ -30,7 +30,7 @@ class Dml extends OracleBase implements DmlInterface
             $serverName = self::$databaseList[$mvc]['oracle']['table'][$modelName]['server'];
             $table = self::$databaseList[$mvc]['oracle']['table'][$modelName]['table'];
         }
-        $user = self::$databaseList[$mvc]['oracle']['server'][$serverName]['user'];
+        $user = $userName;
 
         $sql = "\nINSERT INTO $user.$table ";
         return $sql;
@@ -84,7 +84,7 @@ class Dml extends OracleBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function delete(string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function delete(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if ($modelType === 'server') {
@@ -103,7 +103,7 @@ class Dml extends OracleBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function update(string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function update(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if ($modelType === 'server') {
@@ -173,7 +173,7 @@ class Dml extends OracleBase implements DmlInterface
      *
      * @return string
      */
-    public static function merge(string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function merge(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if ($modelType === 'server') {

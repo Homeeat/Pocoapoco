@@ -20,7 +20,7 @@ class Dml extends PostgresBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function insert(string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function insert(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if($modelType === 'server') {
@@ -30,8 +30,8 @@ class Dml extends PostgresBase implements DmlInterface
             $serverName = self::$databaseList[$mvc]['postgres']['table'][$modelName]['server'];
             $table = self::$databaseList[$mvc]['postgres']['table'][$modelName]['table'];
         }
-        $permission = self::$databaseList[$mvc]['postgres']['server'][$serverName]['schema'];
-        $user = self::$databaseList[$mvc]['postgres']['server'][$serverName]['user'];
+        $permission = $schemaName;
+        $user = $userName;
 
         $sql = "\nINSERT INTO $permission.$table ";
         return $sql;
@@ -75,7 +75,7 @@ class Dml extends PostgresBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function delete(string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function delete(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if($modelType === 'server') {
@@ -85,16 +85,17 @@ class Dml extends PostgresBase implements DmlInterface
             $serverName = self::$databaseList[$mvc]['postgres']['table'][$modelName]['server'];
             $table = self::$databaseList[$mvc]['postgres']['table'][$modelName]['table'];
         }
-        $user = self::$databaseList[$mvc]['postgres']['server'][$serverName]['user'];
+        $permission = $schemaName;
+        $user = $userName;
 
-        $sql = "\nDELETE FROM $table ";
+        $sql = "\nDELETE FROM $permission.$table ";
         return $sql;
     }
 
     /**
      * @inheritDoc
      */
-    public static function update(string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function update(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if($modelType === 'server') {
@@ -104,8 +105,8 @@ class Dml extends PostgresBase implements DmlInterface
             $serverName = self::$databaseList[$mvc]['postgres']['table'][$modelName]['server'];
             $table = self::$databaseList[$mvc]['postgres']['table'][$modelName]['table'];
         }
-        $permission = self::$databaseList[$mvc]['postgres']['server'][$serverName]['schema'];
-        $user = self::$databaseList[$mvc]['postgres']['server'][$serverName]['user'];
+        $permission = $schemaName;
+        $user = $userName;
 
         $sql = "\nUPDATE $permission.$table ";
         return $sql;

@@ -20,7 +20,7 @@ class Ddl extends PostgresBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function createTable(string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function createTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if ($modelType === 'server') {
@@ -32,8 +32,8 @@ class Ddl extends PostgresBase implements DdlInterface
             $table = self::$databaseList[$mvc]['postgres']['table'][$modelName]['table'];
             $schema = self::$databaseObject[$mvc]['postgres']->$modelType[$modelName]->schema;
         }
-        $permission = self::$databaseList[$mvc]['postgres']['server'][$serverName]['schema'];
-        $user = self::$databaseList[$mvc]['postgres']['server'][$serverName]['user'];
+        $permission = $schemaName;
+        $user = $userName;
 
         $SQL = "CREATE TABLE $permission.$table (\n";
         $SQL_KEY = '';
@@ -89,7 +89,7 @@ class Ddl extends PostgresBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function dropTable(string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function dropTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
     {
 
     }
@@ -97,7 +97,7 @@ class Ddl extends PostgresBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function alterTable(string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function alterTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
     {
 
     }
@@ -105,7 +105,7 @@ class Ddl extends PostgresBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function truncateTable(string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function truncateTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
     {
 
     }
@@ -113,7 +113,7 @@ class Ddl extends PostgresBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function commentTable(string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function commentTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
     {
         // config
         if ($modelType === 'server') {
@@ -125,8 +125,8 @@ class Ddl extends PostgresBase implements DdlInterface
             $table = self::$databaseList[$mvc]['postgres']['table'][$modelName]['table'];
             $schema = self::$databaseObject[$mvc]['postgres']->$modelType[$modelName]->schema;
         }
-        $permission = self::$databaseList['postgres']['server'][$serverName]['schema'];
-        $user = self::$databaseList[$mvc]['postgres']['server'][$serverName]['user'];
+        $permission = $schemaName;
+        $user = $userName;
 
         $SQL = '';
         foreach ($schema as $columnName => $info) {
@@ -139,7 +139,7 @@ class Ddl extends PostgresBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function renameTable(string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function renameTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
     {
 
     }

@@ -19,6 +19,15 @@ use Ntch\Pocoapoco\WebRestful\Models\Database\Oracle\Dcl;
 
 class OracleModel
 {
+    /**
+     * @var string
+     */
+    public string $schemaName = '';
+
+    /**
+     * @var string
+     */
+    public string $userName = '';
 
     /**
      * @var string
@@ -237,7 +246,7 @@ class OracleModel
      */
     public function createTable(): string
     {
-        return Ddl::createTable($this->modelType, $this->modelName, $this->tableName, $this->mvc);
+        return Ddl::createTable($this->schemaName, $this->userName, $this->modelType, $this->modelName, $this->tableName, $this->mvc);
     }
 
     /**
@@ -247,7 +256,7 @@ class OracleModel
      */
     public function commentTable(): string
     {
-        return Ddl::commentTable($this->modelType, $this->modelName, $this->tableName, $this->mvc);
+        return Ddl::commentTable($this->schemaName, $this->userName, $this->modelType, $this->modelName, $this->tableName, $this->mvc);
     }
 
     // Dml
@@ -261,7 +270,7 @@ class OracleModel
     {
         empty($this->action) ? $this->action = 'INSERT' : null;
         if ($this->action === 'INSERT') {
-            $this->sql = Dml::insert($this->modelType, $this->modelName, $this->tableName, $this->mvc);
+            $this->sql = Dml::insert($this->schemaName, $this->userName, $this->modelType, $this->modelName, $this->tableName, $this->mvc);
         } elseif ($this->action === 'MERGE') {
             $this->sql .= Dml::mergeInsert();
         }
@@ -299,7 +308,7 @@ class OracleModel
     {
         empty($this->action) ? $this->action = 'DELETE' : null;
         if ($this->action === 'DELETE') {
-            $this->sql = Dml::delete($this->modelType, $this->modelName, $this->tableName, $this->mvc);
+            $this->sql = Dml::delete($this->schemaName, $this->userName, $this->modelType, $this->modelName, $this->tableName, $this->mvc);
         }
 
         return $this;
@@ -314,7 +323,7 @@ class OracleModel
     {
         empty($this->action) ? $this->action = 'UPDATE' : null;
         if ($this->action === 'UPDATE') {
-            $this->sql = Dml::update($this->modelType, $this->modelName, $this->tableName, $this->mvc);
+            $this->sql = Dml::update($this->schemaName, $this->userName, $this->modelType, $this->modelName, $this->tableName, $this->mvc);
         } elseif ($this->action === 'MERGE') {
             $this->sql .= Dml::mergeUpdate();
         }
@@ -351,7 +360,7 @@ class OracleModel
     public function merge(): object
     {
         empty($this->action) ? $this->action = 'MERGE' : null;
-        $this->sql = Dml::merge($this->modelType, $this->modelName, $this->tableName, $this->mvc);
+        $this->sql = Dml::merge($this->schemaName, $this->userName, $this->modelType, $this->modelName, $this->tableName, $this->mvc);
 
         return $this;
     }
@@ -422,7 +431,7 @@ class OracleModel
     public function select(array $data = []): object
     {
         empty($this->action) ? $this->action = 'SELECT' : null;
-        $this->sql = Dql::select($this->modelType, $this->modelName, $this->tableName, $data, 0, $this->mvc);
+        $this->sql = Dql::select($this->schemaName, $this->userName, $this->modelType, $this->modelName, $this->tableName, $data, 0, $this->mvc);
 
         return $this;
     }
@@ -437,7 +446,7 @@ class OracleModel
     public function select_distinct(array $data = []): object
     {
         empty($this->action) ? $this->action = 'SELECT' : null;
-        $this->sql = Dql::select($this->modelType, $this->modelName, $this->tableName, $data, 1, $this->mvc);
+        $this->sql = Dql::select($this->schemaName, $this->userName, $this->modelType, $this->modelName, $this->tableName, $data, 1, $this->mvc);
 
         return $this;
     }

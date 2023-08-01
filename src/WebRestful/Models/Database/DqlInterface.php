@@ -17,6 +17,8 @@ interface DqlInterface
     /**
      * Select data.
      *
+     * @param string|null $schemaName
+     * @param string $userName
      * @param string $modelType
      * @param string $modelName
      * @param string $tableName
@@ -26,7 +28,7 @@ interface DqlInterface
      *
      * @return array
      */
-    public static function select(string $modelType, string $modelName, string $tableName, array $data, bool $distinct, string $mvc);
+    public static function select(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, array $data, bool $distinct, string $mvc);
 
     /**
      * Where.
