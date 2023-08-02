@@ -74,9 +74,9 @@ class Dql extends MssqlBase implements DqlInterface
         }
 
         if($distinct) {
-            $sqlCommand = "\nSELECT DISTINCT \n$sql_search \nFROM [dbo].[$table] ";
+            $sqlCommand = "\nSELECT DISTINCT \n$sql_search \nFROM [$permission].[$table] ";
         } else {
-            $sqlCommand = "\nSELECT $sql_search \nFROM [dbo].[$table] ";
+            $sqlCommand = "\nSELECT $sql_search \nFROM [$permission].[$table] ";
         }
 
         return $sqlCommand;

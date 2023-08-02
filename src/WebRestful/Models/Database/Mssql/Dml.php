@@ -33,7 +33,7 @@ class Dml extends MssqlBase implements DmlInterface
         $permission = $schemaName;
         $user = $userName;
 
-        $sql = "\nINSERT INTO [dbo].[$table] ";
+        $sql = "\nINSERT INTO [$permission].[$table] ";
         return $sql;
     }
 
@@ -89,7 +89,7 @@ class Dml extends MssqlBase implements DmlInterface
         $permission = $schemaName;
         $user = $userName;
 
-        $sql = "\nDELETE FROM [dbo].[$table] ";
+        $sql = "\nDELETE FROM [$permission].[$table] ";
         return $sql;
     }
 
@@ -109,7 +109,7 @@ class Dml extends MssqlBase implements DmlInterface
         $permission = $schemaName;
         $user = $userName;
 
-        $sql = "\nUPDATE [dbo].[$table] ";
+        $sql = "\nUPDATE [$permission].[$table] ";
         return $sql;
     }
 

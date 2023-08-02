@@ -206,11 +206,12 @@ class Base extends WebRestful
                 $classCreate->mvc = $mvc;
 
                 self::$databaseObject[$mvc][$driver]->table[$tableName] = $classCreate;
-                if (isset(self::$databaseList[$mvc][$driver]['server'][self::$databaseList[$mvc][$driver]['table'][$tableName]['server']]['schema'])) {
-                    self::$databaseObject[$mvc][$driver]->table[$tableName]->schemaName = self::$databaseList[$mvc][$driver]['server'][self::$databaseList[$mvc][$driver]['table'][$tableName]['server']]['schema'];
-                }
                 self::$databaseObject[$mvc][$driver]->table[$tableName]->userName = self::$databaseList[$mvc][$driver]['server'][self::$databaseList[$mvc][$driver]['table'][$tableName]['server']]['user'];
                 self::$databaseObject[$mvc][$driver]->table[$tableName]->tableName = self::$databaseList[$mvc][$driver]['table'][$tableName]['table'];
+                self::$databaseObject[$mvc][$driver]->table[$tableName]->schemaName = match ($driver) {
+                    'mssql' => empty(self::$databaseList[$mvc][$driver]['server'][self::$databaseList[$mvc][$driver]['table'][$tableName]['server']]['schema']) ? null : self::$databaseList[$mvc][$driver]['server'][self::$databaseList[$mvc][$driver]['table'][$tableName]['server']]['schema'],
+                    'postgres' => self::$databaseList[$mvc][$driver]['server'][self::$databaseList[$mvc][$driver]['table'][$tableName]['server']]['schema'],
+                };
             }
         }
     }

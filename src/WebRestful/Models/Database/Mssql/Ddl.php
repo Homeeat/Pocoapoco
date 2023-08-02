@@ -35,7 +35,7 @@ class Ddl extends MssqlBase implements DdlInterface
         $permission = $schemaName;
         $user = $userName;
 
-        $SQL = "CREATE TABLE \"dbo\".\"$table\" (\n";
+        $SQL = "CREATE TABLE \"$permission\".\"$table\" (\n";
         $SQL_KEY = '';
         foreach ($schema as $columnName => $info) {
             $dataType = $info['DATA_TYPE'];
@@ -125,7 +125,7 @@ class Ddl extends MssqlBase implements DdlInterface
         $SQL = '';
         foreach ($schema as $columnName => $info) {
             $comments = isset($info['COMMENT']) ? $info['COMMENT'] : null;
-            $SQL .= "execute sp_addextendedproperty 'MS_Description','$comments','SCHEMA','dbo','table','$table','column','$columnName';\n";
+            $SQL .= "execute sp_addextendedproperty 'MS_Description','$comments','SCHEMA','$permission','table','$table','column','$columnName';\n";
         }
         return $SQL;
     }
