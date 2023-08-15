@@ -20,16 +20,12 @@ class Dml extends OracleBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function insert(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function insert(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName)
     {
+        self::tableOnly(self::$databaseObject[$mvc][$modelName]->modelType, __FUNCTION__);
+
         // config
-        if ($modelType === 'server') {
-            $serverName = $modelName;
-            $table = $tableName;
-        } else {
-            $serverName = self::$databaseList[$mvc]['oracle']['table'][$modelName]['server'];
-            $table = self::$databaseList[$mvc]['oracle']['table'][$modelName]['table'];
-        }
+        $table = self::$databaseObject[$mvc][$modelName]->tableName;
         $user = $userName;
 
         $sql = "\nINSERT INTO $user.$table ";
@@ -39,16 +35,12 @@ class Dml extends OracleBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function values(string $modelType, string $modelName, string $tableName, array $data, array $data_bind, string $mvc)
+    public static function values(string $mvc, string $modelName, string $tableName, array $data, array $data_bind)
     {
+        self::tableOnly(self::$databaseObject[$mvc][$modelName]->modelType, __FUNCTION__);
+
         // config
-        if ($modelType === 'server') {
-            $serverName = $modelName;
-            $schema = self::$databaseObject[$mvc]['oracle']->$modelType[$modelName]->$tableName->schema;
-        } else {
-            $serverName = self::$databaseList[$mvc]['oracle']['table'][$modelName]['server'];
-            $schema = self::$databaseObject[$mvc]['oracle']->$modelType[$modelName]->schema;
-        }
+        $schema = self::$databaseObject[$mvc][$modelName]->schema;
 
         $data = OracleBase::systemSet('INSERT', $schema, $data);
 
@@ -84,17 +76,13 @@ class Dml extends OracleBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function delete(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function delete(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName)
     {
+        self::tableOnly(self::$databaseObject[$mvc][$modelName]->modelType, __FUNCTION__);
+
         // config
-        if ($modelType === 'server') {
-            $serverName = $modelName;
-            $table = $tableName;
-        } else {
-            $serverName = self::$databaseList[$mvc]['oracle']['table'][$modelName]['server'];
-            $table = self::$databaseList[$mvc]['oracle']['table'][$modelName]['table'];
-        }
-        $user = self::$databaseList[$mvc]['oracle']['server'][$serverName]['user'];
+        $table = self::$databaseObject[$mvc][$modelName]->tableName;
+        $user = $userName;
 
         $sql = "\nDELETE FROM $user.$table ";
         return $sql;
@@ -103,17 +91,13 @@ class Dml extends OracleBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function update(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function update(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName)
     {
+        self::tableOnly(self::$databaseObject[$mvc][$modelName]->modelType, __FUNCTION__);
+
         // config
-        if ($modelType === 'server') {
-            $serverName = $modelName;
-            $table = $tableName;
-        } else {
-            $serverName = self::$databaseList[$mvc]['oracle']['table'][$modelName]['server'];
-            $table = self::$databaseList[$mvc]['oracle']['table'][$modelName]['table'];
-        }
-        $user = self::$databaseList[$mvc]['oracle']['server'][$serverName]['user'];
+        $table = self::$databaseObject[$mvc][$modelName]->tableName;
+        $user = $userName;
 
         $sql = "\nUPDATE $user.$table ";
         return $sql;
@@ -122,16 +106,12 @@ class Dml extends OracleBase implements DmlInterface
     /**
      * @inheritDoc
      */
-    public static function set(string $modelType, string $modelName, string $tableName, array $data, array $data_bind, string $mvc)
+    public static function set(string $mvc, string $modelName, string $tableName, array $data, array $data_bind)
     {
+        self::tableOnly(self::$databaseObject[$mvc][$modelName]->modelType, __FUNCTION__);
+
         // config
-        if ($modelType === 'server') {
-            $serverName = $modelName;
-            $schema = self::$databaseObject[$mvc]['oracle']->$modelType[$modelName]->$tableName->schema;
-        } else {
-            $serverName = self::$databaseList[$mvc]['oracle']['table'][$modelName]['server'];
-            $schema = self::$databaseObject[$mvc]['oracle']->$modelType[$modelName]->schema;
-        }
+        $schema = self::$databaseObject[$mvc][$modelName]->schema;
 
         $data = OracleBase::systemSet('UPDATE', $schema, $data);
 
@@ -167,23 +147,21 @@ class Dml extends OracleBase implements DmlInterface
     /**
      * Merge table.
      *
-     * @param string $modelType
+     * @param string $mvc
      * @param string $modelName
+     * @param string|null $schemaName
+     * @param string $userName
      * @param string $tableName
      *
      * @return string
      */
-    public static function merge(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function merge(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName)
     {
+        self::tableOnly(self::$databaseObject[$mvc][$modelName]->modelType, __FUNCTION__);
+
         // config
-        if ($modelType === 'server') {
-            $serverName = $modelName;
-            $table = $tableName;
-        } else {
-            $serverName = self::$databaseList[$mvc]['oracle']['table'][$modelName]['server'];
-            $table = self::$databaseList[$mvc]['oracle']['table'][$modelName]['table'];
-        }
-        $user = self::$databaseList[$mvc]['oracle']['server'][$serverName]['user'];
+        $table = self::$databaseObject[$mvc][$modelName]->tableName;
+        $user = $userName;
 
         $sql = "MERGE INTO $user.$table target ";
         return $sql;
@@ -247,12 +225,11 @@ class Dml extends OracleBase implements DmlInterface
      *
      * @return string
      */
-    public static function mergeSet(string $modelName, array $colName, string $mvc)
+    public static function mergeSet(string $mvc, string $modelName, array $colName)
     {
         $sql_col = '';
         if (empty($colName)) {
-            $serverName = self::$databaseList[$mvc]['oracle']['table'][$modelName]['server'];
-            $schema = self::$databaseObject[$mvc]['oracle']->table[$modelName]->schema;
+            $schema = self::$databaseObject[$mvc][$modelName]->schema;
 
             foreach ($schema as $key => $value) {
                 if ($value['KEY_TYPE'] !== 'P') {
@@ -294,28 +271,22 @@ class Dml extends OracleBase implements DmlInterface
     /**
      * Merge insert value.
      *
-     * @param string $modelType
+     * @param string $mvc
      * @param string $modelName
      * @param string $tableName
      * @param array $colName
      *
      * @return string
      */
-    public static function mergeValues(string $modelType, string $modelName, string $tableName, array $colName, string $mvc)
+    public static function mergeValues(string $mvc, string $modelName, string $tableName, array $colName)
     {
         $sql_key = '(';
         $sql_value = '(';
         if (empty($colName)) {
+            self::tableOnly(self::$databaseObject[$mvc][$modelName]->modelType, __FUNCTION__);
 
             // config
-            if ($modelType === 'server') {
-                $serverName = $modelName;
-                $schema = self::$databaseObject[$mvc]['oracle']->$modelType[$modelName]->$tableName->schema;
-            } else {
-                $serverName = self::$databaseList[$mvc]['oracle']['table'][$modelName]['server'];
-                $schema = self::$databaseObject[$mvc]['oracle']->$modelType[$modelName]->schema;
-            }
-
+            $schema = self::$databaseObject[$mvc][$modelName]->schema;
             $colName = $schema;
         }
         foreach ($colName as $key => $value) {

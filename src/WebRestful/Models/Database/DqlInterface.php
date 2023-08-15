@@ -17,32 +17,30 @@ interface DqlInterface
     /**
      * Select data.
      *
+     * @param string $mvc
+     * @param string $modelName
      * @param string|null $schemaName
      * @param string $userName
-     * @param string $modelType
-     * @param string $modelName
      * @param string $tableName
      * @param array $data
      * @param boolean $distinct
-     * @param string $mvc
      *
      * @return array
      */
-    public static function select(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, array $data, bool $distinct, string $mvc);
+    public static function select(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName, array $data, bool $distinct);
 
     /**
      * Where.
      *
-     * @param string $modelType
+     * @param string $mvc
      * @param string $modelName
      * @param string $tableName
      * @param array $data
      * @param array $data_bind
-     * @param string $mvc
      *
      * @return string
      */
-    public static function where(string $modelType, string $modelName, string $tableName, array $data, array $data_bind, string $mvc);
+    public static function where(string $mvc, string $modelName, string $tableName, array $data, array $data_bind);
 
     /**
      * Order by.

@@ -58,7 +58,7 @@ class Base extends WebRestful
     public function checkLibraryConfig(string $libraryName, array $libraryConfig)
     {
         $router = new Router();
-        $libraryConfigList = ['path', 'oracle', 'mysql', 'mssql', 'postgres', 'mail', 'aws', 'libraries'];
+        $libraryConfigList = ['path', 'models', 'mails', 'aws', 'libraries'];
 
         $model = [];
         $mail = [];
@@ -70,27 +70,12 @@ class Base extends WebRestful
                 if (isset($libraryConfig[$key])) {
                     $lists = explode(',', $libraryConfig[$key]);
                     switch ($key) {
-                        case 'oracle':
+                        case 'models':
                             foreach ($lists as $key) {
-                                $model['oracle'][] = trim($key);
+                                $model[] = trim($key);
                             }
                             break;
-                        case 'mysql':
-                            foreach ($lists as $key) {
-                                $model['mysql'][] = trim($key);
-                            }
-                            break;
-                        case 'mssql':
-                            foreach ($lists as $key) {
-                                $model['mssql'][] = trim($key);
-                            }
-                            break;
-                        case 'postgres':
-                            foreach ($lists as $key) {
-                                $model['postgres'][] = trim($key);
-                            }
-                            break;
-                        case 'mail':
+                        case 'mails':
                             foreach ($lists as $key) {
                                 $mail[] = trim($key);
                             }

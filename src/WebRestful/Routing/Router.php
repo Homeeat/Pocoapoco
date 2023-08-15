@@ -53,17 +53,10 @@ class Router
             isset($mix['libraries']) ? $this->library($mix['libraries']) : null;
 
             // model
-            $modelList = ['oracle' => [], 'mysql' => [], 'mssql' => [], 'postgres' => []];
-            foreach ($mix as $key => $value) {
-                if (isset($modelList[$key])) {
-                    $modelList[$key] = $value;
-                }
-            }
-            self::$mixModelList = $modelList;
-            $this->model($modelList, 'controller');
+            isset($mix['models']) ? $this->model($mix['models'], 'controller') : null;
 
             // mail
-            isset($mix['mail']) ? $this->mail($mix['mail'], 'controller') : null;
+            isset($mix['mails']) ? $this->mail($mix['mails'], 'controller') : null;
 
             // aws
             isset($mix['aws']) ? $this->aws($mix['aws'], 'controller') : null;
@@ -146,15 +139,11 @@ class Router
      *
      * @return void
      */
-    public function model(array $modelList, string $mvc)
+    public function model(array $models, string $mvc)
     {
         $modelBase = new ModelBase();
-        foreach ($modelList as $driver => $models) {
-            if (!empty($models)) {
-                $this->setting($driver);
-                $modelBase->modelBase($driver, $models, $mvc);
-            }
-        }
+        $this->setting('models');
+        $modelBase->modelBase($models, $mvc);
     }
 
     /**
@@ -183,7 +172,7 @@ class Router
     public function mail(array $mail, string $mvc)
     {
         $mailBase = new MailBase();
-        $this->setting('mail');
+        $this->setting('mails');
         $mailBase->mailBase($mail, $mvc);
     }
 
@@ -211,7 +200,7 @@ class Router
     public function log(string $log)
     {
         $logBase = new LogBase();
-        $this->setting('log');
+        $this->setting('logs');
         $logBase->logBase($log);
     }
 

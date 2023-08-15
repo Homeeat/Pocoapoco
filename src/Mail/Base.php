@@ -42,22 +42,23 @@ class Base
         $this->settingBase = new SettingBase();
         $this->setMailList($mvc);
         $this->checkMailConfig($mail, $mvc);
-        foreach ($mail as $keyName) {
-            $this->connect($keyName, $mvc);
-        }
     }
 
     /**
      * Set mail list.
      *
-     * @param array $mvc
+     * @param string $mvc
      *
      * @return void
      */
     private function setMailList(string $mvc)
     {
-        $settingList = $this->settingBase->getSettingData('mail');
-        self::$mailList[$mvc] = $settingList;
+        $settingList = $this->settingBase->getSettingData('mails');
+        foreach ($settingList as $mailName => $mailInfo) {
+            if (empty(self::$mailList[$mvc][$mailName])) {
+                self::$mailList[$mvc][$mailName] = $mailInfo;
+            }
+        }
     }
 
     /**

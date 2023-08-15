@@ -20,20 +20,14 @@ class Ddl extends PostgresBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function createTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function createTable(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName)
     {
+        self::tableOnly(self::$databaseObject[$mvc][$modelName]->modelType, __FUNCTION__);
+
         // config
-        if ($modelType === 'server') {
-            $serverName = $modelName;
-            $table = $tableName;
-            $schema = self::$databaseObject[$mvc]['postgres']->$modelType[$modelName]->$tableName->schema;
-        } else {
-            $serverName = self::$databaseList[$mvc]['postgres']['table'][$modelName]['server'];
-            $table = self::$databaseList[$mvc]['postgres']['table'][$modelName]['table'];
-            $schema = self::$databaseObject[$mvc]['postgres']->$modelType[$modelName]->schema;
-        }
+        $table = self::$databaseObject[$mvc][$modelName]->tableName;
+        $schema = self::$databaseObject[$mvc][$modelName]->schema;
         $permission = $schemaName;
-        $user = $userName;
 
         $SQL = "CREATE TABLE $permission.$table (\n";
         $SQL_KEY = '';
@@ -89,7 +83,7 @@ class Ddl extends PostgresBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function dropTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function dropTable(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName)
     {
 
     }
@@ -97,7 +91,7 @@ class Ddl extends PostgresBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function alterTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function alterTable(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName)
     {
 
     }
@@ -105,7 +99,7 @@ class Ddl extends PostgresBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function truncateTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function truncateTable(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName)
     {
 
     }
@@ -113,20 +107,14 @@ class Ddl extends PostgresBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function commentTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function commentTable(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName)
     {
+        self::tableOnly(self::$databaseObject[$mvc][$modelName]->modelType, __FUNCTION__);
+
         // config
-        if ($modelType === 'server') {
-            $serverName = $modelName;
-            $table = $tableName;
-            $schema = self::$databaseObject[$mvc]['postgres']->$modelType[$modelName]->$tableName->schema;
-        } else {
-            $serverName = self::$databaseList[$mvc]['postgres']['table'][$modelName]['server'];
-            $table = self::$databaseList[$mvc]['postgres']['table'][$modelName]['table'];
-            $schema = self::$databaseObject[$mvc]['postgres']->$modelType[$modelName]->schema;
-        }
+        $table = self::$databaseObject[$mvc][$modelName]->tableName;
+        $schema = self::$databaseObject[$mvc][$modelName]->schema;
         $permission = $schemaName;
-        $user = $userName;
 
         $SQL = '';
         foreach ($schema as $columnName => $info) {
@@ -139,7 +127,7 @@ class Ddl extends PostgresBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function renameTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function renameTable(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName)
     {
 
     }

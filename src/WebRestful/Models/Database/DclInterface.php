@@ -18,23 +18,19 @@ interface DclInterface
     /**
      * Commit.
      *
-     * @param string $modelType
-     * @param string $modelName
-     * @param string $mvc
+     * @param string $serverName
      *
      * @return void
      */
-    public static function commit(string $modelType, string $modelName, string $mvc);
+    public static function commit(string $serverName);
 
     /**
      * Rollback.
      *
-     * @param string $modelType
-     * @param string $modelName
-     * @param string $mvc
+     * @param string $serverName
      *
      * @return void
      */
-    public static function rollback(string $modelType, string $modelName, string $mvc);
+    public static function rollback(string $serverName);
 
 }

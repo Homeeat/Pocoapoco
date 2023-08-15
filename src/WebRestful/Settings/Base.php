@@ -24,7 +24,6 @@ class Base extends WebRestful
     /**
      * Setting entry point.
      *
-     * @param string $path
      * @param string $class
      *
      * @return void
@@ -50,16 +49,13 @@ class Base extends WebRestful
     private function setSettingData(string $fileName, string $absoluteFile)
     {
         switch ($fileName) {
+            case 'models':
             case 'libraries':
-            case 'log':
-            case 'error':
-            case 'mail':
-            case 'aws':
+            case 'logs':
             case 'project':
-            case 'oracle':
-            case 'mysql':
-            case 'mssql':
-            case 'postgres':
+            case 'error':
+            case 'mails':
+            case 'aws':
                 $process_sections = true;
                 break;
             default:

@@ -20,18 +20,13 @@ class Ddl extends MysqlBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function createTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function createTable(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName)
     {
+        self::tableOnly(self::$databaseObject[$mvc][$modelName]->modelType, __FUNCTION__);
+
         // config
-        if ($modelType === 'server') {
-            $serverName = $modelName;
-            $table = $tableName;
-            $schema = self::$databaseObject[$mvc]['mysql']->$modelType[$modelName]->$tableName->schema;
-        } else {
-            $serverName = self::$databaseList[$mvc]['mysql']['table'][$modelName]['server'];
-            $table = self::$databaseList[$mvc]['mysql']['table'][$modelName]['table'];
-            $schema = self::$databaseObject[$mvc]['mysql']->$modelType[$modelName]->schema;
-        }
+        $table = self::$databaseObject[$mvc][$modelName]->tableName;
+        $schema = self::$databaseObject[$mvc][$modelName]->schema;
         $user = $userName;
 
         $SQL = "CREATE TABLE `$user`.`$table` (\n";
@@ -85,7 +80,7 @@ class Ddl extends MysqlBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function dropTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function dropTable(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName)
     {
 
     }
@@ -93,7 +88,7 @@ class Ddl extends MysqlBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function alterTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function alterTable(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName)
     {
 
     }
@@ -101,7 +96,7 @@ class Ddl extends MysqlBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function truncateTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function truncateTable(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName)
     {
 
     }
@@ -109,7 +104,7 @@ class Ddl extends MysqlBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function commentTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function commentTable(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName)
     {
 
     }
@@ -117,7 +112,7 @@ class Ddl extends MysqlBase implements DdlInterface
     /**
      * @inheritDoc
      */
-    public static function renameTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc)
+    public static function renameTable(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName)
     {
 
     }

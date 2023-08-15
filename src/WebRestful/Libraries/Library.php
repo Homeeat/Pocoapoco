@@ -21,6 +21,7 @@ use Ntch\Pocoapoco\Project\Base as ProjectBase;
 use Ntch\Pocoapoco\WebRestful\Controllers\Base as ControllerBase;
 use Ntch\Pocoapoco\WebRestful\Models\Base as ModelBase;
 use Ntch\Pocoapoco\WebRestful\Settings\Base as SettingsBase;
+use Ntch\Pocoapoco\WebRestful\Libraries\Base as LibrariesBase;
 
 class Library
 {
@@ -37,6 +38,7 @@ class Library
         $controllerBase = new ControllerBase();
         $settingsBase = new SettingsBase();
         $logBase = new LogBase();
+        $librariesBase = new LibrariesBase();
         $mailBase = new MailBase();
         $awsBase = new AWSBase();
         $modelBase = new ModelBase();
@@ -55,9 +57,9 @@ class Library
         $this->setting['log'] = $logBase->getLogInfo();
 
         // libraries
-        $libraries = $settingsBase->getSettingData('libraries');
-        if (!is_null($libraries)) {
-            $this->setting['libraries'] = $libraries;
+        $libraryList = $librariesBase->getLibrariesList();
+        if(!empty($libraryList)) {
+            $this->setting['libraries'] = $libraryList;
         }
 
         // mail
@@ -94,7 +96,7 @@ class Library
         }
         $models = $modelBase->getDatabaseObject('library');
         if (!empty($models)) {
-            $this->models = $models;
+            $this->model = $models;
         }
     }
 

@@ -17,11 +17,12 @@ interface BaseInterface
     /**
      * Execute.
      *
+     * @param array $serverList
      * @param string $mvc
      *
      * @return void
      */
-    public function execute(string $mvc);
+    public function execute(array $serverList, string $mvc);
 
     /**
      * Connect driver.
@@ -49,7 +50,7 @@ interface BaseInterface
      *
      * @return void
      */
-    public function loadModelUserSchema(string $mvc);
+    public function loadModelUserSchema(string $mvc, string $serverName);
 
     /**
      * Select all_tab_columns.
@@ -64,7 +65,8 @@ interface BaseInterface
     /**
      * Query.
      *
-     * @param string $modelType
+     * @param string $serverName
+     * @param string $mvc
      * @param string $modelName
      * @param string|null $tableName
      * @param string $sqlCommand
@@ -73,12 +75,11 @@ interface BaseInterface
      * @param string|null $keyName
      * @param int $offset
      * @param int $limit
-     * @param string $mvc
      * @param bool $query_pass
      *
      * @return array
      */
-    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit, string $mvc, bool $query_pass);
+    public static function query(string $serverName, string $mvc, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit, bool $query_pass);
 
     /**
      * System set data from model setting.
@@ -94,15 +95,14 @@ interface BaseInterface
     /**
      * Data bind.
      *
-     * @param string $modelType
+     * @param string $mvc
      * @param string $modelName
      * @param string $tableName
      * @param array $sqlBind
-     * @param string $mvc
      * @param bool $query_pass
      *
      * @return array
      */
-    public static function dataBind(string $modelType, string $modelName, string $tableName, array $sqlBind, string $mvc, bool $query_pass);
+    public static function dataBind(string $mvc, string $modelName, string $tableName, array $sqlBind, bool $query_pass);
 
 }

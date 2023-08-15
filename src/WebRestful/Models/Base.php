@@ -29,6 +29,16 @@ class Base extends WebRestful
     /**
      * @var array
      */
+    protected static array $serverList = [];
+
+    /**
+     * @var array
+     */
+    protected static array $serverObject = [];
+
+    /**
+     * @var array
+     */
     protected static array $databaseList = [];
 
     /**
@@ -37,133 +47,109 @@ class Base extends WebRestful
     protected static array $databaseObject = [];
 
     /**
+     * @var array
+     */
+    private static array $driverList = ['oracle', 'mysql', 'mssql', 'postgres'];
+
+    /**
      * Model entry point.
      *
-     * @param string $driver
      * @param array $models
      * @param string $mvc
      *
      * @return void
      */
-    public function modelBase(string $driver, array $models, string $mvc)
+    public function modelBase(array $models, string $mvc)
     {
         $this->settingBase = new SettingBase();
-        $this->setDriverList($driver, $models, $mvc);
-        $this->checkModelConfig($driver, $models, $mvc);
-        $this->createModelObject($driver, $models, $mvc);
+        self::$serverList[$mvc] = array();
+        $this->setList($models, $mvc);
+        $this->createModelObject($mvc);
 
-        switch ($driver) {
-            case 'oracle':
-                $oracle = new OracleBase();
-                $oracle->execute($mvc);
-                break;
-            case 'mysql':
-                $mysql = new MysqlBase();
-                $mysql->execute($mvc);
-                break;
-            case 'mssql':
-                $mssql = new MssqlBase();
-                $mssql->execute($mvc);
-                break;
-            case 'postgres':
-                $postgres = new PostgresBase();
-                $postgres->execute($mvc);
-                break;
+        $serverList = array();
+        foreach (self::$serverList[$mvc] as $serverName => $serverConfig) {
+            $serverList[$serverConfig['driver']][$serverName] = $serverConfig;
         }
 
-        $this->loadWebRestful($driver, $models, $mvc);
-        $this->loadModelTableSchema($driver, $mvc);
+        if (!empty($serverList['oracle'])) {
+            $oracle = new OracleBase();
+            $oracle->execute($serverList['oracle'], $mvc);
+        }
+        if (!empty($serverList['mysql'])) {
+            $mysql = new MysqlBase();
+            $mysql->execute($serverList['mysql'], $mvc);
+        }
+        if (!empty($serverList['mssql'])) {
+            $mssql = new MssqlBase();
+            $mssql->execute($serverList['mssql'], $mvc);
+        }
+        if (!empty($serverList['postgres'])) {
+            $postgres = new PostgresBase();
+            $postgres->execute($serverList['postgres'], $mvc);
+        }
 
+        $this->loadWebRestful($models, $mvc);
     }
 
     /**
      * Set models driver list.
      *
-     * @param string $driver
      * @param array $models
      * @param string $mvc
      *
      * @return void
      */
-    private function setDriverList(string $driver, array $models, string $mvc)
+    private function setList(array $models, string $mvc)
     {
-        $settingList = $this->settingBase->getSettingData($driver);
-        $serverNameList = [];
-
+        $settingList = $this->settingBase->getSettingData('models');
         foreach ($models as $key) {
-            // if - table , else - server
-            if (isset($settingList[$key]['server']) && isset($settingList[$key]['type']) && $settingList[$key]['type'] == 'table') {
+
+            // check config
+            isset($settingList[$key]['type']) ? null : die("【ERROR】Model $key tag type is not exist.");
+            // check config type
+            if ($settingList[$key]['type'] == 'server') {
+                // check config driver
+                isset($settingList[$key]['driver']) ? null : die("【ERROR】Model $key tag driver is not exist.");
+                in_array($settingList[$key]['driver'], self::$driverList) ? null : die("【ERROR】Model $key driver is not support.");
+                if (!in_array($key, self::$serverList[$mvc])) {
+                    self::$serverList[$mvc][$key] = $settingList[$key];
+                }
+            } elseif ($settingList[$key]['type'] == 'table') {
+                // check config server
+                isset($settingList[$key]['server']) ? null : die("【ERROR】Model $key tag server is not exist.");
                 $serverName = $settingList[$key]['server'];
-
-                if (!in_array($serverName, $serverNameList)) {
+                if (!in_array($serverName, self::$serverList[$mvc])) {
                     if (isset($settingList[$serverName]['type']) && $settingList[$serverName]['type'] == 'server') {
-                        self::$databaseList[$mvc][$driver]['server'][$serverName] = $settingList[$serverName];
-                        array_push($serverNameList, $serverName);
+                        isset($settingList[$serverName]['driver']) ? null : die("【ERROR】Model $serverName tag driver is not exist.");
+                        self::$serverList[$mvc][$serverName] = $settingList[$serverName];
                     } else {
-                        die("【ERROR】Models $driver.ini server \"$serverName\" is not exist.");
+                        die("【ERROR】Models model.ini server \"$serverName\" is not exist.");
                     }
                 }
-
-                self::$databaseList[$mvc][$driver]['table'][$key] = $settingList[$key];
             } else {
-                if (!in_array($key, $serverNameList)) {
-                    if (isset($settingList[$key]['type']) && $settingList[$key]['type'] == 'server') {
-                        self::$databaseList[$mvc][$driver]['server'][$key] = $settingList[$key];
-                        array_push($serverNameList, $key);
-                    } else {
-                        die("【ERROR】Models $driver.ini server \"$key\" is not exist.");
-                    }
-                }
+                die("【ERROR】Model $key tag type is not support.");
             }
-        }
-    }
 
-    /**
-     * Check model config.
-     *
-     * @param string $driver
-     * @param array $models
-     * @param string $mvc
-     *
-     * @return void
-     */
-    private function checkModelConfig(string $driver, array $models, string $mvc)
-    {
-        $modelConfigList = ['path', 'class'];
-
-        foreach ($models as $key) {
-            foreach ($modelConfigList as $key2) {
-                (isset(self::$databaseList[$mvc][$driver]['server'][$key][$key2]) || isset(self::$databaseList[$mvc][$driver]['table'][$key][$key2])) ? null : die("【ERROR】Model $key tag \"$key2\" is not exist.");
+            foreach (['path', 'class'] as $key2) {
+                isset($settingList[$key][$key2]) ? null : die("【ERROR】Model $key tag \"$key2\" is not exist.");
             }
+            // set model
+            self::$databaseList[$mvc][$key] = $settingList[$key];
         }
     }
 
     /**
      * Create model and driver object.
      *
-     * @param string $driver
-     * @param array $models
      * @param string $mvc
      *
      * @return void
      */
-    private function createModelObject(string $driver, array $models, string $mvc)
+    private function createModelObject(string $mvc)
     {
-        self::$databaseObject[$mvc][$driver] = new \stdClass();
-
-        // server
-        foreach (self::$databaseList[$mvc][$driver]['server'] as $serverName => $serverInfo) {
-            foreach ($models as $modelName) {
-                if ($serverName === $modelName) {
-                    self::$databaseObject[$mvc][$driver]->server[$serverName] = new \stdClass();
-                }
-            }
-        }
-
-        // table
-        if (isset(self::$databaseList[$mvc][$driver]['table'])) {
-            foreach (self::$databaseList[$mvc][$driver]['table'] as $tableName => $tableInfo) {
-                self::$databaseObject[$mvc][$driver]->table[$tableName] = new \stdClass();
+        foreach (self::$databaseList[$mvc] as $key => $Info) {
+            if (empty(self::$databaseObject[$mvc][$key])) {
+                self::$databaseObject[$mvc][$key] = new \stdClass();
             }
         }
     }
@@ -171,66 +157,41 @@ class Base extends WebRestful
     /**
      * Load webRestful.
      *
-     * @param string $driver
      * @param array $models
      * @param string $mvc
      *
      * @return void
      */
-    private function loadWebRestful(string $driver, array $models, string $mvc)
+    private function loadWebRestful(array $models, string $mvc)
     {
-        // server
-        foreach (self::$databaseList[$mvc][$driver]['server'] as $serverName => $serverInfo) {
-            foreach ($models as $modelName) {
-                if ($serverName === $modelName) {
-                    $classCreate = $this->webRestfulCheckList('model', null, $serverInfo['path'], $serverInfo['class'], null);
-
-                    $tableNames = array_keys((array)self::$databaseObject[$mvc][$driver]->server[$serverName]);
-                    foreach ($tableNames as $tableName) {
-                        $schema = self::$databaseObject[$mvc][$driver]->server[$serverName]->$tableName->schema;
-
-                        $$tableName = clone $classCreate;
-                        self::$databaseObject[$mvc][$driver]->server[$serverName]->$tableName = $$tableName;
-                        self::$databaseObject[$mvc][$driver]->server[$serverName]->$tableName->mvc = $mvc;
-                        self::$databaseObject[$mvc][$driver]->server[$serverName]->$tableName->tableName = $tableName;
-                        self::$databaseObject[$mvc][$driver]->server[$serverName]->$tableName->schema = $schema;
+        foreach ($models as $modelName) {
+            $modelInfo = self::$databaseList[$mvc][$modelName];
+            if ($modelInfo['type'] == 'server') {
+                $serverName = $modelName;
+                self::$databaseObject[$mvc][$modelName] = $this->webRestfulCheckList('model', null, $modelInfo['path'], $modelInfo['class'], null);
+            } else {
+                $serverName = self::$databaseList[$mvc][$modelName]['server'];
+                self::$databaseObject[$mvc][$modelName] = $this->webRestfulCheckList('model', null, $modelInfo['path'], $modelInfo['class'], 'schema');
+                self::$databaseObject[$mvc][$modelName]->schema = self::$databaseObject[$mvc][$modelName]->schema();
+                self::$databaseObject[$mvc][$modelName]->tableName = self::$databaseList[$mvc][$modelName]['table'];
+            }
+            self::$databaseObject[$mvc][$modelName]->mvc = $mvc;
+            self::$databaseObject[$mvc][$modelName]->modelType = self::$databaseList[$mvc][$modelName]['type'];
+            self::$databaseObject[$mvc][$modelName]->modelName = $modelName;
+            switch (self::$serverList[$mvc][$serverName]['driver']) {
+                case 'mssql':
+                    if (self::$databaseList[$mvc][$modelName]['type'] === 'table') {
+                        self::$databaseObject[$mvc][$modelName]->schemaName = empty(self::$databaseList[$mvc][$modelName]['schema']) ? 'dbo' : self::$databaseList[$mvc][$modelName]['schema'];
                     }
-                }
+                    break;
+                case 'postgres':
+                    if (self::$databaseList[$mvc][$modelName]['type'] === 'table') {
+                        self::$databaseObject[$mvc][$modelName]->schemaName = self::$databaseList[$mvc][$modelName]['schema'];
+                    }
+                    break;
             }
-        }
-
-        // table
-        if (isset(self::$databaseList[$mvc][$driver]['table'])) {
-            foreach (self::$databaseList[$mvc][$driver]['table'] as $tableName => $tableInfo) {
-                $classCreate = $this->webRestfulCheckList('model', null, $tableInfo['path'], $tableInfo['class'], 'schema');
-                $classCreate->mvc = $mvc;
-
-                self::$databaseObject[$mvc][$driver]->table[$tableName] = $classCreate;
-                self::$databaseObject[$mvc][$driver]->table[$tableName]->userName = self::$databaseList[$mvc][$driver]['server'][self::$databaseList[$mvc][$driver]['table'][$tableName]['server']]['user'];
-                self::$databaseObject[$mvc][$driver]->table[$tableName]->tableName = self::$databaseList[$mvc][$driver]['table'][$tableName]['table'];
-                self::$databaseObject[$mvc][$driver]->table[$tableName]->schemaName = match ($driver) {
-                    'mssql' => empty(self::$databaseList[$mvc][$driver]['server'][self::$databaseList[$mvc][$driver]['table'][$tableName]['server']]['schema']) ? null : self::$databaseList[$mvc][$driver]['server'][self::$databaseList[$mvc][$driver]['table'][$tableName]['server']]['schema'],
-                    'postgres' => self::$databaseList[$mvc][$driver]['server'][self::$databaseList[$mvc][$driver]['table'][$tableName]['server']]['schema'],
-                };
-            }
-        }
-    }
-
-    /**
-     * Load model table define in object schema method.
-     *
-     * @param string $driver
-     * @param string $mvc
-     *
-     * @return void
-     */
-    private function loadModelTableSchema(string $driver, string $mvc)
-    {
-        if (isset(self::$databaseObject[$mvc][$driver]->table)) {
-            foreach (self::$databaseObject[$mvc][$driver]->table as $tableName => $tableInfo) {
-                $modelObject = self::$databaseObject[$mvc][$driver]->table[$tableName];
-                self::$databaseObject[$mvc][$driver]->table[$tableName]->schema = $modelObject->schema();
-            }
+            self::$databaseObject[$mvc][$modelName]->userName = self::$serverList[$mvc][$serverName]['user'];
+            self::$databaseObject[$mvc][$modelName]->server = clone self::$serverObject[$serverName]['server'];
         }
     }
 
@@ -244,11 +205,10 @@ class Base extends WebRestful
      */
     public function getDatabaseList(string $mvc): array
     {
-        $driveList = ['oracle', 'mysql', 'mssql', 'postgres'];
         $showData = isset(self::$databaseList[$mvc]) ? self::$databaseList[$mvc] : [];
 
         if (!empty($showData)) {
-            foreach ($driveList as $dbName => $type) {
+            foreach (self::$driverList as $dbName => $type) {
                 if (isset($showData[$dbName])) {
                     foreach ($showData[$dbName]['server'] as $serverName => $serverTag) {
                         $showData[$dbName]['server'][$serverName]['password'] = '***************';
@@ -266,10 +226,17 @@ class Base extends WebRestful
      *
      * @return array
      */
-    public function getDatabaseObject(string $mvc): array
+    public function getDatabaseObject(string $mvc)
     {
         self::$databaseObject[$mvc] = isset(self::$databaseObject[$mvc]) ? self::$databaseObject[$mvc] : [];
         return self::$databaseObject[$mvc];
+    }
+
+    protected static function tableOnly(string $type, string $fun)
+    {
+        if ($type !== 'table') {
+            die("【ERROR】Not support $fun");
+        }
     }
 
 }

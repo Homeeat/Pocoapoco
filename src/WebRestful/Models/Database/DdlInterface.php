@@ -17,86 +17,80 @@ interface DdlInterface
     /**
      * Create table.
      *
+     * @param string $mvc
+     * @param string $modelName
      * @param string|null $schemaName
      * @param string $userName
-     * @param string $modelType
-     * @param string $modelName
      * @param string $tableName
-     * @param string $mvc
      *
      * @return string
      */
-    public static function createTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc);
+    public static function createTable(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName);
 
     /**
      * Drop table.
      *
+     * @param string $mvc
+     * @param string $modelName
      * @param string|null $schemaName
      * @param string $userName
-     * @param string $modelType
-     * @param string $modelName
      * @param string $tableName
-     * @param string $mvc
      *
      * @return string
      */
-    public static function dropTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc);
+    public static function dropTable(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName);
 
     /**
      * Alter table.
      *
+     * @param string $mvc
+     * @param string $modelName
      * @param string|null $schemaName
      * @param string $userName
-     * @param string $modelType
-     * @param string $modelName
      * @param string $tableName
-     * @param string $mvc
      *
      * @return string
      */
-    public static function alterTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc);
+    public static function alterTable(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName);
 
     /**
      * Truncate table.
      *
+     * @param string $mvc
+     * @param string $modelName
      * @param string|null $schemaName
      * @param string $userName
-     * @param string $modelType
-     * @param string $modelName
      * @param string $tableName
-     * @param string $mvc
      *
      * @return string
      */
-    public static function truncateTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc);
+    public static function truncateTable(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName);
 
     /**
      * Comment table.
      * For Oracle、Mssql、Postgres
      *
+     * @param string $mvc
+     * @param string $modelName
      * @param string|null $schemaName
      * @param string $userName
-     * @param string $modelType
-     * @param string $modelName
      * @param string $tableName
-     * @param string $mvc
      *
      * @return string
      */
-    public static function commentTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc);
+    public static function commentTable(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName);
 
     /**
      * Rename table.
      *
+     * @param string $mvc
+     * @param string $modelName
      * @param string|null $schemaName
      * @param string $userName
-     * @param string $modelType
-     * @param string $modelName
      * @param string $tableName
-     * @param string $mvc
      *
      * @return string
      */
-    public static function renameTable(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc);
+    public static function renameTable(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName);
 
 }

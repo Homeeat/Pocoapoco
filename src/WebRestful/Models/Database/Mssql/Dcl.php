@@ -20,18 +20,10 @@ class Dcl extends MssqlBase implements DclInterface
     /**
      * @inheritDoc
      */
-    public static function commit(string $modelType, string $modelName, string $mvc)
+    public static function commit(string $serverName)
     {
-        // config
-        if ($modelType === 'server') {
-            $serverName = $modelName;
-        } else {
-            $serverName = self::$databaseList[$mvc]['mssql']['table'][$modelName]['server'];
-        }
-
-        $serverStatus = self::$databaseList[$mvc]['mssql']['server'][$serverName]['connect']['status'];
-        if ($serverStatus === 'success') {
-            $serverResult = self::$databaseList[$mvc]['mssql']['server'][$serverName]['connect']['result'];
+        if (self::$serverObject[$serverName]['status'] === 'success') {
+            $serverResult = self::$serverObject[$serverName]['result'];
             @sqlsrv_commit($serverResult);
         }
     }
@@ -39,18 +31,10 @@ class Dcl extends MssqlBase implements DclInterface
     /**
      * @inheritDoc
      */
-    public static function rollback(string $modelType, string $modelName, string $mvc)
+    public static function rollback(string $serverName)
     {
-        // config
-        if ($modelType === 'server') {
-            $serverName = $modelName;
-        } else {
-            $serverName = self::$databaseList[$mvc]['mssql']['table'][$modelName]['server'];
-        }
-
-        $serverStatus = self::$databaseList[$mvc]['mssql']['server'][$serverName]['connect']['status'];
-        if ($serverStatus === 'success') {
-            $serverResult = self::$databaseList[$mvc]['mssql']['server'][$serverName]['connect']['result'];
+        if (self::$serverObject[$serverName]['status'] === 'success') {
+            $serverResult = self::$serverObject[$serverName]['result'];
             @sqlsrv_rollback($serverResult);
         }
     }

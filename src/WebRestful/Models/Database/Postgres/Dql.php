@@ -20,20 +20,14 @@ class Dql extends PostgresBase implements DqlInterface
     /**
      * @inheritDoc
      */
-    public static function select(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, array $data, bool $distinct, string $mvc)
+    public static function select(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName, array $data, bool $distinct)
     {
+        self::tableOnly(self::$databaseObject[$mvc][$modelName]->modelType, __FUNCTION__);
+
         // config
-        if ($modelType === 'server') {
-            $serverName = $modelName;
-            $table = $tableName;
-            $schema = self::$databaseObject[$mvc]['postgres']->$modelType[$modelName]->$tableName->schema;
-        } else {
-            $serverName = self::$databaseList[$mvc]['postgres']['table'][$modelName]['server'];
-            $table = self::$databaseList[$mvc]['postgres']['table'][$modelName]['table'];
-            $schema = self::$databaseObject[$mvc]['postgres']->$modelType[$modelName]->schema;
-        }
+        $table = self::$databaseObject[$mvc][$modelName]->tableName;
+        $schema = self::$databaseObject[$mvc][$modelName]->schema;
         $permission = $schemaName;
-        $user = $userName;
 
         if (empty($data)) {
             $sql_search = '*';
@@ -84,16 +78,12 @@ class Dql extends PostgresBase implements DqlInterface
     /**
      * @inheritDoc
      */
-    public static function where(string $modelType, string $modelName, string $tableName, array $data, array $data_bind, string $mvc)
+    public static function where(string $mvc, string $modelName, string $tableName, array $data, array $data_bind)
     {
+        self::tableOnly(self::$databaseObject[$mvc][$modelName]->modelType, __FUNCTION__);
+
         // config
-        if ($modelType === 'server') {
-            $serverName = $modelName;
-            $schema = self::$databaseObject[$mvc]['postgres']->$modelType[$modelName]->$tableName->schema;
-        } else {
-            $serverName = self::$databaseList[$mvc]['postgres']['table'][$modelName]['server'];
-            $schema = self::$databaseObject[$mvc]['postgres']->$modelType[$modelName]->schema;
-        }
+        $schema = self::$databaseObject[$mvc][$modelName]->schema;
 
         $sql_where = '';
         $data_where = [];

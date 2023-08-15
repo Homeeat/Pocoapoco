@@ -17,71 +17,66 @@ interface DmlInterface
     /**
      * Insert data.
      *
+     * @param string $mvc
+     * @param string $modelName
      * @param string|null $schemaName
      * @param string $userName
-     * @param string $modelType
-     * @param string $modelName
      * @param string $tableName
-     * @param string $mvc
      *
      * @return string
      */
-    public static function insert(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc);
+    public static function insert(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName);
 
     /**
      * Insert values.
      *
-     * @param string $modelType
+     * @param string $mvc
      * @param string $modelName
      * @param string $tableName
      * @param array $data
      * @param array $data_bind
-     * @param string $mvc
      *
      * @return string
      */
-    public static function values(string $modelType, string $modelName, string $tableName, array $data, array $data_bind, string $mvc);
+    public static function values(string $mvc, string $modelName, string $tableName, array $data, array $data_bind);
 
     /**
      * Delete data.
      *
+     * @param string $mvc
+     * @param string $modelName
      * @param string|null $schemaName
      * @param string $userName
-     * @param string $modelType
-     * @param string $modelName
      * @param string $tableName
-     * @param string $mvc
      *
      * @return string
      */
-    public static function delete(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc);
+    public static function delete(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName);
 
     /**
      * Update data.
      *
+     * @param string $mvc
+     * @param string $modelName
      * @param string|null $schemaName
      * @param string $userName
-     * @param string $modelType
-     * @param string $modelName
      * @param string $tableName
-     * @param string $mvc
      *
      * @return string
      */
-    public static function update(?string $schemaName, string $userName, string $modelType, string $modelName, string $tableName, string $mvc);
+    public static function update(string $mvc, string $modelName, ?string $schemaName, string $userName, string $tableName);
 
     /**
      * Update set.
      *
-     * @param string $modelType
+     * @param string $mvc
      * @param string $modelName
      * @param string $tableName
      * @param array $data
      * @param array $data_bind
-     * @param string $mvc
      *
      * @return array
      */
-    public static function set(string $modelType, string $modelName, string $tableName, array $data, array $data_bind, string $mvc);
+    public static function set(string $mvc, string $modelName, string $tableName, array $data, array $data_bind);
 
 }

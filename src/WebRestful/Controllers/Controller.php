@@ -112,7 +112,7 @@ class Controller
 
         $models = $modelBase->getDatabaseObject('controller');
         if (!empty($models)) {
-            $this->models = $models;
+            $this->model = $models;
         }
 
     }

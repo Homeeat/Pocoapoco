@@ -14,6 +14,7 @@ namespace Ntch\Pocoapoco\WebRestful\Models\Database\Mysql;
 use Ntch\Pocoapoco\Error\Base as ErrorBase;
 use Ntch\Pocoapoco\WebRestful\Models\Database\BaseInterface;
 use Ntch\Pocoapoco\WebRestful\Models\Base as ModelBase;
+use Ntch\Pocoapoco\WebRestful\Models\Database\Mysql\Server;
 use function Couchbase\passthruEncoder;
 
 class Base extends ModelBase implements BaseInterface
@@ -24,22 +25,25 @@ class Base extends ModelBase implements BaseInterface
     /**
      * @inheritDoc
      */
-    public function execute(string $mvc)
+    public function execute(array $serverList, string $mvc)
     {
-        foreach (self::$databaseList[$mvc]['mysql']['server'] as $serverName => $serverConfig) {
-            $this->checkDriverConfig($serverName, $serverConfig, $mvc);
-            $conn = $this->connect($serverConfig);
+        foreach ($serverList as $serverName => $serverConfig) {
+            if (empty(self::$serverObject[$serverName])) {
+                $this->checkDriverConfig($serverName, $serverConfig);
+                $conn = $this->connect($serverConfig);
 
-            if ($conn) {
-                self::$databaseList[$mvc]['mysql']['server'][$serverName]['connect']['status'] = 'success';
-                self::$databaseList[$mvc]['mysql']['server'][$serverName]['connect']['result'] = $conn;
-            } else {
-                $error = mysqli_connect_error();
-                self::$databaseList[$mvc]['mysql']['server'][$serverName]['connect']['status'] = 'error';
-                self::$databaseList[$mvc]['mysql']['server'][$serverName]['connect']['result'] = $error;
+                if ($conn) {
+                    self::$serverObject[$serverName]['status'] = 'success';
+                    self::$serverObject[$serverName]['result'] = $conn;
+                    self::$serverObject[$serverName]['server'] = new Server();
+                    self::$serverObject[$serverName]['server']->serverName = $serverName;
+                } else {
+                    $error = mysqli_connect_error();
+                    self::$serverObject[$serverName]['status'] = 'error';
+                    self::$serverObject[$serverName]['result'] = $error;
+                }
             }
         }
-        isset(self::$databaseObject[$mvc]['mysql']->server) ? $this->loadModelUserSchema($mvc) : null;
     }
 
     /**
@@ -73,10 +77,10 @@ class Base extends ModelBase implements BaseInterface
     /**
      * @inheritDoc
      */
-    public function loadModelUserSchema(string $mvc)
+    public function loadModelUserSchema(string $mvc, string $serverName)
     {
         foreach (self::$databaseObject[$mvc]['mysql']->server as $serverName => $serverInfo) {
-            if (self::$databaseList[$mvc]['mysql']['server'][$serverName]['connect']['status'] === 'success') {
+            if (self::$serverObject[$serverName]['status'] === 'success') {
 
                 $allTabColumns = $this->allTabColumns($serverName, self::$databaseList[$mvc]['mysql']['server'][$serverName]['database'], $mvc);
                 if ($allTabColumns['status'] === 'SUCCESS') {
@@ -118,11 +122,10 @@ class Base extends ModelBase implements BaseInterface
     /**
      * @inheritDoc
      */
-    public static function query(string $modelType, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit, string $mvc, bool $query_pass)
+    public static function query(string $serverName, string $mvc, string $modelName, ?string $tableName, string $sqlCommand, ?array $sqlData, array $sqlData_bind, ?string $keyName, int $offset, int $limit, bool $query_pass)
     {
         // config
-        $modelType === 'server' ? $serverName = $modelName : $serverName = self::$databaseList[$mvc]['mysql']['table'][$modelName]['server'];
-        $conn = self::$databaseList[$mvc]['mysql']['server'][$serverName]['connect']['result'];
+        $conn = self::$serverObject[$serverName]['result'];
 
         // auto commit
         mysqli_autocommit($conn, false);
@@ -149,7 +152,7 @@ class Base extends ModelBase implements BaseInterface
         empty($sqlData) ? $sqlData = null : null;
         if (!is_null($sqlData)) {
 
-            $sqlBind = self::dataBind($modelType, $modelName, $tableName, $sqlData, $mvc, $query_pass);
+            $sqlBind = self::dataBind($mvc, $modelName, $tableName, $sqlData, $query_pass);
             $sql_type = '';
             $sql_data = [];
             foreach ($sqlData as $key => $value) {
@@ -261,13 +264,13 @@ class Base extends ModelBase implements BaseInterface
     /**
      * @inheritDoc
      */
-    public static function dataBind(string $modelType, string $modelName, string $tableName, array $sqlData, string $mvc, bool $query_pass)
+    public static function dataBind(string $mvc, string $modelName, string $tableName, array $sqlData, bool $query_pass)
     {
         // config
-        if ($modelType === 'server') {
-            $schema = self::$databaseObject[$mvc]['mysql']->$modelType[$modelName]->$tableName->schema;
+        if (self::$databaseObject[$mvc][$modelName]->modelType === 'table') {
+            $schema = self::$databaseObject[$mvc][$modelName]->schema;
         } else {
-            $schema = self::$databaseObject[$mvc]['mysql']->$modelType[$modelName]->schema;
+            $query_pass = 1;
         }
 
         foreach ($sqlData as $value) {

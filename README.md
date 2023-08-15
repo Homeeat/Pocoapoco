@@ -112,7 +112,7 @@ $router->mix($uri,
     [
         'controller' => [$path, $file],
         'libraries' => [$libraryName],
-        'mail' => ['$mailName'],
+        'mails' => ['$mailName'],
         'aws' => ['$awsName'],
         'models' => [$modelName]
     ]);
@@ -128,12 +128,9 @@ $router->mix('/uri/:parameter',
     [
         'controller' => ['/path', 'class', 'method'],
         'libraries' => ['name'],
-        'mail' => ['name'],
+        'mails' => ['name'],
         'aws' => ['name'],
-        'oracle' => ['server_name', 'tb_name'],
-        'mysql' => ['server_name', 'tb_name'],
-        'mssql' => ['server_name', 'tb_name'],
-        'postgres' => ['server_name', 'tb_name'],
+        'models' => ['server_name', 'tb_name'],
     ]);
 ```
 
@@ -273,21 +270,14 @@ class xxx extends Controller
 < settings 起手式 >
 ```ini
 # libraries.ini
-[name]
-path      = /path（要載入至哪個路徑下的所有檔案）
-
-# 檔名：services.ini
 # path 為必填外，其餘依需求給予。
 [name]
 path      = /path（要載入至哪個路徑下的所有檔案）
-oracle    = server_name, tb_name (oracle.ini)
-mysql     = server_name, tb_name (mysql.ini)
-mssql     = server_name, tb_name (mssql.ini)
-postgres   = server_name, tb_name (postgres.ini)
-mail      = server_name (mail.ini)
+models    = server_name, tb_name (models.ini)
+mails     = server_name (mails.ini)
 aws       = user (aws.ini)
 
-# 檔名：mail.ini
+# 檔名：mails.ini
 [name]
 Host        = pocoapoco.com
 Port        = 25
@@ -356,9 +346,10 @@ cycle  = daily|weekly|monthly|yearly
 [name]
 key = value
 
-# 檔名：oracle.ini
+# 檔名：models.ini
 [server_name]
 type      = server
+driver    = oracle
 ip        = xx.xx.xx.xx
 port      = 1521
 sid       = oracle
@@ -545,6 +536,7 @@ class test extends Controller
 ＊提供類型：Oracle、Mysql、Mssql、Postgres
 
 < model 起手式 >
+
 ```php
 # 依據需求引入相對應的 model
 
@@ -698,10 +690,10 @@ class test extends Controller
     public function index()
     {
         # server 導入
-        $server_name = $this->models['oracle']->server['server_name']->tb_name;
+        $server_name = $this->model['oracle']->server['server_name']->tb_name;
 
         # table 導入
-        $tb_name = $this->models['oracle']->table['tb_name'];
+        $tb_name = $this->model['oracle']->table['tb_name'];
 
         # ORM 架構 
         # createTable 範例
