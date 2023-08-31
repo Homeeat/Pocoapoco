@@ -54,7 +54,7 @@ class Model
     public function __call(string $fun, array $args): array
     {
         if ($fun === 'query_pass') {
-            $this->query_pass = true;
+            $this->server->query_pass = true;
             $fun = 'query';
         }
         switch ($fun) {

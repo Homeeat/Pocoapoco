@@ -105,7 +105,7 @@ class Base extends WebRestful
         foreach ($models as $key) {
 
             // check config
-            isset($settingList[$key]['type']) ? null : die("【ERROR】Model $key tag type is not exist.");
+            isset($settingList[$key]['type']) ? null : die("【ERROR】Model $key tag is not exist.");
             // check config type
             if ($settingList[$key]['type'] == 'server') {
                 // check config driver
