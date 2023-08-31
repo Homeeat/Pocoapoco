@@ -71,8 +71,6 @@ pocoapoco（your projects）
 │    │
 │    │─── routes
 │    │
-│    │─── services
-│    │
 │    │─── settings
 │    │
 │    └─── view
@@ -112,9 +110,10 @@ $router->mix($uri,
     [
         'controller' => [$path, $file],
         'libraries' => [$libraryName],
+        'log' => ['$logName'],
         'mails' => ['$mailName'],
         'aws' => ['$awsName'],
-        'models' => [$modelName]
+        'models' => ['$nickname'],
     ]);
 
 // example
@@ -130,7 +129,7 @@ $router->mix('/uri/:parameter',
         'libraries' => ['name'],
         'mails' => ['name'],
         'aws' => ['name'],
-        'models' => ['server_name', 'tb_name'],
+        'models' => ['name'],
     ]);
 ```
 
@@ -259,22 +258,20 @@ class xxx extends Controller
 
   * 檔案讀取順序：先讀取 settings 根目錄，再依據 Nginx ENVIRONMENT 設定讀取，若名稱重複做覆蓋。
   - libraries.ini：libraries 命名與載入層級設定，實際引入由 router 載入
-  - services.ini：services 命名與載入層級設定，實際引入由 router 載入
-  - mail.ini：郵件參數設定
+  - mails.ini：郵件參數設定
   - aws.ini：aws iam 參數設定
   - error.ini：開發與正式上線參數設定
   - log.ini：log 參數設定
   - project.ini：專案共用參數設定
-  - model 檔名：oracle.ini、mysql.ini、mssql.ini、postgres.ini
+  - models.ini：資料庫參數設定
 
 < settings 起手式 >
 ```ini
 # libraries.ini
-# path 為必填外，其餘依需求給予。
 [name]
 path      = /path（要載入至哪個路徑下的所有檔案）
-models    = server_name, tb_name (models.ini)
-mails     = server_name (mails.ini)
+models    = nickname (models.ini)
+mails     = server_name (mail.ini)
 aws       = user (aws.ini)
 
 # 檔名：mails.ini
@@ -340,7 +337,9 @@ E_USER_DEPRECATED    = 1
 E_ALL                = 1
 
 # 檔名：log.ini
-cycle  = daily|weekly|monthly|yearly
+[name]
+file = class
+folder = /path（絕對路徑）
 
 # 檔名：project.ini
 [name]
@@ -349,7 +348,7 @@ key = value
 # 檔名：models.ini
 [server_name]
 type      = server
-driver    = oracle
+driver    = oracle|mysql|mssql|postgres
 ip        = xx.xx.xx.xx
 port      = 1521
 sid       = oracle
@@ -361,61 +360,7 @@ class     = class
 [tb_name]
 type    = table
 server  = server_name
-table   = tb
-path    = /path
-class   = class
-
-# 檔名：mysql.ini
-[server_name]
-type      = server
-ip        = xx.xx.xx.xx
-port      = 3306
-database  = pocoapoco
-user      = pocoapoco
-password  = xxxxxxxxx
-path      = /path
-class     = class
-
-[tb_name]
-type    = table
-server  = server_name
-table   = tb
-path    = /path
-class   = class
-
-# 檔名：mssql.ini
-[server_name]
-type      = server
-ip        = xx.xx.xx.xx
-port      = 1433
-database  = pocoapoco
-user      = pocoapoco
-password  = xxxxxxxxx
-path      = /path
-class     = class
-
-[tb_name]
-type    = table
-server  = server_name
-table   = tb
-path    = /path
-class   = class
-
-# 檔名：postgres.ini
-[server_name]
-type      = server
-ip        = xx.xx.xx.xx
-port      = 5432
-database  = pocoapoco
-schema    = public
-user      = pocoapoco
-password  = xxxxxxxxx
-path      = /path
-class     = class
-
-[tb_name]
-type    = table
-server  = server_name
+schema  = schema_name
 table   = tb
 path    = /path
 class   = class
@@ -431,7 +376,7 @@ class   = class
 < library 起手式 >
 ```php
 # 依據 PSR-4 命名規則，給予路徑
-namespace la\lb\lc;
+namespace libraries\la\lb\lc;
 
 class xxx
 {
@@ -474,60 +419,6 @@ class test extends Controller
 
 <br><br>
 
-
-> ### **service**
-
-資料夾：services<br>
-檔案：xxx.php<br>
-
-< service 起手式 >
-```php
-# 依據 PSR-4 命名規則，給予路徑
-namespace sa\sb\sc;
-
-use Ntch\Pocoapoco\WebRestful\Services\Service;
-
-class xxx extends Service
-{
-    public function index()
-    {
-        echo 'service import success！' . PHP_EOL;
-    }
-}
-```
-
-< setting 定義別名 >
-```ini
-[ex]
-path = /sa
-```
-
-< router 檔案引入至 controller 使用 >
-```php
-$router->mvc('/uri',
-    [
-        'controller' => ['/path', 'class'],
-        'libraries' => ['ex']
-    ]);
-```
-
-< controller 使用 >
-```php
-use Ntch\Pocoapoco\WebRestful\Controllers\Controller;
-use sa\sb\sc\xxx;
-
-class test extends Controller
-{
-    public function index()
-    {
-        $lib = new xxx();
-        $lib->index();
-    }
-}
-```
-
-<br><br>
-
 > ### **model**
 
 資料夾：models<br>
@@ -538,29 +429,10 @@ class test extends Controller
 < model 起手式 >
 
 ```php
-# 依據需求引入相對應的 model
+use Ntch\Pocoapoco\WebRestful\Models\Model;
 
-# Oracle
-use Ntch\Pocoapoco\WebRestful\Models\OracleModel;
-
-# Mysql
-use Ntch\Pocoapoco\WebRestful\Models\MysqlModel;
-
-# Mssql
-use Ntch\Pocoapoco\WebRestful\Models\MssqlModel;
-
-# Postgres
-use Ntch\Pocoapoco\WebRestful\Models\PostgresModel;
-
-
-class model_demo extends OracleModel # 依據使用的類型繼承
+class model_demo extends Model
 {
-
-    # modelType = server or table
-    public string $modelType = 'table';
-    # setting 給的匿名
-    public string $modelName = 'tb_name';
-
     public function schema()
     {
         $schema['COLUMN_NAME'] = [
@@ -654,6 +526,7 @@ class model_demo extends OracleModel # 依據使用的類型繼承
 ```ini
 [server_name]
 type      = server
+driver    = oracle|mysql|mssql|postgres
 ip        = xx.xx.xx.xx
 port      = 1521
 sid       = oracle
@@ -665,6 +538,7 @@ class     = class
 [tb_name]
 type    = table
 server  = server_name
+schema  = schema_name
 table   = tb
 path    = /path
 class   = class
@@ -675,7 +549,7 @@ class   = class
 $router->mvc('/uri',
     [
         'controller' => ['/path', 'class'],
-        'oracle' => ['server_name', 'tb_name']
+        'models' => ['nickname']
     ]);
 ```
 
@@ -689,47 +563,44 @@ class test extends Controller
 {
     public function index()
     {
-        # server 導入
-        $server_name = $this->model['oracle']->server['server_name']->tb_name;
-
-        # table 導入
-        $tb_name = $this->model['oracle']->table['tb_name'];
+        # model 導入
+        $model = $this->model['nickname'];
 
         # ORM 架構 
         # createTable 範例
-        $sql = $tb_name->createTable();
+        $sql = $model->createTable();
 
         # commentTable 範例
-        $sql = $tb_name->commentTable();
+        $sql = $model->commentTable();
 
         # select 範例
-        $data = $server_name->select(['a', 'b', 'SUM(c)' => 'c'])->
+        $data = $model->select(['a', 'b', 'SUM(c)' => 'c'])->
         where(['b' => 1])->groupby(['a', 'b'])->
         orderby(['a'])->query();
 
         # insert 範例
-        $data = $tb_name->insert()->values(['a' => 1])->query();
+        $data = $model->insert()->values(['a' => 1])->query();
 
         # update 範例
-        $data = $tb_name->update()->set(['a' => 1])->where(['b' => 2])->query();
+        $data = $model->update()->set(['a' => 1])->where(['b' => 2])->query();
 
         # delete 範例
-        $data = $tb_name->delete()->where(['a' => [1, '>']])->query();
+        $data = $model->delete()->where(['a' => [1, '>']])->query();
 
         # merge 範例 - 僅提供 Oracle 使用
-        $data = $tb_name->merge()->using('user', 'table')->on("a", "b")->
+        $data = $model->merge()->using('user', 'table')->on("a", "b")->
                     matched()->update()->set(['c' => 'c', 'd' => 'd'])->
                     not()->insert()->value()->query();
 
         # commit 範例
-        $tb_name->commit();
+        $model->commit();
 
         # rollback 範例
-        $tb_name->rollback();
+        $model->rollback();
 
         # 筆數限制 - 第 5 筆開始顯示 8 筆
         # Oracle 範例 - 若兩個方法皆要使用 offset() limit() 順序可顛倒
-        $data = $server_name->select()->offset(5)->limit(8)->query();
+        $data = $model->select()->offset(5)->limit(8)->query();
 
         # Mysql 範例 - 若兩個方法皆要使用 limit() offset() 順序可顛倒
         $data = $mysql->select()->limit(8)->offset(5)->query();
@@ -758,18 +629,12 @@ class test extends Controller
    - orderby($orderby)
    - groupby($groupby)
    - query()
-   - query_pass()  // 有不包含 schema 的值 - Postgres 不適用
+   - query_pass()  // 不檢查 model schema
    - commit()
    - rollback()
    - keyName($keyName) (指定 key 欄位)
-   - dataBind()
+   - dataBind()  // 將 array key 與 colname 相同的值合併至 model
 
- - Oracle 方法
-   - merge()
-   - using($userName, $tableName)
-   - on($target, $source)
-   - matched()
-   - not()
 
 | 參數       | 型態    | 說明  |
 | :----     | :----   | :---- |
@@ -788,10 +653,6 @@ class test extends Controller
 <br><br>
 
 > ### **log**
-
-資料夾：log<br>
-檔案：依據 setting 中的 log.ini 設定週期產生<br>
-
 < log 使用 >
 ```php
 # 依據 PSR-3 規則，給予層級
