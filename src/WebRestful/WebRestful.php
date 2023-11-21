@@ -84,6 +84,11 @@ class WebRestful
     protected string $absoluteFile;
 
     /**
+     * @var string
+     */
+    protected static string $uuid = '';
+
+    /**
      * Construct
      */
     public function __construct()
@@ -105,6 +110,18 @@ class WebRestful
         $body = new Body();
         $body->setBody();
         $this->body = $body->getBody();
+    }
+
+    /**
+     * Set Uuid.
+     *
+     * @return void
+     */
+    public function setUuid()
+    {
+        if (empty($uuid)) {
+            self::$uuid = self::uuid();
+        }
     }
 
     /**
@@ -162,6 +179,16 @@ class WebRestful
     protected function setAbsoluteFile(string $fileName, string $extension)
     {
         $this->absoluteFile = $this->absolutePath . $fileName . '.' . $extension;
+    }
+
+    /**
+     * Get UUID.
+     *
+     * @return string
+     */
+    public function getUuid(): string
+    {
+        return self::$uuid;
     }
 
     /**

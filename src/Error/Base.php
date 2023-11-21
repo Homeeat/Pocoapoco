@@ -18,8 +18,6 @@ use Ntch\Pocoapoco\Mail\Mail;
 
 class Base
 {
-    use \Ntch\Pocoapoco\Tools\Uuid;
-
     /**
      * @var array|null
      */
@@ -34,11 +32,6 @@ class Base
      * @var bool
      */
     private static bool $sendmail = true;
-
-    /**
-     * @var string
-     */
-    private static string $uuid = '';
 
     /**
      * Construct
@@ -85,15 +78,13 @@ class Base
      * @param string $message
      * @param int $errhttp
      * @param int $sendmail
-     * @param string $uuid
      *
      * @return void
      */
-    public static function triggerError(string $message, int $errhttp, int $sendmail, string $uuid = '')
+    public static function triggerError(string $message, int $errhttp, int $sendmail)
     {
         self::$errhttp = $errhttp;
         self::$sendmail = (boolean)$sendmail;
-        self::$uuid = $uuid;
         trigger_error($message);
     }
 
@@ -133,7 +124,8 @@ class Base
     public function setErrorHandler(int $no, string $message, string $file, int $line)
     {
         $level = $this->errorLevel($no);
-        $error_data = ['error' => "<pre><b>Code：</b>$no<br><b>Level：</b>$level<br><b>File：</b>$file<br><b>Line：</b>$line<br><b>Message：</b>$message<br>"];
+        $router = new Router();
+        $error_data = ['error' => "<pre><b>Uuid：</b>{$router->getUuid()}<br><b>Code：</b>$no<br><b>Level：</b>$level<br><b>File：</b>$file<br><b>Line：</b>$line<br><b>Message：</b>$message<br>"];
 
         if ((boolean)self::$error['MAIN']['debug']) {
 
@@ -144,7 +136,6 @@ class Base
             exit();
 
         } else {
-            $router = new Router();
             LogBase::log($level, $message, debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 8), 'pocoapoco');
 
             // MAIL
@@ -172,7 +163,7 @@ class Base
                 $mail_logo = __DIR__ . '/../Image/Pocoapoco_black.png';
 
                 $mail->from($from)->to($to)->
-                header(['POCOAPOCO' => self::$uuid])->
+                header(['POCOAPOCO' => $router->getUuid()])->
                 subject('【 ERROR MESSAGE 】')->
                 content('local', 'html', $mail_view, $error_data)->
                 image($mail_logo, 'Pocoapoco_black', 'Pocoapoco_black.png')->

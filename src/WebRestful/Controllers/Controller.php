@@ -128,7 +128,7 @@ class Controller
      */
     public function triggerError(string $message, int $errhttp, int $sendmail)
     {
-        ErrorBase::triggerError($message, $errhttp, $sendmail, $this->request->uuid);
+        ErrorBase::triggerError($message, $errhttp, $sendmail);
     }
 
     /**

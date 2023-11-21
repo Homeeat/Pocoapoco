@@ -39,7 +39,7 @@ class Base extends WebRestful
      */
     private function publicExecute()
     {
-        new Show($this->absoluteFile);
+        new Show($this->absoluteFile, self::$uuid);
         exit();
     }
 

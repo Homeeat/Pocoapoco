@@ -34,6 +34,11 @@ class Router
     protected static array $mixModelList = [];
 
     /**
+     * @var string
+     */
+    protected static string $uuid = '';
+
+    /**
      * Router to mix.
      *
      * @param string $uri
@@ -45,6 +50,7 @@ class Router
     public function mix(string $uri, array $mix)
     {
         $webRestful = new WebRestful();
+        self::$uuid = $webRestful->getUuid();
         $webRestful->withUriMatch($uri);
         $uriExist = $webRestful->checkUriMatch();
 
@@ -73,6 +79,16 @@ class Router
     }
 
     /**
+     * Get UUID.
+     *
+     * @return string
+     */
+    public function getUuid(): string
+    {
+        return self::$uuid;
+    }
+
+    /**
      * Router to controller.
      *
      * @param string $uri
@@ -85,7 +101,7 @@ class Router
     public function controller(string $uri, string $path, string $class, string $method = 'index')
     {
         $controllerBase = new ControllerBase();
-        $controllerBase->controllerBase($uri, $path, $class, $method, self::uuid());
+        $controllerBase->controllerBase($uri, $path, $class, $method);
     }
 
     /**

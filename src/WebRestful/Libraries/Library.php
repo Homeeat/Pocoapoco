@@ -18,7 +18,6 @@ use Ntch\Pocoapoco\Log\Base as LogBase;
 use Ntch\Pocoapoco\Mail\Base as MailBase;
 use Ntch\Pocoapoco\Mail\Mail;
 use Ntch\Pocoapoco\Project\Base as ProjectBase;
-use Ntch\Pocoapoco\WebRestful\Controllers\Base as ControllerBase;
 use Ntch\Pocoapoco\WebRestful\Models\Base as ModelBase;
 use Ntch\Pocoapoco\WebRestful\Settings\Base as SettingsBase;
 use Ntch\Pocoapoco\WebRestful\Libraries\Base as LibrariesBase;
@@ -35,7 +34,6 @@ class Library
     public function __construct()
     {
         // config
-        $controllerBase = new ControllerBase();
         $settingsBase = new SettingsBase();
         $logBase = new LogBase();
         $librariesBase = new LibrariesBase();
@@ -46,7 +44,7 @@ class Library
         // controller
         $request = new \stdClass();
 
-        $request->uuid = $controllerBase->getUuid();
+        $request->uuid = $librariesBase->getUuid();
 
         $this->request = $request;
 
@@ -111,7 +109,7 @@ class Library
      */
     public function triggerError(string $message, int $errhttp, int $sendmail)
     {
-        ErrorBase::triggerError($message, $errhttp, $sendmail, $this->request->uuid);
+        ErrorBase::triggerError($message, $errhttp, $sendmail);
     }
 
     /**

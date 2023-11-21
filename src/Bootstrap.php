@@ -3,9 +3,14 @@
 use Ntch\Pocoapoco\Error\Base as ErrorBase;
 use Ntch\Pocoapoco\Log\Base as LogBase;
 use Ntch\Pocoapoco\WebRestful\Routing\Base as RoutingBase;
+use Ntch\Pocoapoco\WebRestful\WebRestful;
 
 // Psr-4
 require __DIR__ . '/../../../autoload.php';
+
+// WebRestful
+$webRestful = new WebRestful();
+$webRestful->setUuid();
 
 // Error
 new ErrorBase();

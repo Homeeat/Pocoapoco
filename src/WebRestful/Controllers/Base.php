@@ -16,12 +16,6 @@ use Ntch\Pocoapoco\WebRestful\WebRestful;
 
 class Base extends WebRestful
 {
-
-    /**
-     * @var string
-     */
-    protected static string $uuid = '';
-
     /**
      * Controller entry point.
      *
@@ -29,13 +23,11 @@ class Base extends WebRestful
      * @param string $path
      * @param string $class
      * @param string $method
-     * @param string $uuid
      *
      * @return void
      */
-    public function controllerBase(string $uri, string $path, string $class, string $method, string $uuid)
+    public function controllerBase(string $uri, string $path, string $class, string $method)
     {
-        self::$uuid = $uuid;
         $createClass = $this->webRestfulCheckList('controller', $uri, $path, $class, $method);
         is_null($createClass) ? null : $this->controllerExecute($createClass, $method);
     }

@@ -115,8 +115,10 @@ class Logger implements LoggerInterface
     public function write(mixed $level, \Stringable|string $message, array $context)
     {
         $dateTime = date('Y-m-d H:i:s');
+        $uuid = $context['uuid'];
+        unset($context['uuid']);
         $context_json = $this->arrayToJson($context);
-        $log = "[$dateTime] $level - $message\n$context_json\n";
+        $log = "[$dateTime][$uuid] $level - $message\n$context_json\n";
 
         file_put_contents($this->log['fileName'], $log, FILE_APPEND);
     }

@@ -51,7 +51,7 @@ class Base extends WebRestful
     {
         if(!empty($log)){
             $setting = new SettingsBase();
-            self::$log[$type] = $setting->getSettingData('log')[$log];
+            self::$log[$type] = $setting->getSettingData('logs')[$log];
         }else{
             self::$log[$type] = [
                 'folder' => $this->basePath . DIRECTORY_SEPARATOR . 'pocoapoco',
@@ -160,6 +160,7 @@ class Base extends WebRestful
             return;
         }
         $logger = new Logger(self::$log[$type]);
+        $context['uuid'] = self::$uuid;
 
         switch (strtoupper($level)) {
             case 'EMERGENCY':
