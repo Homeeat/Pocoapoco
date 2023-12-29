@@ -123,7 +123,6 @@ class Message implements MessageInterface
 
         if($isName && $isValue) {
             $name = strtolower(trim($name));
-            $value = strtolower(trim($value));
             $this->headers[$name] = $value;
         } elseif (!$isName){
             die('【ERROR】Header name 【' . $name . '】must be an RFC 7230 compatible string.');
@@ -144,7 +143,6 @@ class Message implements MessageInterface
 
         if($isName && $isValue) {
             $name = strtolower(trim($name));
-            $value = strtolower(trim($value));
             if( isset($this->headers[$name]) ) {
                 $this->headers[$name] = array_merge($this->headers[$name], $value);
             } else {

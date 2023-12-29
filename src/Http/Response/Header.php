@@ -29,7 +29,6 @@ class Header
         $isValue = $this->normalizationHeaderValue($value);
         if($isName && $isValue) {
             $name = strtolower(trim($name));
-            $value = strtolower(trim($value));
             header('\'' . $name . '\':\'' . $value . '\'');
         } elseif (!$isName){
             die('【ERROR】Header name 【' . $name . '】must be an RFC 7230 compatible string.');
