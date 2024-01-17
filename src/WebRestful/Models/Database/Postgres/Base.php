@@ -187,13 +187,13 @@ class Base extends ModelBase implements BaseInterface
                 case 'UPDATE':
                 case 'DELETE':
                 case 'MERGE':
+                    @pg_query($conn, 'BEGIN');
                     if (!is_null($sqlData)) {
                         $result = pg_query_params($conn, $sqlCommand, $sqlData_bind);
                         foreach ($sqlData_bind as $data_flag => $value) {
                             $sqlCommand = str_replace("$$data_flag", "'$value'", $sqlCommand);
                         }
                     } else {
-                        @pg_query($conn, 'BEGIN');
                         $result = @pg_query($conn, $sqlCommand);
                     }
                     if(!$result){

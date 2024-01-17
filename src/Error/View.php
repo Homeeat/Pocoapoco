@@ -21,7 +21,7 @@
     </tr>
     <tr>
         <th style="text-align: left;">
-            <?php echo $this->data['error']; ?>
+            <?php echo $this->data['error']; debug_print_backtrace();?>
         </th>
     </tr>
     </thead>
